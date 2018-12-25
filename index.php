@@ -5,7 +5,7 @@
     $error2 = '<br>';
 
     //for creating account
-    if( isset($_POST['register']) ) {
+    if(isset($_POST['register']) ) {
 
         $first_name = ($_POST['first_name']);
         $last_name = ($_POST['last_name']);
@@ -28,7 +28,7 @@
 
 
         //teacher registration
-        if ($type != 0){
+        if ($type == 1){
             $checkUserQuery_teacher = "SELECT username from teacher  WHERE username = '$username'";
             $dupUserRes_teacher = mysqli_query($dbconn,$checkUserQuery_teacher);
             $affected_rows_teacher = mysqli_num_rows($dupUserRes_teacher);
@@ -45,7 +45,7 @@
         }
 
         //student_registration
-        if ($type != 1){
+        if ($type == 0){
             $checkUserQuery_student = "SELECT username from student  WHERE username = '$username'";
             $dupUserRes_student = mysqli_query($dbconn,$checkUserQuery_student);
             $affected_rows_student = mysqli_num_rows($dupUserRes_student);
@@ -66,59 +66,39 @@
     //for teacher login
 
     if(isset($_POST['login'])){
-            $username_log = $_POST['username_log'];    
-            $password_log = $_POST['password_log']; 
+        $username_log = $_POST['username_log'];    
+        $password_log = $_POST['password_log']; 
 
-            if(empty($username_log )){
-                $error = 'Please enter your username!!!.';
-            }
-            if(empty($password_log)){
-                $error = 'Please enter your password!!!.';
-            }
-            if((empty($username_log )) && (empty($password_log))){
-                $error = 'Please enter your username and password.';
-            }
-            else{
-                $lquery = "SELECT * FROM teacher WHERE username = '$username_log' and password = sha1($password_log)";
-                $lresult = mysqli_query($dbconn, $lquery);
-                $row = mysqli_num_rows($lresult);
-                if($row == 1){                  
-                        $_SESSION['username'] = $username_log;
-                        header("Location:hello.php");
-                }
-                else{
-                    $error = 'Account not found!';
-                }
-            }
+        if(empty($username_log )){
+            $error = 'Please enter your username!!!.';
         }
-
-    if(isset($_POST['login2'])){
-            $username_log2 = $_POST['username_log2'];    
-            $password_log2 = $_POST['password_log2']; 
-
-            if(empty($username_log2 )){
-                $error = 'Please enter your username!!!.';
-            }
-            if(empty($password_log2)){
-                $error = 'Please enter your password!!!.';
-            }
-            if((empty($username_log2 )) && (empty($password_log2))){
-                $error = 'Please enter your username and password.';
-            }
-            else{
-                $lquery = "SELECT * FROM student WHERE username = '$username_log2' and password = sha1($password_log2)";
-                $lresult = mysqli_query($dbconn, $lquery);
-                $row = mysqli_num_rows($lresult);
-                if($row == 1){                  
-                        $_SESSION['username'] = $username_log2;
-                        header("Location:hello.php");
-
-                }
-                else{
-                    $error = 'Account not found!';
-                }
-            }
+    
+        if(empty($password_log)){
+            $error = 'Please enter your password!!!.';
         }
+    
+        if((empty($username_log )) && (empty($password_log))){
+            $error = 'Please enter your username and password.';
+        } else {
+            $student_query = $dbconn->prepare("SELECT * FROM student WHERE username = '$username_log' and password = $password_log");
+            $student_query->execute();
+            $user = $student_query->fetchAll();
+
+            if(count($user) == 1) {                  
+                header("Location:student_home.php");
+            } else {
+                $teacher_query = $dbconn->prepare("SELECT * FROM teacher WHERE username = '$username_log' and password = $password_log");
+                $teacher_query->execute();
+                $user = $teacher_query->fetchAll();
+
+                if(count($user) == 1) {                  
+                header("Location:teacher_home.php");
+                }
+            }
+            
+            $error = 'NO ACCOUNT FOUND.';
+        }
+    }
 ?>
 
 
@@ -286,19 +266,19 @@
                 <div class="col-12 col-lg-4">
                     <div class="course-sidebar">
                         <div class="sidebar-widget">
-                            <h4>Teacher's Login</h4>
+                            <h4>Login</h4>
                             <h7 class="text-danger">
                                 <?php echo $error;?>
                             </h7>
                             <form method="post">
                                 <div class="col-12 col-lg-12">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" id="teacher_username" placeholder="username" name="username_log">
+                                        <input type="text" class="form-control" id="username_log" placeholder="username" name="username_log">
                                     </div>
                                 </div>
                                 <div class="col-12 col-lg-12">
                                     <div class="form-group">
-                                        <input type="password" class="form-control" id="teacher_password" placeholder="password" name="password_log">
+                                        <input type="password" class="form-control" id="password_log" placeholder="password" name="password_log">
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -306,24 +286,6 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="sidebar-widget">
-                            <h4>Student's Login</h4>
-                            <form action="student_home.php" method="post">
-                                <div class="col-12 col-lg-12">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" id="teacher_username" placeholder="username">
-                                    </div>
-                                </div>
-                                <div class="col-12 col-lg-12">
-                                    <div class="form-group">
-                                        <input type="password" class="form-control" id="teacher_password" placeholder="password">
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <button class="btn clever-btn w-100">Log In</button>
-                                </div>
-                            </form>
-                        </div>   
                     </div>
                 </div>
             </div>

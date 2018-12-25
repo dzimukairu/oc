@@ -23,7 +23,7 @@ window.onload = function () {
     email.onkeyup = checkEmail;
     pwd.onkeyup = checkPwd;
     retype_pwd.onkeyup = verifyPwd;
-    // username = checkUsername;
+    username.onkeyup = checkUsername;
     first_name.onkeyup = checkFName;
     last_name.onkeyup = checkLName;
 }
@@ -82,9 +82,28 @@ function checkLName() {
     }
 }
 
-// function checkUsername() {
+function checkUsername() {
+    var uname = document.getElementById("username").value;
 
-// }
+    if (uname == null || uname == "") {
+        return false;
+    }
+    else {
+        var pattern = /^[a-zA-Z0-9]{6,}$/igm;
+        var match = pattern.test(uname);
+        console.log(match);
+        if (match) {
+            usernameMsg.style.visibility = "visible";
+            usernameMsg.style.color = "green";
+            usernameMsg.innerHTML = "Username is Valid!";
+        } else {
+            usernameMsg.style.color = "red"
+            usernameMsg.style.visibility = "visible";
+            usernameMsg.innerHTML = "Username must be 6 in length with no special characters.";
+        }  
+        return false;
+    }
+}
 
 function checkEmail() {
     var email = document.getElementById("email").value;

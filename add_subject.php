@@ -1,30 +1,34 @@
 <?php
-include('db_connection.php');
+    include('db_connection.php');
 
-$error = "<br>";
+    $error = "<br>";
 
- if( isset($_POST['add_subject']) ) {
-    $subject_title= ($_POST['subject_title']);
-    $subject_description= ($_POST['subject_description']);
-    $subject_about= ($_POST['subject_about']);
-    $teacher_id = "1";
+    if(isset($_POST['add_subject']) ) {
+        $subject_title= ($_POST['subject_title']);
+        $subject_code = ($_POST['subject_code']);
+        $subject_description= ($_POST['subject_description']);
+        $subject_about= ($_POST['subject_about']);
+        $teacher_id = "1";
 
-    
-    if (empty($subject_title)|empty($subject_description)|empty($subject_about)) {
-            $error= 'Please fillup all the fields below';
+        
+        if (empty($subject_title)|empty($subject_description)|empty($subject_about)) {
+            $error= 'Please fillup all the fields below.';
+        }
+        elseif(empty($subject_code)) {
+            $error= 'Please generate the code.';
         }
 
-    else{
-        $add_subject_query = "INSERT into subject(course_title, course_description, course_about, teacher_id) VALUES('$subject_title','$subject_description', '$subject_about', '$teacher_id')";
-        if ($result = mysqli_query($dbconn, $add_subject_query)) {
-             header("Location: teacher_course.php");
+        else{
+            $query = $dbconn->query("INSERT into subject(subject_code, course_title, course_description, course_about, teacher_id) VALUES('$subject_code','$subject_title','$subject_description', '$subject_about', 1)");
+            
+            if($query) {
+                $last_id = $dbconn->insert_id;
+                header("Location: teacher_course.php?subject_id=".$last_id);
+            }
         }
+
     }
-
-}
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -123,12 +127,20 @@ $error = "<br>";
             </div>
             <div class="page-content">
                 <h7 class="text text-danger"><?php echo $error;?></h7>
-               <form method="POST">
-                   <div class="input-group mb-3">
+                <form method="POST">
+                    <div class="input-group mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="basic-addon1">Subject Title</span>
                         </div>
                         <input type="text" name="subject_title" class="form-control" placeholder="E.g CMSC 56" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Subject Code</span>
+                        </div>
+                        <input type="text" name="subject_code" id="subject_code" class="form-control" placeholder="Press the Button" aria-label="subject_code" aria-describedby="basic-addon1" readonly="readonly">
+                        <input type="button" class="btn btn-default" value="Generate Code" id="genCode" name="genCode"/>
                     </div>
 
                     <div class="input-group mb-3">
@@ -183,6 +195,9 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     <script src="js/plugins/plugins.js"></script>
     <!-- Active js -->
     <script src="js/active.js"></script>
+
+    <script src="js/code.js"></script>
 </body>
 
 </html>
+

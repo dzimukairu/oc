@@ -101,7 +101,7 @@
             <div class="row">
 
                 <?php 
-                    $subject_list_query= "SELECT subject_id, course_title, course_description FROM `subject` WHERE teacher_id = 1";
+                    $subject_list_query= "SELECT * FROM `subject` WHERE teacher_id = 1";
                     $connect_to_db = mysqli_query($dbconn,$subject_list_query);
                     $affected = mysqli_num_rows($connect_to_db);
                             
@@ -113,16 +113,19 @@
                                        <img src="img/bg-img/c1.jpg" alt="">
                                     <!-- Course Content -->
                                         <div class="course-content">
-                                            <?php echo "<a href='teacher_course.php?subject_id=".$row[0]."'><h4>$row[1]</h4></a>"; ?>
+                                            <?php echo "<a href='teacher_course.php?subject_id=".$row[0]."'><h4>$row[2]</h4></a>"; ?>
                                             <div class="meta d-flex align-items-center">
-                                                <h7><b><?php echo $row[2]?></b></h7>
+                                                <h7><b><?php echo $row[3]?></b></h7>
                                             </div>
                                         </div> 
                                     </form>
                                 </div>
                             </div>
                         <?php } ?>
-                    <?php } ?>
+                    <?php } else {
+                        echo "<h4>No subjects found.</h4>";
+
+                    }?>
             </div>
         </div>
     </section>

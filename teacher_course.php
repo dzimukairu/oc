@@ -4,11 +4,13 @@ include("db_connection.php");
 
  
 $error = "<br>";
+
+$id = $_GET['subject_id'];
 if(isset($_POST['update_about'])){
     $new_about = ($_POST['new_about']);
-    $update_query = "UPDATE subject SET course_about = '$new_about' WHERE subject_id = '1'";
+    $update_query = "UPDATE subject SET course_about = '$new_about' WHERE subject_id = '$id'";
     if ($update_connect = mysqli_query($dbconn, $update_query)) {
-        header("Location: teacher_course.php");
+        header("Location: teacher_course.php?subject_id=".$id);
     }
 
 }
@@ -127,7 +129,7 @@ if (isset($_POST['add_announcement'])) {
                     <!-- Hero Content -->
                     <div class="hero-content text-center">
                         <?php
-                            $course_query = "SELECT course_title, course_description, course_about from subject WHERE subject_id = '1' ";
+                            $course_query = "SELECT course_title, course_description, course_about from subject WHERE subject_id = 1 ";
                             $query_connect = mysqli_query($dbconn, $course_query);
                             $row = mysqli_fetch_assoc($query_connect);
                                 
@@ -290,6 +292,17 @@ if (isset($_POST['add_announcement'])) {
                     <div class="course-sidebar">
                         <!-- Class Record -->
                         <a href="classrecord.php" class="btn clever-btn mb-30 w-100">Class Record</a>
+
+                        <?php
+                            $id = $_GET['subject_id'];
+                            $sql = "SELECT subject_code from subject where subject_id = $id";
+
+                            $result = mysqli_query($dbconn, $sql);
+                            $row = mysqli_fetch_array($result);
+
+                            echo "<h4>Subject Code:</h4>";
+                            echo "<h5>".$row['subject_code']."</h4>";
+                        ?>
 
                         <!-- Widget -->
                         <div class="sidebar-widget">
