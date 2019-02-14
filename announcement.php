@@ -3,27 +3,18 @@
 
     $error = "<br>";
 
-    $id = $_GET['subject_id'];
+    $id = $_GET['announcement_id'];
 
-    if(isset($_POST['add_announcement'])) {
-        $id = $_GET['subject_id'];
-        $announcement_title = $_POST['announcement_title'];
-        $announcement_content = $_POST['announcement_content'];
+                    echo $id;
 
-        // $add_announcement_query = "INSERT into subject_announcement(subject_id, announcement_number, announcement_title, announcement_date, announcement_content) VALUES('1','$announcement_number', '$announcement_title', '$date_made', '$announcement_content')";
+    if(isset($_POST['update_announcement'])){
+        $new_title = ($_POST['new_title']);
+        $new_content = ($_POST['new_content']);
 
-        $query = $dbconn->query("INSERT into announcement(subject_id, date_posted, title, content) VALUES('$id', NOW(), '$announcement_title', '$announcement_content')");
-    
-        if ($query) {
-            header("Location: teacher_course.php?subject_id=".$id);
+        $update_query = "UPDATE announcement SET title = '$new_title', content = '$new_content' WHERE announcement_id = '$id'";
+        if ($update_connect = mysqli_query($dbconn, $update_query)) {
+            header("Location: announcement.php?announcement_id=".$id);
         }
-
-
-        // if($add_announcement_connect = new mysqli($dbconn, $add_announcement_query)) {
-        //    header("Location: teacher_course.php");
-        // } else {
-        //     echo("error");
-        // }
     }
 ?>
 
@@ -136,16 +127,22 @@
                     <!-- Hero Content -->
                     <div class="hero-content text-center">
                         <?php
-                            $id = $_GET['subject_id'];
-                            $sql = "SELECT subject_code, course_title, course_description, course_about from subject where subject_id = $id";
+                            $id = $_GET['announcement_id'];
+                            
+                            $sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, announcement.title, announcement.content, announcement.date_posted  from subject INNER JOIN announcement on (announcement.announcement_id = $id and subject.subject_id = announcement.subject_id)";
 
                             $result = mysqli_query($dbconn, $sql);
                             $row = mysqli_fetch_array($result);
                             
+                            $subject_id = $row['subject_id'];
                             $subject_code = $row['subject_code']; 
                             $course_title = $row['course_title'];
                             $course_description = $row['course_description'];
                             $course_about = $row['course_about'];
+
+                            $announcement_title = $row['title'];
+                            $announcement_content = $row['content'];
+                            $date_posted = $row['date_posted'];
                        
                         ?>
                         <h2><?php echo $course_description;?></h2>
@@ -160,52 +157,72 @@
     <div class="student-quiz-content section-padding-100">
         <div class="container">
             <div class="row">
-                <div class="col-12 col-lg-12">
-                    <div class="section-heading">
-                        <h3>Create New Announcement</h3>
-                    </div>        
-               </div>
-            </div>
-            <div class="row">
                 <div class="col-12 col-lg-12 border rounded">
                     <div style="padding: 20px 12px 50px 12px;">
-                        <!-- <?php 
-                            $id = $_GET['subject_id'];
-                        ?> -->
-                        <form method="post" action="teacher_announcement.php?subject_id=<?php echo $id?>">
-                            <input type="hidden" id="announcement_number" name="announcement_number" />
-                            <input type="hidden" id="date_made" name="date_made" />
-                            <div class="offset-md-2 col-md-8 input-group">
-                                <div class="input-group-prepend">
-                                    <div class="input-group-text">Title:</div>
-                                </div>
-                                <!-- <input data-autoresize type="text" class="form-control expand_this" id="announcement_title" name="announcement_title"> -->
-                                <textarea data-autoresize rows="1" class="form-control expand_this" id="announcement_title" name="announcement_title"></textarea>
-                            </div>
-                            <br>
+                    <?php echo $id; ?>
+                        <h5><?php echo $announcement_title;?></h5>
+                        <br>
+                        <h6><?php echo $announcement_content;?></h6>
+                        <br>
+                        <p><?php 
+                            $xdate = new DateTime($date_posted);
+                            // $x = DateTime::createFromFromat('M d, Y', $xdate);
+                            $y = date_format($xdate, 'M d, Y - h:i A');
+                            echo $y;
+                        ?></p>
+                                            
 
-                            <div class="offset-md-1 col-md-10 input-group">
-                                <div class="input-group row">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Content:</span>
-                                    </div>
-                                    <textarea data-autoresize rows="2" class="form-control expand_this" id="announcement_content" name="announcement_content"></textarea>
-                                </div>
-                            </div>
+                        <button class="btn btn-info" data-toggle="modal" data-target="#update-announcement-modal">Update</button>
 
-                            <input type="submit" class="btn btn-success pull-right" name="add_announcement" value="SUBMIT"/>
-                        </form>
                     </div>
                 </div>
 
                 <div style="margin-top:12px;">
                     <?php 
-                        echo "<a href=teacher_course.php?subject_id=",urlencode($id)," class='btn clever-btn'>Back</a>";
+                        echo "<a href=teacher_course.php?subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
                     ?>
                 </div>
             </div>
         </div>
     </div>
+
+
+    <!-- Update Announcement Modal -->
+    <div id="update-announcement-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="max-width: 80% !important;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title pull-left">Update Announcement</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="announcement.php?announcement_id=<?php echo $id?>">
+                        <div class="offset-md-2 col-md-8 input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">Title:</div>
+                            </div>
+                                <!-- <input data-autoresize type="text" class="form-control expand_this" id="announcement_title" name="announcement_title"> -->
+                            <textarea class="form-control" id="new_title" name="new_title"><?php echo $announcement_title ?></textarea>
+                        </div>
+                        <br>
+                        <div class="offset-md-1 col-md-10 input-group">
+                            <div class="input-group row">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Content:</span>
+                                </div>
+                                <textarea class="form-control" id="new_content" name="new_content"><?php echo $announcement_content?></textarea>
+                            </div>
+                        </div>
+                        <br/>  
+                        <div class="pull-right">
+                            <button  class="btn btn-primary" name="update_announcement">Update</button>
+                            <button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- ##### Footer Area Start ##### -->
     <footer class="footer-area">

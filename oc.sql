@@ -14,8 +14,6 @@ create table teacher(
 create table teaches(
 	teacher_id int(100) not null,
 	student_id int(100) not null
-	-- foreign key(teacher_id) references teacher(teacher_id),
-	-- foreign key(student_id) references student(student_id)
 );
 
 create table student(
@@ -63,6 +61,17 @@ create table learning_materials(
 	title varchar(100) not null,
 	date_posted timestamp not null,
 	file blob not null,
+	foreign key(subject_id) references subject(subject_id)
+);
+
+create table announcement(
+	announcement_id int(100) not null auto_increment,
+	-- announcement_number int(100) not null,
+	subject_id int(100) not null,
+	date_posted date not null,
+	title varchar(100) not null,
+	content varchar(1000) not null,
+	primary key(announcement_id),
 	foreign key(subject_id) references subject(subject_id)
 );
 
@@ -142,17 +151,6 @@ create table multipleanswer_answers(
 	answer varchar(1000) not null,
 	foreign key(multipleanswer_id) references multipleanswer_quiz(multipleanswer_id),
 	foreign key(quiz_id) references quiz(quiz_id)
-);
-
-create table subject_announcement(
-	announcement_id int(100) not null auto_increment,
-	announcement_number int(100) not null,
-	subject_id int(100) not null,
-	date_posted date not null,
-	title varchar(100) not null,
-	content varchar(1000) not null,
-	primary key(announcement_id),
-	foreign key(subject_id) references subject(subject_id)
 );
 
 create table subject_assignment(

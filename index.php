@@ -80,18 +80,14 @@
         if((empty($username_log )) && (empty($password_log))){
             $error = 'Please enter your username and password.';
         } else {
-            $student_query = $dbconn->prepare("SELECT * FROM student WHERE username = '$username_log' and password = $password_log");
-            $student_query->execute();
-            $user = $student_query->fetchAll();
-
-            if(count($user) == 1) {                  
+            $student_query = $dbconn->query("SELECT * FROM student WHERE username = '$username_log' and password = $password_log");
+           
+           if($student_query) {                  
                 header("Location:student_home.php");
             } else {
-                $teacher_query = $dbconn->prepare("SELECT * FROM teacher WHERE username = '$username_log' and password = $password_log");
-                $teacher_query->execute();
-                $user = $teacher_query->fetchAll();
-
-                if(count($user) == 1) {                  
+                $teacher_query = $dbconn->query("SELECT * FROM teacher WHERE username = '$username_log' and password = $password_log");
+                
+                if($teacher_query) {                  
                 header("Location:teacher_home.php");
                 }
             }

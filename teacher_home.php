@@ -94,7 +94,7 @@
     
     <section>
         <div class="container">
-            <a class="btn btn-primary" href="add_subject.php">Create Subject</a>
+            <a class="btn btn-primary clever-btn" href="add_subject.php">Create Subject</a>
             <div class="free-space">
                 <br/>
             </div>

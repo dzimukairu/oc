@@ -1,0 +1,112 @@
+✔
+✖
+
+add_subject.php
+	somehow tapos na du kulang lang is ang responsive na teacher. 
+		need tapuson du login sa index.php
+
+announcement.php
+	JS
+		-done-
+	Comments Section
+		- to be made
+
+classrecord.php
+	wala pa na responsive du edit classrecord.
+
+db_connection.php
+	no errors found.
+
+index.php
+	errors:
+		login
+		url (if id or username)
+
+oc.sql
+	fixed the database
+
+	question:
+		'teaches' table:
+			student_id gdman indi subject_id?
+
+student_assignment.php
+	wala pa nacheck
+
+student_course.php
+	wala pa nacheck
+
+student_home.php
+	wala pa nacheck
+
+teacher_announcement.php
+	-done-
+
+teacher_assignment.php
+	wala pa nacheck
+
+teacher_course.php
+	naadd na ang subject_code
+	responsive naman depending on teacher_id
+
+	assignment
+		Create
+
+		Preview
+
+		Open
+
+		Update
+
+		Delete
+
+	announcement
+		Create
+			JS (done)
+			must print error (not done)
+		Preview
+			-done-
+		Open
+			--> announcement.php
+		Update
+			JS (done)
+			modal (done)
+		Delete
+
+	quiz
+		Create
+		
+		Preview
+
+		Open
+
+		Update
+
+		Delete
+
+	student
+		Create
+		
+		Preview
+
+		Open
+
+		Update
+
+		Delete
+
+	chat
+		Create
+		
+		Preview
+
+		Open
+
+		Update
+
+		Delete
+
+teacher_home.php
+	somehow done
+
+teacher_quiz.php
+	wala pa nacheck

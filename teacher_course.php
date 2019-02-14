@@ -1,28 +1,16 @@
 <?php
-include("db_connection.php");
+    include("db_connection.php");
 
+    $error = "<br>";
 
- 
-$error = "<br>";
-
-$id = $_GET['subject_id'];
-if(isset($_POST['update_about'])){
-    $new_about = ($_POST['new_about']);
-    $update_query = "UPDATE subject SET course_about = '$new_about' WHERE subject_id = '$id'";
-    if ($update_connect = mysqli_query($dbconn, $update_query)) {
-        header("Location: teacher_course.php?subject_id=".$id);
+    $id = $_GET['subject_id'];
+    if(isset($_POST['update_about'])){
+        $new_about = ($_POST['new_about']);
+        $update_query = "UPDATE subject SET course_about = '$new_about' WHERE subject_id = '$id'";
+        if ($update_connect = mysqli_query($dbconn, $update_query)) {
+            header("Location: teacher_course.php?subject_id=".$id);
+        }
     }
-
-}
-
-if (isset($_POST['add_announcement'])) {
-    $announcement_number = ($_POST['announcement_number']);
-    $announcement_title = ($_POST['announcement_title']);
-    $announcement_content = ($_POST['announcement_content']);
-
-    $add_query = "INSERT INTO subject_announcement(subject_id, announcement_number, title, date, content) VALUES('1', '1','$announcement_title', CURDATE(), '$announcement_content')";
-}
-
 
 ?>
 
@@ -129,10 +117,13 @@ if (isset($_POST['add_announcement'])) {
                     <!-- Hero Content -->
                     <div class="hero-content text-center">
                         <?php
-                            $course_query = "SELECT course_title, course_description, course_about from subject WHERE subject_id = 1 ";
-                            $query_connect = mysqli_query($dbconn, $course_query);
-                            $row = mysqli_fetch_assoc($query_connect);
-                                
+                            $id = $_GET['subject_id'];
+                            $sql = "SELECT subject_code, course_title, course_description, course_about from subject where subject_id = $id";
+
+                            $result = mysqli_query($dbconn, $sql);
+                            $row = mysqli_fetch_array($result);
+                            
+                            $subject_code = $row['subject_code']; 
                             $course_title = $row['course_title'];
                             $course_description = $row['course_description'];
                             $course_about = $row['course_about'];
@@ -216,14 +207,42 @@ if (isset($_POST['add_announcement'])) {
                                     <div class="clever-curriculum">
                                         <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-announcement-modal">Add Announcement</button> -->
 
-                                        <a href="teacher_announcement.php" class="btn clever-btn mb-30">Add Announcement</a>
+                                        <?php 
+                                            echo "<a href=teacher_announcement.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'>Add Announcement</a>";
+                                      
+                                            $subject_announcement_query= "SELECT * FROM `announcement` WHERE subject_id = $id order by date_posted desc";
+                                            $connect_to_db = mysqli_query($dbconn,$subject_announcement_query);
+                                            $affected = mysqli_num_rows($connect_to_db);
+                                                                                                    
+                                            if ($affected != 0) {
+                                                while ($row = mysqli_fetch_row($connect_to_db)) {
 
-                                        <div class="about-curriculum mb-30">
-                                            <button class="btn btn-info">Edit</button><button class="btn btn-danger">Delete</button>
-                                            <h6>Announcement Title</h6>
-                                            <p>Sed elementum lacus a risus luctus suscipit. Aenean sollicitudin sapien neque, in fermentum lorem dignissim a. Nullam eu mattis quam. Donec porttitor nunc a diam molestie blandit. Maecenas quis ultrices ex. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam eget vehicula lorem, vitae porta nisi. Ut vel quam erat. Ut vitae erat tincidunt, tristique mi ac, pharetra dolor. In et suscipit ex. Pellentesque aliquet velit tortor, eget placerat mi scelerisque a. Aliquam eu dui efficitur purus posuere viverra. Proin ut elit mollis, euismod diam et, fermentum enim.</p>
-                                            
-                                        </div>
+                                                $a_id = $row[0];
+                                                echo "<a href=announcement.php?announcement_id=",urlencode($a_id),">";
+                                                    
+                                        ?>
+                                                        <div class="about-curriculum mb-30">
+                                                            <?php 
+                                                                echo "<h6>".$row[3]."</h6>";
+                                                                echo "<p>".$row[4]."</p>";
+
+                                                                $xdate = new DateTime($row[2]);
+                                                                // $x = DateTime::createFromFromat('M d, Y', $xdate);
+                                                                $y = date_format($xdate, 'M d, Y - h:i A');
+                                                                echo "<br>";
+                                                                echo $y;
+
+                                                                echo "<br>";
+                                                                echo "<br>";
+                                                                echo "<br>";
+                                                                $a_id = $row[0];
+                                                                
+                                                            ?>
+                                                        </div>
+                                                <?php } ?>
+                                            <?php } else {
+                                                echo "<h4>No announcements found.</h4>";
+                                            }?>
                                     </div>
                                     
                                 </div>
@@ -294,14 +313,8 @@ if (isset($_POST['add_announcement'])) {
                         <a href="classrecord.php" class="btn clever-btn mb-30 w-100">Class Record</a>
 
                         <?php
-                            $id = $_GET['subject_id'];
-                            $sql = "SELECT subject_code from subject where subject_id = $id";
-
-                            $result = mysqli_query($dbconn, $sql);
-                            $row = mysqli_fetch_array($result);
-
-                            echo "<h4>Subject Code:</h4>";
-                            echo "<h5>".$row['subject_code']."</h4>";
+                            echo "<h4>Subject Code: ".$subject_code."</h4>";
+                            echo "<br>";
                         ?>
 
                         <!-- Widget -->
@@ -402,55 +415,6 @@ if (isset($_POST['add_announcement'])) {
                             </div>
                         </div>
 
-                        <!-- Add announcement modal -->
-                        <div id="add-announcement-modal" class="modal fade" role="dialog">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title pull-left">Add Announcement</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form method="POST">
-                                            <div class="form-group">
-                                                <div class="col-auto">
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <div class="input-group-text">Announcement No.</div>
-                                                        </div>
-                                                        <input type="text" class="form-control" id="inlineFormInputGroup" name="announcement_number" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="col-auto">
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <div class="input-group-text">Title</div>
-                                                        </div>
-                                                        <input type="text" class="form-control" id="inlineFormInputGroup" name="announcement_title" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="col-auto">
-                                                    <div class="input-group">
-                                                        <div class="input-group-prepend">
-                                                            <div class="input-group-text">Content</div>
-                                                        </div>
-                                                        <textarea class="form-control" id="inlineFormInputGroup" name="announcement_content"></textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="pull-right">
-                                                <button type="button" class="btn btn-primary" name="add_announcement">Add</button>
-                                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </form>
-                                    </div>  
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Add student Modal -->
                         <div id="add-student-modal" class="modal fade" role="dialog">
                             <div class="modal-dialog">
@@ -490,7 +454,7 @@ if (isset($_POST['add_announcement'])) {
                                     <div class="modal-body">
                                         <form method="POST">
                                             <div class="input-group">
-                                                <textarea class="form-control" name="new_about"><?php echo $row['course_about']?></textarea>
+                                                <textarea class="form-control" name="new_about"><?php echo $course_about?></textarea>
                                             </div> 
                                             <br/>  
                                             <div class="pull-right">
@@ -502,6 +466,7 @@ if (isset($_POST['add_announcement'])) {
                                 </div>
                             </div>
                         </div>
+
 
                     </div>
                 </div>
