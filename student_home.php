@@ -1,3 +1,7 @@
+<?
+    echo "hi student";
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 

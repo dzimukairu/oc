@@ -3,12 +3,14 @@
 
     $error = "<br>";
 
+    $id = $_GET['teacher_id'];
+
+
     if(isset($_POST['add_subject']) ) {
         $subject_title= ($_POST['subject_title']);
         $subject_code = ($_POST['subject_code']);
         $subject_description= ($_POST['subject_description']);
         $subject_about= ($_POST['subject_about']);
-        $teacher_id = "1";
 
         
         if (empty($subject_title)|empty($subject_description)|empty($subject_about)) {
@@ -19,7 +21,7 @@
         }
 
         else{
-            $query = $dbconn->query("INSERT into subject(subject_code, course_title, course_description, course_about, teacher_id) VALUES('$subject_code','$subject_title','$subject_description', '$subject_about', 1)");
+            $query = $dbconn->query("INSERT into subject(subject_code, course_title, course_description, course_about, teacher_id) VALUES('$subject_code','$subject_title','$subject_description', '$subject_about', '$id')");
             
             if($query) {
                 $last_id = $dbconn->insert_id;

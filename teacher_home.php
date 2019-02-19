@@ -1,9 +1,9 @@
-
 <?php
+    require "db_connection.php";
 
- include('db_connection.php');
+    $id = $_GET['teacher_id'];
 
- ?>
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -94,14 +94,18 @@
     
     <section>
         <div class="container">
-            <a class="btn btn-primary clever-btn" href="add_subject.php">Create Subject</a>
+            <!-- <a class="btn btn-primary clever-btn" href="add_subject.php?teacher_id="urlencode($id)>Create Subject</a> -->
+            <?php 
+                echo "<a href=add_subject.php?teacher_id=",urlencode($id)," class='btn btn-primary clever-btn'>Create Subject</a>";
+            ?>
+
             <div class="free-space">
                 <br/>
             </div>
             <div class="row">
 
                 <?php 
-                    $subject_list_query= "SELECT * FROM `subject` WHERE teacher_id = 1";
+                    $subject_list_query= "SELECT * FROM `subject` WHERE teacher_id = '$id'";
                     $connect_to_db = mysqli_query($dbconn,$subject_list_query);
                     $affected = mysqli_num_rows($connect_to_db);
                             

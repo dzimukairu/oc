@@ -171,7 +171,7 @@
                                         <div class="about-course mb-30">
                                             <h6>About this course</h6>
                                             <p><?php echo $course_about; ?></p>
-                                            <button class="btn btn-info" data-toggle="modal" data-target="#update-about-modal">Edit</button>
+                                            <button class="btn btn-info" data-toggle="modal" data-target="#update-about-modal">Update About</button>
                                         </div>
 
                                         <!-- All Learning Materials -->
@@ -458,7 +458,7 @@
                                             </div> 
                                             <br/>  
                                             <div class="pull-right">
-                                                <button  class="btn btn-primary" name="update_about" >Add</button>
+                                                <button  class="btn btn-primary" name="update_about">Update</button>
                                                 <button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
                                             </div>
                                         </form>
