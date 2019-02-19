@@ -18,8 +18,7 @@ http://www.php.net/manual/en/datetime.format.php
 to save date-time: NOW()
 
 add_subject.php
-	somehow tapos na du kulang lang is ang responsive na teacher. 
-		need tapuson du login sa index.php
+	-done-
 
 announcement.php
 	Preview
@@ -38,7 +37,7 @@ announcement.php
 		- to be made
 
 announcement_delete.php
-	JS
+	PHP
 		-done-
 
 classrecord.php
@@ -48,9 +47,15 @@ db_connection.php
 	no errors found.
 
 index.php
-	errors:
-		login
-		url (if id or username)
+	Register
+		...
+
+	Login
+		Student
+			...
+
+		Teacher
+			-done-
 
 oc.sql
 	fixed the database
@@ -58,6 +63,9 @@ oc.sql
 	question:
 		'teaches' table:
 			student_id gdman indi subject_id?
+
+
+######################################################################################################################
 
 student_assignment.php
 	wala pa nacheck
@@ -68,6 +76,9 @@ student_course.php
 student_home.php
 	wala pa nacheck
 
+
+######################################################################################################################
+
 teacher_announcement.php
 	-done-
 
@@ -75,9 +86,6 @@ teacher_assignment.php
 	wala pa nacheck
 
 teacher_course.php
-	naadd na ang subject_code
-	responsive naman depending on teacher_id
-
 	assignment
 		Create
 
@@ -91,7 +99,7 @@ teacher_course.php
 
 	announcement
 		Create
-			JS (done)
+			PHP (done)
 			must print error (not done)
 		Preview
 			-done-
@@ -136,7 +144,7 @@ teacher_course.php
 		Delete
 
 teacher_home.php
-	somehow done
+	-done-
 
 teacher_quiz.php
 	wala pa nacheck
