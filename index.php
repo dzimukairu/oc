@@ -69,52 +69,42 @@
         $username_log = $_POST['username_log'];    
         $password_log = $_POST['password_log']; 
 
-        // if(empty($username_log )){
-        //     $error = 'Please enter your username!!!.';
-        // }
+        if(empty($username_log )){
+            $error = 'Please enter your username!!!.';
+        }
     
-        // if(empty($password_log)){
-        //     $error = 'Please enter your password!!!.';
-        // }
+        if(empty($password_log)){
+            $error = 'Please enter your password!!!.';
+        }
 
-        // if((empty($username_log )) && (empty($password_log))){
-        //     $error = 'Please enter your username and password.';
-        // } else {
-        //     $teacher_query = $dbconn->query("SELECT * FROM teacher WHERE username = '$username_log' and password = $password_log");
-           
-        //    if($teacher_query) {                  
-        //         header("Location:teacher_home.php");
-        //     } else {
-        //         $student_query = $dbconn->query("SELECT * FROM student WHERE username = '$username_log' and password = $password_log");
-                
-        //         if($student_query) {                  
-        //         header("Location:student_home.php");
-        //         }
-        //     }
-            
-        //     $error = 'NO ACCOUNT FOUND.';
-        // }
-
-        $teacher_query = "SELECT * FROM teacher WHERE username = '$username_log' and password = '$password_log'";
-
-        $result = mysqli_query($dbconn, $teacher_query);
-        $row = mysqli_fetch_array($result);
-
-        $t_id = $row['teacher_id'];
-           
-        if($row > 0) {                  
-            header("Location:teacher_home.php?teacher_id=".$t_id);
+        if((empty($username_log )) && (empty($password_log))){
+            $error = 'Please enter your username and password.';
         } else {
-            $student_query = "SELECT * FROM student WHERE username = '$username_log' and password = '$password_log'";
+            $teacher_query = $dbconn->query("SELECT * FROM teacher WHERE username = '$username_log' and password = $password_log");
+           
+            $teacher_query = "SELECT * FROM teacher WHERE username = '$username_log' and password = '$password_log'";
 
-            $result = mysqli_query($dbconn, $student_query);
+            $result = mysqli_query($dbconn, $teacher_query);
             $row = mysqli_fetch_array($result);
 
-            $s_id = $row['student_id'];
+            $t_id = $row['teacher_id'];
+           
+            if(mysqli_num_rows($result)) {                  
+                header("Location:teacher_home.php?teacher_id=".$t_id);
+            } else {
+                $student_query = "SELECT * FROM student WHERE username = '$username_log' and password = '$password_log'";
 
-            if($row > 0) {                  
-                header("Location:teacher_home.php?student_id=".$s_id);
+                $result = mysqli_query($dbconn, $student_query);
+                $row = mysqli_fetch_array($result);
+
+                $s_id = $row['student_id'];
+
+                if(mysqli_num_rows($result)) {                  
+                    header("Location:student_home.php?student_id=".$s_id);
+                }
             }
+            
+            $error = 'NO ACCOUNT FOUND.';
         }
     }
 ?>

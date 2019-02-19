@@ -1,8 +1,5 @@
 <?php
-    require "db_connection.php";
-
-    $id = $_GET['student_id'];
-
+    echo "hi student";
 ?>
 
 <!DOCTYPE html>
@@ -94,43 +91,46 @@
     
     <section>
         <div class="container">
-            <!-- <?php 
-                echo "<a href=add_subject.php?teacher_id=",urlencode($id)," class='btn btn-primary clever-btn'>Create Subject</a>";
-            ?> -->
-
-            <div class="free-space">
-                <br/>
+            <div class="row">
             </div>
             <div class="row">
-
-                <?php 
-                    $subject_list_query= "SELECT * FROM `subject` INNER JOIN enrolls on enrolls.student_id = '$id' and enrolls.subject_id = subject.subject_id";
-                    $connect_to_db = mysqli_query($dbconn,$subject_list_query);
-                    $affected = mysqli_num_rows($connect_to_db);
-                            
-                    if ($affected != 0) {
-                        while ($row = mysqli_fetch_row($connect_to_db)) {?>
-                            <div class="col-12 col-md-6 col-lg-4">
-                                <div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="250ms">
-                                    <form method="post">
-                                       <img src="img/bg-img/c1.jpg" alt="">
-                                    <!-- Course Content -->
-                                        <div class="course-content">
-                                            <?php echo "<a href='student_course.php?subject_id=".$row[0]."'><h4>$row[2]</h4></a>"; ?>
-                                            <div class="meta d-flex align-items-center">
-                                                <h7><b><?php echo $row[3]?></b></h7>
-                                            </div>
-                                        </div> 
-                                    </form>
-                                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="250ms">
+                        <img src="img/bg-img/c1.jpg" alt="">
+                        <!-- Course Content -->
+                        <div class="course-content">
+                            <a href="student_course.php"><h4>Subject #1</h4></a>
+                            <div class="meta d-flex align-items-center">
+                                <h7><b>Subject Instructor</b></h7>
                             </div>
-                        <?php } ?>
-                    <?php } else {
-                        echo "<h4>No subjects found.</h4>";
-
-                    }?>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="500ms">
+                        <img src="img/bg-img/c2.jpg" alt="">
+                        <!-- Course Content -->
+                        <div class="course-content">
+                            <a href="student_course.php"><h4>Subject #2</h4></a>
+                            <div class="meta d-flex align-items-center">
+                                <h7><b>Subject Instructor</b></h7>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="500ms">
+                        <img src="img/bg-img/c3.jpg" alt="">
+                        <!-- Course Content -->
+                        <div class="course-content">
+                            <a href="student_course.php"><h4>Subject #3</h4></a>
+                            <div class="meta d-flex align-items-center">
+                                <h7><b>Subject Instructor</b></h7>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
     </section>
 
     <!-- ##### Footer Area Start ##### -->
