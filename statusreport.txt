@@ -1,15 +1,45 @@
 ✔
 ✖
 
+https://help.github.com/articles/changing-a-remote-s-url/
+
+git init
+git remote -v (check repo)
+git pull
+git add .
+git commit -m "comment"
+git push (-f/--force to force)
+
+Legend:
+	--> = another page/link
+	... = working on it
+
+http://www.php.net/manual/en/datetime.format.php
+to save date-time: NOW()
+
 add_subject.php
 	somehow tapos na du kulang lang is ang responsive na teacher. 
 		need tapuson du login sa index.php
 
 announcement.php
-	JS
+	Preview
 		-done-
+
+	Update
+		-done-
+
+	Delete
+		--> announcement_delete.php
+
+		Prompt
+			-done-
+
 	Comments Section
 		- to be made
+
+announcement_delete.php
+	JS
+		-done-
 
 classrecord.php
 	wala pa na responsive du edit classrecord.
@@ -68,9 +98,9 @@ teacher_course.php
 		Open
 			--> announcement.php
 		Update
-			JS (done)
-			modal (done)
+			--> announcement.php
 		Delete
+			--> announcement.php
 
 	quiz
 		Create

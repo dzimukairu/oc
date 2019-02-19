@@ -5,8 +5,6 @@
 
     $id = $_GET['announcement_id'];
 
-                    echo $id;
-
     if(isset($_POST['update_announcement'])){
         $new_title = ($_POST['new_title']);
         $new_content = ($_POST['new_content']);
@@ -159,7 +157,7 @@
             <div class="row">
                 <div class="col-12 col-lg-12 border rounded">
                     <div style="padding: 20px 12px 50px 12px;">
-                    <?php echo $id; ?>
+                    <!-- <?php echo $id; ?> -->
                         <h5><?php echo $announcement_title;?></h5>
                         <br>
                         <h6><?php echo $announcement_content;?></h6>
@@ -173,7 +171,19 @@
                                             
 
                         <button class="btn btn-info" data-toggle="modal" data-target="#update-announcement-modal">Update</button>
+                        <!-- <button class="btn btn-danger" onclick="javascript:location.href='announcement_delete.php?id=<?php echo $id;?>';">Delete</button> -->
 
+                        <button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
+
+                        <script>
+                            function deleteFunction(id) {
+                                var del = confirm("Do you really want to delete this announcement?");
+
+                                if (del == true) {
+                                    document.location.href = 'announcement_delete.php?id='+id;
+                                }
+                            }
+                        </script>
                     </div>
                 </div>
 
