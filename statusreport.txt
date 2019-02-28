@@ -23,20 +23,37 @@ add_subject.php
 announcement.php
 	Preview
 		-done-
-
 	Update
 		-done-
-
 	Delete
 		--> announcement_delete.php
-
 		Prompt
 			-done-
 
+
 	Comments Section
-		- to be made
+		Preview
+			-done-
+		Teacher can comment
+			-done- but not sure
 
 announcement_delete.php
+	PHP
+		-done-
+
+assignment.php
+	wala pa natapos ang FILE XXX
+
+	Preview
+		-done-
+	Update
+		-done-
+	Delete
+		--> announcement_delete.php
+		Prompt
+			-done-
+
+assignment_delete.php
 	PHP
 		-done-
 
@@ -49,11 +66,9 @@ db_connection.php
 index.php
 	Register
 		...
-
 	Login
 		Student
 			-done-
-
 		Teacher
 			-done-
 
@@ -80,27 +95,37 @@ student_home.php
 ######################################################################################################################
 
 teacher_announcement.php
-	-done-
+	PHP
+		-done-
+
+	print error
+		-done-
 
 teacher_assignment.php
-	wala pa nacheck
+	wala pa natapos ang FILE XXX
+
+	PHP
+		-done-
+
+	print error
+		-done-
 
 teacher_course.php
 	assignment
 		Create
-
+			--> teacher_assignment.php
 		Preview
-
+			-done-
 		Open
-
+			--> assignment.php
 		Update
-
+			--> assignment.php
 		Delete
+			--> assignment.php
 
 	announcement
 		Create
-			PHP (done)
-			must print error (not done)
+			--> teacher_announcement.php
 		Preview
 			-done-
 		Open

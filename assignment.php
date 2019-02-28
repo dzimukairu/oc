@@ -1,27 +1,22 @@
 <?php
 	require "db_connection.php";
 
-	$id = $_GET['subject_id'];
-	$error = '';
+	$error = "";
 	date_default_timezone_set("Asia/Manila");
 
-	if(isset($_POST['add_announcement'])) {
-		$id = $_GET['subject_id'];
-		$announcement_title = $_POST['announcement_title'];
-		$announcement_content = $_POST['announcement_content'];
+	$id = $_GET['assignment_id'];
 
-		if (empty($announcement_title) && empty($announcement_content)) {
-			$error = 'Please input title and content.';
-		} else if (empty($announcement_title)) {
-			$error = 'Please input title.';
-		} else if (empty($announcement_content)) {
-			$error = 'Please input content.';
-		} else {
-			$query = $dbconn->query("INSERT into announcement(subject_id, date_posted, title, content) VALUES('$id', NOW(), '$announcement_title', '$announcement_content')");
-	
-			if ($query) {
-				header("Location: teacher_course.php?subject_id=".$id);
-			}
+	if(isset($_POST['update_assignment'])){
+		$new_title = ($_POST['new_title']);
+		$new_instruction = ($_POST['new_instruction']);
+		$new_ddate = $_POST['new_ddate'];
+		$new_dtime = $_POST['new_dtime'];
+
+		$update_query = "UPDATE assignment SET title = '$new_title', instruction = '$new_instruction', deadline_date = '$new_ddate', deadline_time = '$new_dtime' WHERE assignment_id = '$id'";
+		// $update_query = "UPDATE assignment SET instruction = '$new_instruction' WHERE assignment_id = '$id'";
+
+		if ($update_connect = mysqli_query($dbconn, $update_query)) {
+			header("Location: assignment.php?assignment_id=".$id);
 		}
 	}
 ?>
@@ -135,16 +130,30 @@
 					<!-- Hero Content -->
 					<div class="hero-content text-center">
 						<?php
-							$id = $_GET['subject_id'];
-							$sql = "SELECT subject_code, course_title, course_description, course_about from subject where subject_id = $id";
+							$id = $_GET['assignment_id'];
+							
+							$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, assignment.title, assignment.instruction, assignment.date_posted, assignment.deadline_date, assignment.deadline_time  from subject INNER JOIN assignment on (assignment.assignment_id = $id and subject.subject_id = assignment.subject_id)";
 
 							$result = mysqli_query($dbconn, $sql);
 							$row = mysqli_fetch_array($result);
 							
+							$subject_id = $row['subject_id'];
 							$subject_code = $row['subject_code']; 
 							$course_title = $row['course_title'];
 							$course_description = $row['course_description'];
 							$course_about = $row['course_about'];
+
+							$assignment_title = $row['title'];
+							$assignment_instruction = $row['instruction'];
+							$deadline_date = $row['deadline_date'];
+							$deadline_time = $row['deadline_time'];
+							$date_posted = $row['date_posted'];
+							// $file = $row['file'];
+
+
+							$combinedtime = date('Y-m-d H:i:s', strtotime("$deadline_date $deadline_time"));
+							$xdate = new DateTime($combinedtime);
+							$combinedtime = date_format($xdate, 'M d, Y - h:i A');
 					   
 						?>
 						<h2><?php echo $course_description;?></h2>
@@ -159,49 +168,117 @@
 	<div class="student-quiz-content section-padding-100">
 		<div class="container">
 			<div class="row">
-				<div class="col-12 col-lg-12">
-					<div class="section-heading">
-						<h3>Create New Announcement</h3>
-					</div>        
-			   </div>
-			</div>
-			<div class="row">
-				<h7 class="text-danger"><?php echo $error ?></h7>
-				
 				<div class="col-12 col-lg-12 border rounded">
 					<div style="padding: 20px 12px 50px 12px;">
-						<form method="post" action="teacher_announcement.php?subject_id=<?php echo $id ?>">
-							<div class="offset-md-2 col-md-8 input-group">
-								<div class="input-group-prepend">
-									<div class="input-group-text">Title:</div>
-								</div>
-								<!-- <input data-autoresize type="text" class="form-control expand_this" id="announcement_title" name="announcement_title"> -->
-								<textarea data-autoresize rows="1" class="form-control expand_this" id="announcement_title" name="announcement_title"></textarea>
-							</div>
-							<br>
+					<!-- <?php echo $id; ?> -->
+						<h5><?php echo $assignment_title;?></h5>
+						<br>
+						<h6><?php echo $assignment_instruction;?></h6>
+						<br>
+						<h6>File: WALA PA GAWORK
+							<?php
+								// if ($file == 0) {
+								// 	echo "No file found.";
+								// } else {
+								// 	echo "file.jpg";
+								// }
+							?>
 
-							<div class="offset-md-1 col-md-10 input-group">
-								<div class="input-group row">
-									<div class="input-group-prepend">
-										<span class="input-group-text">Content:</span>
-									</div>
-									<textarea data-autoresize rows="2" class="form-control expand_this" id="announcement_content" name="announcement_content"></textarea>
-								</div>
-							</div>
+						</h6>
+						<br>
+						<h6>Deadline: <?php echo $combinedtime ?></h6>
+						<br>
+						<p><?php 
+							$xdate = new DateTime($date_posted);
+							// $x = DateTime::createFromFromat('M d, Y', $xdate);
+							$y = date_format($xdate, 'M d, Y - h:i A');
+							echo $y;
+						?></p>
+											
 
-							<input type="submit" class="btn btn-success pull-right" name="add_announcement" value="SUBMIT"/>
-						</form>
+						<button class="btn btn-info" data-toggle="modal" data-target="#update-assignment-modal">Update</button>
+						<!-- <button class="btn btn-danger" onclick="javascript:location.href='assignment_delete.php?id=<?php echo $id;?>';">Delete</button> -->
+
+						<button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
+
+						<script>
+							function deleteFunction(id) {
+								var del = confirm("Do you really want to delete this assignment?");
+
+								if (del == true) {
+									document.location.href = 'assignment_delete.php?id='+id;
+								}
+							}
+						</script>
 					</div>
 				</div>
 
 				<div style="margin-top:12px;">
 					<?php 
-						echo "<a href=teacher_course.php?subject_id=",urlencode($id)," class='btn clever-btn'>Back</a>";
+						echo "<a href=teacher_course.php?subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
 					?>
 				</div>
 			</div>
 		</div>
 	</div>
+
+
+	<!-- Update assignment Modal -->
+	<div id="update-assignment-modal" class="modal fade" role="dialog">
+		<div class="modal-dialog" style="max-width: 80% !important;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title pull-left">Update assignment</h4>
+				</div>
+				<div class="modal-body">
+					<form method="POST" action="assignment.php?assignment_id=<?php echo $id?>" enctype="multipart/form-data">
+						<div class="offset-md-2 col-8 input-group">
+							<div class="input-group-prepend">
+								<div class="input-group-text">Title:</div>
+								<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="new_title" name="new_title"><?php echo $assignment_title ?></textarea>
+							</div>
+						</div>
+
+						<br>
+
+						<div class="offset-md-3 col-6 input-group">
+							<div class="input-group-prepend">
+								<div class="input-group-text">Deadline:</div>
+							</div>
+
+							<?php
+								$month = date('m');
+								$day = date('d');
+								$year = date('Y');
+								$today_date = $year . '-' . $month . '-' . $day;
+							?>
+
+							<input type="date" name="new_ddate" id="new_ddate" value="<?php echo $today_date; ?>" min="2019-01-01" class="form-control">
+							<input type="time" name="new_dtime" id="new_dtime" value="<?php echo date('H:i', time()+3600);?>" class="form-control">
+						</div>
+			
+						<div class="offset-md-3 col-6">
+							<p style="font-style: italic">Deadline time is set on <span style="font-weight: bold;"><?php echo $combinedtime ?></span>.</p>
+						</div>
+						<br><br>
+
+						<div class="form-group offset-md-1 col-10">
+							<label style="font-weight: bold">Instruction:</label>
+							<textarea data-autoresize rows="2" class="form-control expand_this" id="new_instruction" name="new_instruction"><?php echo $assignment_instruction ?></textarea>
+
+							<input type="file" name="sent_file" id="sent_file">
+						</div>
+						<br/>  
+						<div class="pull-right">
+							<button  class="btn btn-primary" name="update_assignment">Update</button>
+							<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
 
 	<!-- ##### Footer Area Start ##### -->
 	<footer class="footer-area">
