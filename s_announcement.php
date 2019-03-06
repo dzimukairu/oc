@@ -1,22 +1,29 @@
 <?php
 	require "db_connection.php";
 
-	$error = "";
+	$error = "<br>";
 	date_default_timezone_set("Asia/Manila");
 
-	$id = $_GET['assignment_id'];
+	$id = $_GET['announcement_id'];
+	$s_id = $_GET['s_id'];
 
-	if(isset($_POST['update_assignment'])){
-		$new_title = ($_POST['new_title']);
-		$new_instruction = ($_POST['new_instruction']);
-		$new_ddate = $_POST['new_ddate'];
-		$new_dtime = $_POST['new_dtime'];
+	// if(isset($_POST['update_announcement'])){
+	// 	$new_title = ($_POST['new_title']);
+	// 	$new_content = ($_POST['new_content']);
 
-		$update_query = "UPDATE assignment SET title = '$new_title', instruction = '$new_instruction', deadline_date = '$new_ddate', deadline_time = '$new_dtime' WHERE assignment_id = '$id'";
-		// $update_query = "UPDATE assignment SET instruction = '$new_instruction' WHERE assignment_id = '$id'";
+	// 	$update_query = "UPDATE announcement SET title = '$new_title', content = '$new_content' WHERE announcement_id = '$id'";
+	// 	if ($update_connect = mysqli_query($dbconn, $update_query)) {
+	// 		header("Location: announcement.php?announcement_id=".$id);
+	// 	}
+	// }
 
-		if ($update_connect = mysqli_query($dbconn, $update_query)) {
-			header("Location: assignment.php?assignment_id=".$id);
+	if(isset($_POST['add_comment'])){
+		$content = $_POST['scomment'];
+		$s_id = $_POST['student_id'];
+
+		$add_comment_query = "INSERT into announcement_comment(announcement_id, student_id, content, date_posted) values('$id', '$s_id', '$content', NOW())";
+		if ($add_comment_connect = mysqli_query($dbconn, $add_comment_query)) {
+			header("Location: s_announcement.php?s_id=".$s_id."&announcement_id=".$id);
 		}
 	}
 ?>
@@ -45,6 +52,11 @@
 
 
 	<!-- https://stephanwagner.me/auto-resizing-textarea -->
+	<!-- <script>
+		function f1() {
+			document.getElementById("tcomment").reset();
+		}
+	</script> -->
 </head>
 
 <body>
@@ -129,9 +141,9 @@
 					<!-- Hero Content -->
 					<div class="hero-content text-center">
 						<?php
-							$id = $_GET['assignment_id'];
+							$id = $_GET['announcement_id'];
 							
-							$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, assignment.title, assignment.instruction, assignment.date_posted, assignment.deadline_date, assignment.deadline_time  from subject INNER JOIN assignment on (assignment.assignment_id = $id and subject.subject_id = assignment.subject_id)";
+							$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, announcement.title, announcement.content, announcement.date_posted  from subject INNER JOIN announcement on (announcement.announcement_id = $id and subject.subject_id = announcement.subject_id)";
 
 							$result = mysqli_query($dbconn, $sql);
 							$row = mysqli_fetch_array($result);
@@ -142,17 +154,9 @@
 							$course_description = $row['course_description'];
 							$course_about = $row['course_about'];
 
-							$assignment_title = $row['title'];
-							$assignment_instruction = $row['instruction'];
-							$deadline_date = $row['deadline_date'];
-							$deadline_time = $row['deadline_time'];
+							$announcement_title = $row['title'];
+							$announcement_content = $row['content'];
 							$date_posted = $row['date_posted'];
-							// $file = $row['file'];
-
-
-							$combinedtime = date('Y-m-d H:i:s', strtotime("$deadline_date $deadline_time"));
-							$xdate = new DateTime($combinedtime);
-							$combinedtime = date_format($xdate, 'M d, Y - h:i A');
 					   
 						?>
 						<h2><?php echo $course_description;?></h2>
@@ -170,22 +174,9 @@
 				<div class="col-12 col-lg-12 border rounded">
 					<div style="padding: 20px 12px 50px 12px;">
 					<!-- <?php echo $id; ?> -->
-						<h5><?php echo $assignment_title;?></h5>
+						<h5><?php echo $announcement_title;?></h5>
 						<br>
-						<h6><?php echo $assignment_instruction;?></h6>
-						<br>
-						<h6>File: WALA PA GAWORK
-							<?php
-								// if ($file == 0) {
-								// 	echo "No file found.";
-								// } else {
-								// 	echo "file.jpg";
-								// }
-							?>
-
-						</h6>
-						<br>
-						<h6>Deadline: <?php echo $combinedtime ?></h6>
+						<h6><?php echo $announcement_content;?></h6>
 						<br>
 						<p><?php 
 							$xdate = new DateTime($date_posted);
@@ -193,86 +184,98 @@
 							$y = date_format($xdate, 'M d, Y - h:i A');
 							echo $y;
 						?></p>
-											
-
-						<button class="btn btn-info" data-toggle="modal" data-target="#update-assignment-modal">Update</button>
-						<!-- <button class="btn btn-danger" onclick="javascript:location.href='assignment_delete.php?id=<?php echo $id;?>';">Delete</button> -->
+										
+						<!-- <button class="btn btn-info" data-toggle="modal" data-target="#update-announcement-modal">Update</button>
 
 						<button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
 
 						<script>
 							function deleteFunction(id) {
-								var del = confirm("Do you really want to delete this assignment?");
+								var del = confirm("Do you really want to delete this announcement?");
 
 								if (del == true) {
-									document.location.href = 'assignment_delete.php?id='+id;
+									document.location.href = 'announcement_delete.php?id='+id;
 								}
 							}
-						</script>
+						</script> -->
 					</div>
+				</div>
+
+				<div class="col-12 col-lg-12 border rounded" style="padding-top: 20px; padding-bottom: 20px;" id="announcement_comment" name="announcement_comment">
+					<?php
+						$comment_query= "SELECT * FROM `announcement_comment` WHERE announcement_id = $id  order by date_posted asc";
+						$connect_to_db = mysqli_query($dbconn,$comment_query);
+						$affected = mysqli_num_rows($connect_to_db);
+																									
+						if ($affected != 0) {
+							while ($row = mysqli_fetch_row($connect_to_db)) {
+
+							if ($row[2] != 0 && $row[3] == 0) {
+								$student_id = $row[2];
+								$student_query = $dbconn->query("SELECT * FROM `student` WHERE student_id = $student_id");
+
+								$srow = mysqli_fetch_row($student_query);
+								$first_name = $srow[1];
+								$last_name = $srow[2];
+							} else {
+								$teacher_id = $row[3];
+
+								$teacher_query = $dbconn->query("SELECT * FROM `teacher` WHERE teacher_id = $teacher_id");
+
+								$trow = mysqli_fetch_row($teacher_query);
+								$first_name = $trow[1];
+								$last_name = $trow[2];
+							}
+					?>
+						<div>
+							<table class="table table-borderless">
+								<tr>
+									<?php
+										echo "<th style='width: 15%;'>".$first_name." ".$last_name."</th>";
+										echo "<td style='width: 85%;'>".$row[4]."</td>";
+									?>
+								</tr>
+							<?php }}
+
+								$get_teacher_query = $dbconn->query("SELECT teacher_id FROM `subject` WHERE subject_id = $subject_id");
+
+								$gett = mysqli_fetch_array($get_teacher_query);
+								$t_id = $gett['teacher_id'];
+
+								$teacher_query = $dbconn->query("SELECT * FROM `teacher` WHERE teacher_id = $t_id");
+
+								$trow = mysqli_fetch_row($teacher_query);
+								$tfirst_name = $trow[1];
+								$tlast_name = $trow[2];
+							?>	
+								<tr>
+									<?php
+										$sql = $dbconn->query("SELECT first_name, last_name from student where student_id = $s_id");
+
+										$row = mysqli_fetch_array($sql);
+
+										$sfirst_name = $row['first_name'];
+										$slast_name = $row['last_name']
+									?>
+									<th scope="row"><?php echo $sfirst_name." ".$slast_name?></th>
+									<form method="POST" action="s_announcement.php?s_id=<?php echo $s_id?>&announcement_id=<?php echo $id?>">
+										<input name="student_id" value="<?php echo $s_id; ?>" hidden>
+										<td>
+											<!-- <input contenteditable="true" type="text" class="form-control" name="scomment" id="scomment"> -->
+											<textarea data-autoresize rows="1" class="form-control expand_this" name="scomment" id="scomment"></textarea>
+										</td>
+										<td><input type="reset" class="btn" value="Cancel"></td>
+										<td><button  class="btn btn-success" name="add_comment">Post</button></td>
+									</form>
+								</tr>
+							</table>
+						</div>
 				</div>
 
 				<div style="margin-top:12px;">
 					<?php 
-						echo "<a href=teacher_course.php?subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
+						echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
 					?>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
-	<!-- Update assignment Modal -->
-	<div id="update-assignment-modal" class="modal fade" role="dialog">
-		<div class="modal-dialog" style="max-width: 80% !important;">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title pull-left">Update assignment</h4>
-				</div>
-				<div class="modal-body">
-					<form method="POST" action="assignment.php?assignment_id=<?php echo $id?>" enctype="multipart/form-data">
-						<div class="offset-md-2 col-8 input-group">
-							<div class="input-group-prepend">
-								<div class="input-group-text">Title:</div>
-								<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="new_title" name="new_title"><?php echo $assignment_title ?></textarea>
-							</div>
-						</div>
-
-						<br>
-
-						<div class="offset-md-3 col-6 input-group">
-							<div class="input-group-prepend">
-								<div class="input-group-text">Deadline:</div>
-							</div>
-
-							<?php
-								$month = date('m');
-								$day = date('d');
-								$year = date('Y');
-								$today_date = $year . '-' . $month . '-' . $day;
-							?>
-
-							<input type="date" name="new_ddate" id="new_ddate" value="<?php echo $today_date; ?>" min="2019-01-01" class="form-control">
-							<input type="time" name="new_dtime" id="new_dtime" value="<?php echo date('H:i', time()+3600);?>" class="form-control">
-						</div>
-			
-						<div class="offset-md-3 col-6">
-							<p style="font-style: italic">Deadline time is set on <span style="font-weight: bold;"><?php echo $combinedtime ?></span>.</p>
-						</div>
-						<br><br>
-
-						<div class="form-group offset-md-1 col-10">
-							<label style="font-weight: bold">Instruction:</label>
-							<textarea data-autoresize rows="2" class="form-control expand_this" id="new_instruction" name="new_instruction"><?php echo $assignment_instruction ?></textarea>
-
-							<input type="file" name="sent_file" id="sent_file">
-						</div>
-						<br/>  
-						<div class="pull-right">
-							<button  class="btn btn-primary" name="update_assignment">Update</button>
-							<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
-						</div>
-					</form>
 				</div>
 			</div>
 		</div>

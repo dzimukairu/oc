@@ -168,15 +168,14 @@
 	<!-- ##### Header Area End ##### -->
 
 	<!-- ##### Breadcumb Area Start ##### -->
-	<div class="breadcumb-area">
-		<!-- Breadcumb -->
+	<!-- <div class="breadcumb-area">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="teacher_home.php">Home</a></li>
 				<li class="breadcrumb-item"><a href="teacher_course.php">Courses</a></li>
 			</ol>
 		</nav>
-	</div>
+	</div> -->
 	<!-- ##### Breadcumb Area End ##### -->
 
 	<!-- ##### Single Course Intro Start ##### -->

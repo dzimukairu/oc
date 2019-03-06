@@ -100,15 +100,14 @@
 	<!-- ##### Header Area End ##### -->
 
 	<!-- ##### Breadcumb Area Start ##### -->
-	<div class="breadcumb-area">
-		<!-- Breadcumb -->
+	<!-- <div class="breadcumb-area">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="teacher_home.php">Home</a></li>
 				<li class="breadcrumb-item"><a href="teacher_course.php">Courses</a></li>
 			</ol>
 		</nav>
-	</div>
+	</div> -->
 	<!-- ##### Breadcumb Area End ##### -->
 
    <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
@@ -284,7 +283,7 @@
 												<?php } ?>
 											<?php } else {
 												echo "<h4>No assignments found.</h4>";
-											}?>
+											} ?>
 									</div>
 								</div>
 

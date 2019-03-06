@@ -1,5 +1,5 @@
-create database oc;
-	use oc;
+create database onlineclassroom;
+	use onlineclassroom;
 
 create table teacher(
 	teacher_id int(100) not null auto_increment,

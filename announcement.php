@@ -51,11 +51,6 @@
 
 
 	<!-- https://stephanwagner.me/auto-resizing-textarea -->
-	<!-- <script>
-		function f1() {
-			document.getElementById("tcomment").reset();
-		}
-	</script> -->
 </head>
 
 <body>
@@ -122,15 +117,14 @@
 	<!-- ##### Header Area End ##### -->
 
 	<!-- ##### Breadcumb Area Start ##### -->
-	<div class="breadcumb-area">
-		<!-- Breadcumb -->
+	<!-- <div class="breadcumb-area">
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="teacher_home.php">Home</a></li>
 				<li class="breadcrumb-item"><a href="teacher_course.php">Courses</a></li>
 			</ol>
 		</nav>
-	</div>
+	</div> -->
 	<!-- ##### Breadcumb Area End ##### -->
 
 	<!-- ##### Single Course Intro Start ##### -->
@@ -251,11 +245,15 @@
 								$tlast_name = $trow[2];
 							?>	
 								<tr>
+									<th>asdasd</th>
+									<td>asdasdasd</td>
+								</tr>
+								<tr>
 									<th scope="row"><?php echo $tfirst_name." ".$tlast_name?></th>
 									<form method="POST" action="announcement.php?announcement_id=<?php echo $id?>">
 										<input name="teach_id" value="<?php echo $t_id; ?>" hidden>
 										<td>
-											<input type="text" class="form-control" name="tcomment" id="tcomment">
+											<textarea data-autoresize rows="1" class="form-control expand_this" name="tcomment" id="tcomment"></textarea>
 										</td>
 										<td><input type="reset" class="btn" value="Cancel"></td>
 										<td><button  class="btn btn-success" name="add_comment">Post</button></td>

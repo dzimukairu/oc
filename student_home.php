@@ -116,7 +116,7 @@
 									   <img src="img/bg-img/c1.jpg" alt="">
 									<!-- Course Content -->
 										<div class="course-content">
-											<?php echo "<a href='student_course.php?subject_id=".$row[0]."'><h4>$row[2]</h4></a>"; ?>
+											<?php echo "<a href='student_course.php?s_id=".$id."&subject_id=".$row[0]."'><h4>$row[2]</h4></a>"; ?>
 											<div class="meta d-flex align-items-center">
 												<h7><b><?php echo $row[3]?></b></h7>
 											</div>
