@@ -174,3 +174,26 @@ create table multipleanswer_answers(
 	foreign key(multipleanswer_id) references multipleanswer_quiz(multipleanswer_id),
 	foreign key(quiz_id) references quiz(quiz_id)
 );
+
+INSERT INTO teacher(first_name, last_name, username, email_address, password) 
+	VALUES("teacher", "1", "teacher1", "teacher1@gmail.com", "teacher1");
+
+INSERT INTO teacher(first_name, last_name, username, email_address, password) 
+	VALUES("teacher", "2", "teacher2", "teacher2@gmail.com", "teacher2");
+
+INSERT INTO student(first_name, last_name, username, email_address, password) 
+	VALUES("student", "1", "student1", "student1@gmail.com", "student1");
+
+INSERT INTO student(first_name, last_name, username, email_address, password) 
+	VALUES("student", "2", "student2", "student2@gmail.com", "student2");
+
+INSERT INTO subject(subject_code, course_title, course_description, course_about, teacher_id)
+	VALUES("MXBsYzRv", "CMSC 56", "Discrete Mathematics 1", "Discrete Mathematics 1 About", 1);
+
+INSERT INTO subject(subject_code, course_title, course_description, course_about, teacher_id)
+	VALUES("MXBsYzRz", "CMSC 198.1", "Special Problem", "Special Problem About", 2);
+
+INSERT INTO enrolls(student_id, subject_id) VALUES(1, 1);
+INSERT INTO enrolls(student_id, subject_id) VALUES(1, 2);
+INSERT INTO enrolls(student_id, subject_id) VALUES(2, 1);
+INSERT INTO enrolls(student_id, subject_id) VALUES(2, 2);

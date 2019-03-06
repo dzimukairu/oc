@@ -17,6 +17,27 @@ Legend:
 http://www.php.net/manual/en/datetime.format.php
 to save date-time: NOW()
 
+remaining task:
+Teacher:
+   - quiz CRUD
+   - learning materials
+   - adding students
+   - file handling (assignment, quiz)
+
+Student:
+   - Assignment
+   - quiz
+   - file handling
+
+Overall:
+   - navbar
+   - chat
+   - logo, header, footer
+   - name of SP
+   - comment section for Assignment, Quiz
+
+######################################################################################################################
+
 add_subject.php
 	-done-
 
@@ -169,7 +190,11 @@ teacher_course.php
 		Delete
 
 teacher_home.php
-	-done-
+	Show Subjects
+		-done-
+
+	Search Subjects
+		...
 
 teacher_quiz.php
 	wala pa nacheck

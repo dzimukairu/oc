@@ -6,6 +6,22 @@
 
 	$id = $_GET['subject_id'];
 	$s_id = $_GET['s_id'];
+
+	$sql = "SELECT subject_code, course_title, course_description, course_about from subject where subject_id = $id";
+	$result = mysqli_query($dbconn, $sql);
+	$row = mysqli_fetch_array($result);
+							
+	$subject_code = $row['subject_code']; 
+	$course_title = $row['course_title'];
+	$course_description = $row['course_description'];
+	$course_about = $row['course_about'];
+
+	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$s_id';");
+	$srow = mysqli_fetch_array($get_student);
+
+	$s_username = $srow['username'];
+	$s_firstname = $srow['first_name'];
+	$s_lastname = $srow['last_name'];
 ?>
 
 <!DOCTYPE html>
@@ -63,17 +79,19 @@
 
 						<!-- Nav Start -->
 						<div class="classynav">
-							<ul>
+							<!-- <ul>
 								<li><a href="teacher_home.php">Home</a></li>
-							</ul>
+							</ul> -->
 
 							<!-- Register / Login -->
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
 									<div class="dropdown">
-										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Username</a>
+										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
-											<a class="dropdown-item" href="teacher_home.php">Home</a>
+											<?php 
+												echo "<a href=student_home.php?student_id=",urlencode($s_id)," class='dropdown-item'>Home</a>";
+											?>
 											<a class="dropdown-item" href="#">Profile</a>
 											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
@@ -109,19 +127,6 @@
 				<div class="col-12">
 					<!-- Hero Content -->
 					<div class="hero-content text-center">
-						<?php
-							$id = $_GET['subject_id'];
-							$sql = "SELECT subject_code, course_title, course_description, course_about from subject where subject_id = $id";
-
-							$result = mysqli_query($dbconn, $sql);
-							$row = mysqli_fetch_array($result);
-							
-							$subject_code = $row['subject_code']; 
-							$course_title = $row['course_title'];
-							$course_description = $row['course_description'];
-							$course_about = $row['course_about'];
-					   
-						?>
 						<h2><?php echo $course_description;?></h2>
 						<h3><?php echo $course_title;?></h3>
 					</div>
@@ -162,6 +167,10 @@
 
 										<!-- About Course -->
 										<div class="about-course mb-30">
+											<?php
+												echo "<h5>Subject Code: ".$subject_code."</h5>";
+												echo "<br>";
+											?>
 											<h6>About this course</h6>
 											<p><?php echo $course_about; ?></p>
 										</div>
@@ -325,12 +334,14 @@
 				<div class="col-12 col-lg-4">
 					<div class="course-sidebar">
 						<!-- Class Record -->
-						<a href="classrecord.php" class="btn clever-btn mb-30 w-100">Class Record</a>
+						<?php 
+							echo "<a href=s_classrecord.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'>Class Record</a>";
+						?>
 
-						<?php
+						<!-- <?php
 							echo "<h4>Subject Code: ".$subject_code."</h4>";
 							echo "<br>";
-						?>
+						?> -->
 
 						<!-- Widget -->
 						<div class="sidebar-widget">

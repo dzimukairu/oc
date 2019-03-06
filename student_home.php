@@ -3,6 +3,12 @@
 
 	$id = $_GET['student_id'];
 
+	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$id';");
+	$srow = mysqli_fetch_array($get_student);
+
+	$s_username = $srow['username'];
+	$s_firstname = $srow['first_name'];
+	$s_lastname = $srow['last_name'];
 ?>
 
 <!DOCTYPE html>
@@ -67,9 +73,11 @@
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
 									<div class="dropdown">
-										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Username</a>
+										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
-											<a class="dropdown-item" href="student_home.php">Home</a>
+											<?php 
+												echo "<a href=student_home.php?student_id=",urlencode($id)," class='dropdown-item'>Home</a>";
+											?>
 											<a class="dropdown-item" href="#">Profile</a>
 											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>

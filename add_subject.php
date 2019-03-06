@@ -158,7 +158,10 @@
 						<textarea name="subject_about" class="form-control" aria-label="With textarea"></textarea>
 					</div>
 					<br/>
-					<button name="add_subject" class="btn btn-primary">Add Subject</button> 
+					<?php 
+						echo "<a href=teacher_home.php?teacher_id=",urlencode($id)," class='btn clever-btn'>Back</a>";
+					?> 
+					<button name="add_subject" class="btn btn-success pull-right">Add Subject</button> 
 			   </form>
 			</div>
 		</div>

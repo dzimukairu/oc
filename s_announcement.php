@@ -7,15 +7,27 @@
 	$id = $_GET['announcement_id'];
 	$s_id = $_GET['s_id'];
 
-	// if(isset($_POST['update_announcement'])){
-	// 	$new_title = ($_POST['new_title']);
-	// 	$new_content = ($_POST['new_content']);
+	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, announcement.title, announcement.content, announcement.date_posted  from subject INNER JOIN announcement on (announcement.announcement_id = $id and subject.subject_id = announcement.subject_id)";
 
-	// 	$update_query = "UPDATE announcement SET title = '$new_title', content = '$new_content' WHERE announcement_id = '$id'";
-	// 	if ($update_connect = mysqli_query($dbconn, $update_query)) {
-	// 		header("Location: announcement.php?announcement_id=".$id);
-	// 	}
-	// }
+	$result = mysqli_query($dbconn, $sql);
+	$row = mysqli_fetch_array($result);
+							
+	$subject_id = $row['subject_id'];
+	$subject_code = $row['subject_code']; 
+	$course_title = $row['course_title'];
+	$course_description = $row['course_description'];
+	$course_about = $row['course_about'];
+
+	$announcement_title = $row['title'];
+	$announcement_content = $row['content'];
+	$date_posted = $row['date_posted'];
+
+	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$s_id';");
+	$srow = mysqli_fetch_array($get_student);
+
+	$s_username = $srow['username'];
+	$s_firstname = $srow['first_name'];
+	$s_lastname = $srow['last_name'];
 
 	if(isset($_POST['add_comment'])){
 		$content = $_POST['scomment'];
@@ -93,17 +105,18 @@
 
 						<!-- Nav Start -->
 						<div class="classynav">
-							<ul>
+							<!-- <ul>
 								<li><a href="teacher_home.php">Home</a></li>
-							</ul>
+							</ul> -->
 
 							<!-- Register / Login -->
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
-									<div class="dropdown">
-										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Username</a>
+									<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
-											<a class="dropdown-item" href="teacher_home.php">Home</a>
+											<?php 
+												echo "<a href=student_home.php?student_id=",urlencode($s_id)," class='dropdown-item'>Home</a>";
+											?>
 											<a class="dropdown-item" href="#">Profile</a>
 											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
@@ -140,25 +153,6 @@
 				<div class="col-12">
 					<!-- Hero Content -->
 					<div class="hero-content text-center">
-						<?php
-							$id = $_GET['announcement_id'];
-							
-							$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, announcement.title, announcement.content, announcement.date_posted  from subject INNER JOIN announcement on (announcement.announcement_id = $id and subject.subject_id = announcement.subject_id)";
-
-							$result = mysqli_query($dbconn, $sql);
-							$row = mysqli_fetch_array($result);
-							
-							$subject_id = $row['subject_id'];
-							$subject_code = $row['subject_code']; 
-							$course_title = $row['course_title'];
-							$course_description = $row['course_description'];
-							$course_about = $row['course_about'];
-
-							$announcement_title = $row['title'];
-							$announcement_content = $row['content'];
-							$date_posted = $row['date_posted'];
-					   
-						?>
 						<h2><?php echo $course_description;?></h2>
 						<h3><?php echo $course_title;?></h3>
 					</div>

@@ -248,7 +248,7 @@
 													</div>
 												</div>
 												<div class="row form-group">
-													<div class="col-12 col-md-6">
+													<div class="col-12 col-lg-6">
 														<label for="user_type">Register As:</label>
 														<select name="type" id="user_type" class="form-control">
 															<option value="1">Teacher</option>
@@ -256,6 +256,20 @@
 														</select>
 													</div>
 												</div>
+												<!-- <div class="row">
+													<div class="col-12 col-lg-6">
+														<label for="pwd">ID Number:</label>
+															<input type="password" class="form-control" name="idnum" id="idnum">
+													</div>
+													<div class="col-12 col-lg-6">
+														<label for="user_type">Register As:</label>
+														<select name="type" id="user_type" class="form-control">
+															<option value="1">Teacher</option>
+															<option value="0">Student</option>
+														</select>
+													</div>
+												</div>
+												<br> -->
 												<div class="col-12">
 													<button class="btn clever-btn w-100" name="register">Create Account</button>
 												</div>

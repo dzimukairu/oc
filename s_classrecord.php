@@ -2,6 +2,8 @@
 	include("db_connection.php");
 
 	$id = $_GET['subject_id'];
+	$s_id = $_GET['s_id'];
+
 	$sql = "SELECT subject_code, course_title, course_description, course_about, teacher_id from subject where subject_id = $id";
 	
 	$result = mysqli_query($dbconn, $sql);
@@ -13,14 +15,16 @@
 	$course_about = $row['course_about'];
 	$teacher_id = $row['teacher_id'];
 
-	$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$teacher_id';");
-	$trow = mysqli_fetch_array($get_teacher);
+	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$s_id';");
+	$srow = mysqli_fetch_array($get_student);
 
-	$t_username = $trow['username'];
-	$t_firstname = $trow['first_name'];
-	$t_lastname = $trow['last_name'];
+	$s_username = $srow['username'];
+	$s_firstname = $srow['first_name'];
+	$s_lastname = $srow['last_name'];
 
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -104,10 +108,10 @@
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
 									<div class="dropdown">
-										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
+										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=teacher_home.php?teacher_id=",urlencode($teacher_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=student_home.php?student_id=",urlencode($s_id)," class='dropdown-item'>Home</a>";
 											?>
 											<a class="dropdown-item" href="#">Profile</a>
 											<a class="dropdown-item" href="index.php">Logout</a>
@@ -226,7 +230,7 @@
 				</div>
 			</div>
 			<?php 
-				echo "<a href=teacher_course.php?subject_id=",urlencode($id)," class='btn clever-btn pull-right'>Back</a>";
+				echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($id)," class='btn clever-btn pull-right'>Back</a>";
 			?>
 			<button type="button" class="btn btn-primary pull-right clever-btn mb-30" data-toggle="modal" data-target="#editClassrecord" style="margin-right: 5px;">Edit</button>
 		</div>
