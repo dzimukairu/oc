@@ -112,7 +112,7 @@ function checkEmail() {
         return false;
     }
     else {
-        var pattern = /^[a-zA-Z0-9_-]+@[A-Z0-9.]+\.[A-Z]{2,}$/igm;
+        var pattern = /^[a-zA-Z0-9_-]+@[A-Z0-9a-z]+\.[a-zA-Z]{2,}$/igm;
         var match = pattern.test(email);
         console.log(match);
         if (match) {

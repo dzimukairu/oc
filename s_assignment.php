@@ -5,6 +5,7 @@
 	date_default_timezone_set("Asia/Manila");
 
 	$id = $_GET['assignment_id'];
+	$s_id = $_GET['s_id'];
 
 	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, subject.teacher_id, assignment.title, assignment.instruction, assignment.date_posted, assignment.deadline_date, assignment.deadline_time  from subject INNER JOIN assignment on (assignment.assignment_id = $id and subject.subject_id = assignment.subject_id)";
 
@@ -29,12 +30,12 @@
 	$xdate = new DateTime($combinedtime);
 	$combinedtime = date_format($xdate, 'M d, Y - h:i A');
 
-	$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$teacher_id';");
-	$trow = mysqli_fetch_array($get_teacher);
+	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$s_id';");
+	$srow = mysqli_fetch_array($get_student);
 
-	$t_username = $trow['username'];
-	$t_firstname = $trow['first_name'];
-	$t_lastname = $trow['last_name'];
+	$s_username = $srow['username'];
+	$s_firstname = $srow['first_name'];
+	$s_lastname = $srow['last_name'];
 
 	if(isset($_POST['update_assignment'])){
 		$new_title = ($_POST['new_title']);
@@ -119,10 +120,10 @@
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
 									<div class="dropdown">
-										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
+										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=teacher_home.php?teacher_id=",urlencode($teacher_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=student_home.php?student_id=",urlencode($s_id)," class='dropdown-item'>Home</a>";
 											?>
 											<a class="dropdown-item" href="#">Profile</a>
 											<a class="dropdown-item" href="index.php">Logout</a>
@@ -199,12 +200,10 @@
 							echo $y;
 						?></p>
 											
-						<?php 
-							echo "<a href=teacher_course.php?subject_id=",urlencode($subject_id),">
-								<button class='btn btn-success'>View All Assignments</button>
-							</a>";
-						?>
+
 						<button class="btn btn-info" data-toggle="modal" data-target="#update-assignment-modal">Update</button>
+						<!-- <button class="btn btn-danger" onclick="javascript:location.href='assignment_delete.php?id=<?php echo $id;?>';">Delete</button> -->
+
 						<button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
 
 						<script>
@@ -221,7 +220,7 @@
 
 				<div style="margin-top:12px;">
 					<?php 
-						echo "<a href=teacher_course.php?subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
+						echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
 					?>
 				</div>
 			</div>

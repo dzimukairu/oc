@@ -3,63 +3,51 @@
 
 	$error = '';
 	$error2 = '';
+	$error3 = '';
 
 	//for creating account
 	if(isset($_POST['register']) ) {
-
 		$first_name = ($_POST['first_name']);
 		$last_name = ($_POST['last_name']);
 		$username = ($_POST['username']);
 		$email = ($_POST['email']);
 		$pwd = ($_POST['pwd']);
 		$retype_pwd = ($_POST['retype_pwd']);
-		$type = ($_POST['type']);
+		$user_type = ($_POST['user_type']);
 		
 
 		//checks if the input fields are empty
-		if (empty($first_name)|empty($last_name)|empty($username)|empty($email)|empty($pwd)|empty($retype_pwd)|empty($type) ) {
+		if (empty($first_name)|empty($last_name)|empty($username)|empty($email)|empty($pwd)|empty($retype_pwd)|empty($user_type) ) {
 			$error2= 'Please fillup all the fields below';
-		}
-
-		//checks if the password matched
-		if($_POST['pwd']!=$_POST['retype_pwd']){
+		} else if ($_POST['pwd']!=$_POST['retype_pwd']) {
 			$error2= 'Password does not match';
-		}
-
-
-		//teacher registration
-		if ($type == 1){
-			$checkUserQuery_teacher = "SELECT username from teacher  WHERE username = '$username'";
-			$dupUserRes_teacher = mysqli_query($dbconn,$checkUserQuery_teacher);
-			$affected_rows_teacher = mysqli_num_rows($dupUserRes_teacher);
-			if ($affected_rows_teacher != 0) {
-				$error2="username already taken";
-			}
-			else{
-				$query= "INSERT into teacher(first_name, last_name, username, email_address, password) VALUES('$first_name','$last_name', '$username', '$email', sha1($pwd) )";
-				if($result = mysqli_query($dbconn, $query)){
-					$_SESSION['username'] = $username;
-					header("Location: teacher_home.php");
+		} else {
+			if ($user_type == 1) {
+				$username_check = $dbconn->query("SELECT username from teacher where username = '$username'");
+				$checknum = mysqli_num_rows($username_check);
+				if ($checknum >= 1) {
+					$error2 = 'Username exist, please input another username.';
+				} else {
+					$input_teacher = $dbconn->query("INSERT INTO teacher(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
+					if ($input_teacher) {
+						$_SESSION['username'] = $username;
+						$error3 = "You may now log-in.";
+					}
 				}
-			}  
-		}
-
-		//student_registration
-		if ($type == 0){
-			$checkUserQuery_student = "SELECT username from student  WHERE username = '$username'";
-			$dupUserRes_student = mysqli_query($dbconn,$checkUserQuery_student);
-			$affected_rows_student = mysqli_num_rows($dupUserRes_student);
-			if ($affected_rows_student != 0) {
-				$error2="username already taken";
-			}
-			else{
-				$query_student= "INSERT into student(first_name, last_name, username, email_address, password) VALUES('$first_name','$last_name', '$username', '$email', sha1($pwd) )";
-				if($result2 = mysqli_query($dbconn, $query_student)){
-					$_SESSION['username'] = $username;
-					header("Location: student_home.php");
+			} else if ($user_type == 0) {
+				$username_check = $dbconn->query("SELECT username from student where username = '$username'");
+				$checknum = mysqli_num_rows($username_check);
+				if ($checknum >= 1) {
+					$error2 = 'Username exist, please input another username.';
+				} else {
+					$input_student = $dbconn->query("INSERT INTO student(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
+					if ($input_student) {
+						$_SESSION['username'] = $username;
+						$error3 = "You may now log-in.";
+					}
 				}
 			}
-		}     
+		}
 	}
 	//create account end
 
@@ -67,7 +55,8 @@
 	//for login
 	if(isset($_POST['login_form'])){
 		$username_log = $_POST['username_log'];    
-		$password_log = $_POST['password_log']; 
+		$password_log = $_POST['password_log'];
+
 
 		if((empty($username_log )) && (empty($password_log))){
 			$error = 'Please enter your username and password.';
@@ -76,8 +65,6 @@
 		} else if(empty($password_log)){
 			$error = 'Please enter your password.';
 		} else {
-			$teacher_query = $dbconn->query("SELECT * FROM teacher WHERE username = '$username_log' and password = $password_log");
-		   
 			$teacher_query = "SELECT * FROM teacher WHERE username = '$username_log' and password = '$password_log'";
 
 			$result = mysqli_query($dbconn, $teacher_query);
@@ -193,11 +180,13 @@
 								<!-- Tab Text -->
 								<div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab--1">
 									<div class="clever-description">
+										<h7 class="text-danger"><?php echo $error2 ?></h7>
+										<h7 class="text-success"><?php echo $error3 ?></h7>
+										<br>
 
 										<!-- About Course -->
 										<div class="about-course mb-30">
 											<h4>Create Account</h4>
-											<h7 class="text-danger"><?php echo $error2 ?></h7>
 											<form method="post" id="createAccountForm">
 												<div class="row">
 													<div class="col-12 col-lg-6">
@@ -250,7 +239,7 @@
 												<div class="row form-group">
 													<div class="col-12 col-lg-6">
 														<label for="user_type">Register As:</label>
-														<select name="type" id="user_type" class="form-control">
+														<select name="user_type" id="user_type" class="form-control">
 															<option value="1">Teacher</option>
 															<option value="0">Student</option>
 														</select>
@@ -283,12 +272,11 @@
 				</div>
 
 				<div class="col-12 col-lg-4">
+					<h7 class="text-danger"><?php echo $error;?></h7>
+					<br>
 					<div class="course-sidebar">
 						<div class="sidebar-widget">
 							<h4>Login</h4>
-							<h7 class="text-danger">
-								<?php echo $error;?>
-							</h7>
 							<form method="post">
 								<div class="col-12 col-lg-12">
 									<div class="form-group">

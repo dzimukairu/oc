@@ -6,7 +6,7 @@
 
 	$id = $_GET['announcement_id'];
 
-	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, announcement.title, announcement.content, announcement.date_posted  from subject INNER JOIN announcement on (announcement.announcement_id = $id and subject.subject_id = announcement.subject_id)";
+	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, subject.teacher_id, announcement.title, announcement.content, announcement.date_posted  from subject INNER JOIN announcement on (announcement.announcement_id = $id and subject.subject_id = announcement.subject_id)";
 
 	$result = mysqli_query($dbconn, $sql);
 	$row = mysqli_fetch_array($result);
@@ -16,6 +16,7 @@
 	$course_title = $row['course_title'];
 	$course_description = $row['course_description'];
 	$course_about = $row['course_about'];
+	$teacher_id = $row['teacher_id'];
 
 	$announcement_title = $row['title'];
 	$announcement_content = $row['content'];
@@ -40,9 +41,9 @@
 
 	if(isset($_POST['add_comment'])){
 		$content = $_POST['tcomment'];
-		$t_id = $_POST['teach_id'];
+		$t_uname = $_POST['t_uname'];
 
-		$add_comment_query = "INSERT into announcement_comment(announcement_id, teacher_id, content, date_posted) values('$id', '$t_id', '$content', NOW())";
+		$add_comment_query = "INSERT into announcement_comment(announcement_id, username, content, date_posted) values('$id', '$t_uname', '$content', NOW())";
 		if ($add_comment_connect = mysqli_query($dbconn, $add_comment_query)) {
 			header("Location: announcement.php?announcement_id=".$id);
 		}
@@ -73,6 +74,15 @@
 
 
 	<!-- https://stephanwagner.me/auto-resizing-textarea -->
+	<style>
+		table {
+			border-collapse: collapse;
+		}
+		tr td {
+			padding: 0 !important; 
+			margin: 0 !important;
+		}
+	</style>
 </head>
 
 <body>
@@ -158,12 +168,6 @@
 				<div class="col-12">
 					<!-- Hero Content -->
 					<div class="hero-content text-center">
-						<?php
-							$id = $_GET['announcement_id'];
-							
-							
-					   
-						?>
 						<h2><?php echo $course_description;?></h2>
 						<h3><?php echo $course_title;?></h3>
 					</div>
@@ -216,58 +220,62 @@
 																									
 						if ($affected != 0) {
 							while ($row = mysqli_fetch_row($connect_to_db)) {
+								$get_uname = $row[2];
+								$content = $row[3];
+								$d_post = $row[4];
 
-							if ($row[2] != 0 && $row[3] == 0) {
-								$student_id = $row[2];
-								$student_query = $dbconn->query("SELECT * FROM `student` WHERE student_id = $student_id");
+								$xdate = new DateTime($d_post);
+								$show_post = date_format($xdate, 'M d, Y - h:i A');
 
-								$srow = mysqli_fetch_row($student_query);
-								$first_name = $srow[1];
-								$last_name = $srow[2];
-							} else {
-								$teacher_id = $row[3];
+								$student_query = $dbconn->query("SELECT * FROM student WHERE username = '$get_uname'");
 
-								$teacher_query = $dbconn->query("SELECT * FROM `teacher` WHERE teacher_id = $teacher_id");
+								if (mysqli_num_rows($student_query) == 1) {
+									$srow = mysqli_fetch_row($student_query);
+									$first_name = $srow[1];
+									$last_name = $srow[2];
+								} else {
+									$teacher_query = $dbconn->query("SELECT * FROM teacher WHERE username = '$get_uname'");
 
-								$trow = mysqli_fetch_row($teacher_query);
-								$first_name = $trow[1];
-								$last_name = $trow[2];
-							}
+									$trow = mysqli_fetch_row($teacher_query);
+									$first_name = $trow[1];
+									$last_name = $trow[2];
+								}
+							
 					?>
 						<div>
-							<table class="table table-borderless">
+							<table class="table table-borderless table-condensed">
 								<tr>
 									<?php
-										echo "<th scope='row' style='width: 15%;'>".$first_name." ".$last_name."</th>";
-										echo "<td style='width: 85%;'>".$row[4]."</td>";
+										echo "<th style='width: 15%;' rowspan='2'>".$first_name." ".$last_name."</th>";
+										echo "<td style='width: 85%;' colspan='3'>".$content."</td>";
 									?>
 								</tr>
-							<?php }}
-
-								$get_teacher_query = $dbconn->query("SELECT teacher_id FROM `subject` WHERE subject_id = $subject_id");
-
-								$gett = mysqli_fetch_array($get_teacher_query);
-								$t_id = $gett['teacher_id'];
-
-								$teacher_query = $dbconn->query("SELECT * FROM `teacher` WHERE teacher_id = $t_id");
-
-								$trow = mysqli_fetch_row($teacher_query);
-								$tfirst_name = $trow[1];
-								$tlast_name = $trow[2];
-							?>	
 								<tr>
-									<th>asdasd</th>
-									<td>asdasdasd</td>
+									<?php
+										echo "<td style='width: 85%;' colspan='3'><h7>".$show_post."</h7></td>";
+									?>
 								</tr>
+							<?php 
+								}}
+							?>
+							</table>
+							<br>
+							<table class="table table-borderless">
 								<tr>
-									<th scope="row"><?php echo $tfirst_name." ".$tlast_name?></th>
+									<th style='width: 15%;'><?php echo $t_firstname." ".$t_lastname?></th>
 									<form method="POST" action="announcement.php?announcement_id=<?php echo $id?>">
-										<input name="teach_id" value="<?php echo $t_id; ?>" hidden>
+										<input name="t_uname" value="<?php echo $t_username; ?>" hidden>
 										<td>
-											<textarea data-autoresize rows="1" class="form-control expand_this" name="tcomment" id="tcomment"></textarea>
+											<div class="input-group mb-3">
+  												<textarea data-autoresize rows="1" class="form-control expand_this" name="tcomment" id="tcomment"></textarea>
+  												<div class="input-group-append">
+  													<span>&nbsp;</span>
+  													<input type="reset" class="btn" value="X">
+  													<span>&nbsp;</span>
+    												<button  class="btn btn-success" name="add_comment">Post</button>
+  												</div>
+											</div>
 										</td>
-										<td><input type="reset" class="btn" value="Cancel"></td>
-										<td><button  class="btn btn-success" name="add_comment">Post</button></td>
 									</form>
 								</tr>
 							</table>

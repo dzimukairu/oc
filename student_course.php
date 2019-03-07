@@ -260,7 +260,7 @@
 												while ($row = mysqli_fetch_row($connect_to_db)) {
 
 												$a_id = $row[0];
-												echo "<a href=assignment.php?s_assignment_id=",urlencode($a_id),">";
+												echo "<a href=s_assignment.php?s_id=",urlencode($s_id),"&assignment_id=",urlencode($a_id),">";
 													
 										?>
 														<div class="about-curriculum mb-30">

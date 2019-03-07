@@ -102,9 +102,9 @@
 	
 	<section>
 		<div class="container">
-			<!-- <?php 
-				echo "<a href=add_subject.php?teacher_id=",urlencode($id)," class='btn btn-primary clever-btn'>Create Subject</a>";
-			?> -->
+			<?php 
+				echo "<a href=add_subject.php?student_id=",urlencode($id)," class='btn btn-primary clever-btn'>Add Subject</a>";
+			?>
 
 			<div class="free-space">
 				<br/>

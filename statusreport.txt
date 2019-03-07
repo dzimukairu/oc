@@ -38,16 +38,27 @@ Overall:
 
 ######################################################################################################################
 
+add_sub.php
+	Adding subject
+		-done-
+
 add_subject.php
-	-done-
+	Show Subjects
+		-done-
+
+	Adding subjects
+		--> add_sub.php
 
 announcement.php
 	Preview
 		-done-
+
 	Update
 		-done-
+
 	Delete
 		--> announcement_delete.php
+
 		Prompt
 			-done-
 
@@ -55,6 +66,7 @@ announcement.php
 	Comments Section
 		Preview
 			-done-
+
 		Teacher can comment
 			-done- but not sure
 
@@ -67,10 +79,13 @@ assignment.php
 
 	Preview
 		-done-
+
 	Update
 		-done-
+
 	Delete
 		--> announcement_delete.php
+
 		Prompt
 			-done-
 
@@ -81,12 +96,16 @@ assignment_delete.php
 classrecord.php
 	wala pa na responsive du edit classrecord.
 
+create_subject.php
+	-done-
+
 db_connection.php
-	no errors found.
+	-done-
 
 index.php
 	Register
-		...
+		-done-
+
 	Login
 		Student
 			-done-
@@ -110,7 +129,15 @@ student_course.php
 	wala pa nacheck
 
 student_home.php
-	-done-
+	Add subjects
+		--> add_subject.php
+
+	Preview Subjects
+		-done-
+
+	Search Subjects
+		...
+
 
 
 ######################################################################################################################
@@ -135,24 +162,32 @@ teacher_course.php
 	assignment
 		Create
 			--> teacher_assignment.php
+
 		Preview
 			-done-
+
 		Open
 			--> assignment.php
+
 		Update
 			--> assignment.php
+
 		Delete
 			--> assignment.php
 
 	announcement
 		Create
 			--> teacher_announcement.php
+
 		Preview
 			-done-
+
 		Open
 			--> announcement.php
+
 		Update
 			--> announcement.php
+			
 		Delete
 			--> announcement.php
 
@@ -190,6 +225,9 @@ teacher_course.php
 		Delete
 
 teacher_home.php
+	Create Subjects
+		--> create_subject.php
+
 	Show Subjects
 		-done-
 

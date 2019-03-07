@@ -31,9 +31,9 @@
 
 	if(isset($_POST['add_comment'])){
 		$content = $_POST['scomment'];
-		$s_id = $_POST['student_id'];
+		$s_uname = $_POST['s_uname'];
 
-		$add_comment_query = "INSERT into announcement_comment(announcement_id, student_id, content, date_posted) values('$id', '$s_id', '$content', NOW())";
+		$add_comment_query = "INSERT into announcement_comment(announcement_id, username, content, date_posted) values('$id', '$s_uname', '$content', NOW())";
 		if ($add_comment_connect = mysqli_query($dbconn, $add_comment_query)) {
 			header("Location: s_announcement.php?s_id=".$s_id."&announcement_id=".$id);
 		}
@@ -60,15 +60,20 @@
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="css/expand.css">
 	<link rel="stylesheet" href="css/bootstrap-toggle.min.css">
+
 	<script src="js/getdate.js"></script>
 
 
 	<!-- https://stephanwagner.me/auto-resizing-textarea -->
-	<!-- <script>
-		function f1() {
-			document.getElementById("tcomment").reset();
+	<style>
+		table {
+			border-collapse: collapse;
 		}
-	</script> -->
+		tr td {
+			padding: 0 !important; 
+			margin: 0 !important;
+		}
+	</style>
 </head>
 
 <body>
@@ -112,7 +117,8 @@
 							<!-- Register / Login -->
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
-									<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
+									<div class="dropdown">
+										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
 												echo "<a href=student_home.php?student_id=",urlencode($s_id)," class='dropdown-item'>Home</a>";
@@ -174,7 +180,6 @@
 						<br>
 						<p><?php 
 							$xdate = new DateTime($date_posted);
-							// $x = DateTime::createFromFromat('M d, Y', $xdate);
 							$y = date_format($xdate, 'M d, Y - h:i A');
 							echo $y;
 						?></p>
@@ -203,63 +208,63 @@
 																									
 						if ($affected != 0) {
 							while ($row = mysqli_fetch_row($connect_to_db)) {
+								$get_uname = $row[2];
+								$content = $row[3];
+								$d_post = $row[4];
 
-							if ($row[2] != 0 && $row[3] == 0) {
-								$student_id = $row[2];
-								$student_query = $dbconn->query("SELECT * FROM `student` WHERE student_id = $student_id");
+								$xdate = new DateTime($d_post);
+								$show_post = date_format($xdate, 'M d, Y - h:i A');
 
-								$srow = mysqli_fetch_row($student_query);
-								$first_name = $srow[1];
-								$last_name = $srow[2];
-							} else {
-								$teacher_id = $row[3];
+								$student_query = $dbconn->query("SELECT * FROM student WHERE username = '$get_uname'");
 
-								$teacher_query = $dbconn->query("SELECT * FROM `teacher` WHERE teacher_id = $teacher_id");
+								if (mysqli_num_rows($student_query) == 1) {
+									$srow = mysqli_fetch_row($student_query);
+									$first_name = $srow[1];
+									$last_name = $srow[2];
+								} else {
+									$teacher_query = $dbconn->query("SELECT * FROM teacher WHERE username = '$get_uname'");
 
-								$trow = mysqli_fetch_row($teacher_query);
-								$first_name = $trow[1];
-								$last_name = $trow[2];
-							}
+									$trow = mysqli_fetch_row($teacher_query);
+									$first_name = $trow[1];
+									$last_name = $trow[2];
+								}
+							
 					?>
 						<div>
 							<table class="table table-borderless">
 								<tr>
 									<?php
-										echo "<th style='width: 15%;'>".$first_name." ".$last_name."</th>";
-										echo "<td style='width: 85%;'>".$row[4]."</td>";
+										echo "<th style='width: 15%;' rowspan='2'>".$first_name." ".$last_name."</th>";
+										echo "<td style='width: 85%;' colspan='3'>".$content."</td>";
 									?>
 								</tr>
-							<?php }}
-
-								$get_teacher_query = $dbconn->query("SELECT teacher_id FROM `subject` WHERE subject_id = $subject_id");
-
-								$gett = mysqli_fetch_array($get_teacher_query);
-								$t_id = $gett['teacher_id'];
-
-								$teacher_query = $dbconn->query("SELECT * FROM `teacher` WHERE teacher_id = $t_id");
-
-								$trow = mysqli_fetch_row($teacher_query);
-								$tfirst_name = $trow[1];
-								$tlast_name = $trow[2];
-							?>	
 								<tr>
 									<?php
-										$sql = $dbconn->query("SELECT first_name, last_name from student where student_id = $s_id");
-
-										$row = mysqli_fetch_array($sql);
-
-										$sfirst_name = $row['first_name'];
-										$slast_name = $row['last_name']
+										echo "<td style='width: 85%;' colspan='3'><h7>".$show_post."</h7></td>";
 									?>
-									<th scope="row"><?php echo $sfirst_name." ".$slast_name?></th>
-									<form method="POST" action="s_announcement.php?s_id=<?php echo $s_id?>&announcement_id=<?php echo $id?>">
-										<input name="student_id" value="<?php echo $s_id; ?>" hidden>
+								</tr>
+							<?php 
+								}}
+							?>	
+
+							</table>
+							<br>
+							<table class="table table-borderless">
+								<tr>
+									<th style='width: 15%;'><?php echo $s_firstname." ".$s_lastname?></th>
+									<form id="form1" method="POST" action="s_announcement.php?s_id=<?php echo $s_id?>&announcement_id=<?php echo $id?>">
+										<input name="s_uname" value="<?php echo $s_username; ?>" hidden>
 										<td>
-											<!-- <input contenteditable="true" type="text" class="form-control" name="scomment" id="scomment"> -->
-											<textarea data-autoresize rows="1" class="form-control expand_this" name="scomment" id="scomment"></textarea>
+											<div class="input-group mb-3">
+  												<textarea data-autoresize rows="1" class="form-control expand_this" name="scomment" id="scomment"></textarea>
+  												<div class="input-group-append">
+  													<span>&nbsp;</span>
+  													<input type="reset" class="btn" value="X">
+  													<span>&nbsp;</span>
+    												<button class="btn btn-success" name="add_comment">Post</button>
+  												</div>
+											</div>
 										</td>
-										<td><input type="reset" class="btn" value="Cancel"></td>
-										<td><button  class="btn btn-success" name="add_comment">Post</button></td>
 									</form>
 								</tr>
 							</table>

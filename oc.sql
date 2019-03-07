@@ -75,13 +75,11 @@ create table announcement(
 create table announcement_comment(
 	id int(100) not null auto_increment,
 	announcement_id int(100) not null,
-	student_id int(100) not null,
-	teacher_id int(100) not null,
+	username varchar(100) not null,
 	content varchar(1000) not null,
 	date_posted timestamp not null,
 	primary key(id),
 	foreign key(announcement_id) references announcement(announcement_id)
-	-- foreign key(student_id) references student(student_id)
 );
 
 create table assignment(
