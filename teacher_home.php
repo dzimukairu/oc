@@ -121,7 +121,7 @@
 						while ($row = mysqli_fetch_row($connect_to_db)) {?>
 							<div class="col-12 col-md-6 col-lg-4">
 								<div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="250ms">
-									<form method="post">
+									<!-- <form method="post"> -->
 									   <img src="img/bg-img/c1.jpg" alt="">
 									<!-- Course Content -->
 										<div class="course-content">
@@ -130,7 +130,7 @@
 												<h7><b><?php echo $row[3]?></b></h7>
 											</div>
 										</div> 
-									</form>
+									<!-- </form> -->
 								</div>
 							</div>
 						<?php } ?>

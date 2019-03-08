@@ -38,15 +38,26 @@ Overall:
 
 ######################################################################################################################
 
+add_stu.php
+	Adding Student
+		-done-
+
+add_student.php
+	Show Students
+		-done-
+
+	Adding Students
+		--> add_stu.php
+
 add_sub.php
-	Adding subject
+	Adding Subject
 		-done-
 
 add_subject.php
 	Show Subjects
 		-done-
 
-	Adding subjects
+	Adding Subjects
 		--> add_sub.php
 
 announcement.php
@@ -102,6 +113,10 @@ create_subject.php
 db_connection.php
 	-done-
 
+del_student.php
+	PHP
+		-done-
+
 index.php
 	Register
 		-done-
@@ -109,6 +124,7 @@ index.php
 	Login
 		Student
 			-done-
+
 		Teacher
 			-done-
 
@@ -119,6 +135,24 @@ oc.sql
 		'teaches' table:
 			student_id gdman indi subject_id?
 
+s_announcement.php
+	Preview
+		-done-
+
+	Can Comment
+		-done-
+
+s_assignment.php
+	Preview
+		-done-
+
+	Can Post Assignment
+		...
+
+	Can Comment
+		...
+
+
 
 ######################################################################################################################
 
@@ -126,7 +160,30 @@ student_assignment.php
 	wala pa nacheck
 
 student_course.php
-	wala pa nacheck
+	About
+		-done-
+
+	Announcement
+		Preview
+			-done-
+
+		Open
+			-->s_announcement.php
+
+	Assignment
+		Preview
+			-done-
+
+		Open
+			-->s_assignment.php
+
+	Quiz
+		...
+
+	Members
+		Preview
+			-done-
+
 
 student_home.php
 	Add subjects
@@ -203,16 +260,15 @@ teacher_course.php
 		Delete
 
 	student
-		Create
-		
+		Add
+			--> add_student.php
 		Preview
-
+			-done-
 		Open
-
-		Update
-
+			...
 		Delete
-
+			--> del_student.php
+			
 	chat
 		Create
 		

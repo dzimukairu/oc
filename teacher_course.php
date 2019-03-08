@@ -218,7 +218,7 @@
 								<div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab--2">
 									<div class="clever-curriculum">
 										<?php 
-											echo "<a href=teacher_announcement.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'>Add Announcement</a>";
+											echo "<a href=teacher_announcement.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'><i class='fa fa-bullhorn'></i> Add Announcement</a>";
 									  
 											$subject_announcement_query= "SELECT * FROM `announcement` WHERE subject_id = $id order by date_posted desc";
 											$connect_to_db = mysqli_query($dbconn,$subject_announcement_query);
@@ -249,7 +249,7 @@
 																
 															?>
 														</div>
-												<?php } ?>
+												<?php echo "</a>"; } ?>
 											<?php } else {
 												echo "<h4>No announcements found.</h4>";
 											}?>
@@ -261,7 +261,7 @@
 								<div class="tab-pane fade" id="tab3" role="tabpanel" aria-labelledby="tab--3">
 									<div class="clever-curriculum">
 										<?php
-											echo "<a href=teacher_assignment.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'>Add Assignment</a>";
+											echo "<a href=teacher_assignment.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'><i class='fa fa-tasks'></i> Add Assignment</a>";
 
 											$subject_assignment_query= "SELECT * FROM `assignment` WHERE subject_id = $id order by date_posted desc";
 											$connect_to_db = mysqli_query($dbconn,$subject_assignment_query);
@@ -292,7 +292,7 @@
 																
 															?>
 														</div>
-												<?php } ?>
+												<?php  echo "</a>"; }  ?>
 											<?php } else {
 												echo "<h4>No assignments found.</h4>";
 											} ?>
@@ -302,25 +302,51 @@
 								<!-- Tab Text Students List -->
 								<div class="tab-pane fade" id="tab4" role="tabpanel" aria-labelledby="tab--4">
 									<div class="clever-members">
-										<!-- All Members -->
-										<button type="button" class="btn clever-btn mb-30" data-toggle="modal" data-target="#add-student-modal">Add Students</button>
+										<?php
+											echo "<a href=add_student.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'><i class='fa fa-user-plus'></i> Add Student</a>";
+										?>
+
 										<div class="all-instructors mb-30">
 											<div class="row">
 												<h6>Students List</h6>
 											</div>
 											<div class="row">
-												<!-- Single Student -->
-												<div class="col-lg-6">
-													<div class="single-instructor d-flex align-items-center mb-30">
-														<div class="instructor-thumb">
-															<img src="img/bg-img/t1.png" alt="">
+											
+											<?php
+												$get_student_id = "SELECT student_id FROM enrolls WHERE subject_id = '$id'";
+												$connect_to_db = mysqli_query($dbconn,$get_student_id);
+												$affected = mysqli_num_rows($connect_to_db);
+																										
+												if ($affected != 0) {
+													while ($row = mysqli_fetch_array($connect_to_db)) {
+														$student_id = $row['student_id'];
+
+														$get_student_query = $dbconn->query("SELECT * from student where student_id = '$student_id'");
+
+														$student = mysqli_fetch_array($get_student_query);
+													
+													echo "<a href=assignment.php?assignment_id=",urlencode($student_id),">";
+														
+											?>
+														<div class="col-lg-6">
+															<div class="single-instructor d-flex align-items-center mb-30">
+																<div class="instructor-thumb">
+																	<img src="img/bg-img/t1.png" alt="">
+																</div>
+																<div class="instructor-info">
+																	<?php 
+																		echo "<h6>".$student['first_name']." ".$student['last_name']."</h6>";
+																	?>
+																	<?php
+																		echo "<a href=del_student.php?subject_id=",urlencode($id),"&student_id=",urlencode($student_id)," class='btn text-danger'><i class='fa fa-user-times'></i> Remove</a>";
+																	?>
+																</div>
+															</div>
 														</div>
-														<div class="instructor-info">
-															<h5>Student's Name</h5>
-															<a class="text-danger" href="#">Remove</a>
-														</div>
-													</div>
-												</div>
+												<?php  echo "</a>"; } ?>
+											<?php } else {
+												echo "<h4>No students found.</h4>";
+											} ?>
 											</div>
 										</div>
 									</div>
@@ -329,7 +355,9 @@
 								<!-- Tab Text Quizzes -->
 								<div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="tab--5">
 									<div class="clever-review">
-										<a href="teacher_quiz.php" class="btn clever-btn mb-30">Add Quiz</a>
+										<?php
+											echo "<a href='#' class='btn clever-btn mb-30'><i class='fa fa-file-text'></i> Add Quiz</a>";
+										?>
 										<!-- Quiz -->
 										<div class="about-review mb-30">
 											<h4>Quizzes Given</h4>
@@ -346,7 +374,7 @@
 					<div class="course-sidebar">
 						<!-- Class Record -->
 						<?php 
-							echo "<a href=classrecord.php?subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'>Class Record</a>";
+							echo "<a href=classrecord.php?subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'><i class='fa fa-table'></i> Class Record</a>";
 						?>
 
 						<!-- <?php
