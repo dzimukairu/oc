@@ -155,15 +155,8 @@
 							$result = mysqli_num_rows($check_stu);
 
 							if ($result == 0) {
-								echo "No students found.";
+								echo "No student/s found named <b>".$search."</b>.";
 							} else {
-								// $check = $dbconn->query("SELECT subject_id from enrolls where student_id = '$student_id'");
-
-								// $all_enrolled_subjects = array();
-
-								// while ($sub = mysqli_fetch_array($check)) {
-								// 	$all_enrolled_subjects[] = $sub['subject_id'];
-								// }
 					?>
 								<table class="table">
 									<tr>
@@ -194,13 +187,13 @@
 													echo "Enrolled";
 												} else {
 											?>
-											<button class="btn" onclick='addStudent("<?php echo $subject_id; ?>", "<?php echo $student_id; ?>")'><i class="fa fa-plus"></i></button>
+											<button class="btn" onclick='addStudent("<?php echo $subject_id; ?>", "<?php echo $student_id; ?>", "<?php echo $row['first_name']." ".$row['last_name']?>")'><i class="fa fa-plus"></i></button>
 										<?php } ?>
 										</td>
 
 										<script>
-											function addStudent(subject_id, student_id) {
-												var add = confirm("Is this the right student you want to add?");
+											function addStudent(subject_id, student_id, name) {
+												var add = confirm("Do you want to add " + name + "?");
 
 												if (add == true) {
 													document.location.href = 'add_stu.php?subject_id='+subject_id+'&student_id='+student_id;

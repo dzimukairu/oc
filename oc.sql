@@ -53,12 +53,21 @@ create table classrecord(
 	foreign key(student_id) references student(student_id)
 );
 
+create table uploaded_files(
+	file_id int(100) not null auto_increment,
+	filename varchar(255) not null,
+	date_posted timestamp not null,
+	primary key(file_id)
+);
+
 create table learning_materials(
-	subject_id int(100) not null,
-	lecture_number int(100) not null,
+	id int(100) not null auto_increment,
 	title varchar(100) not null,
 	date_posted timestamp not null,
-	file blob not null,
+	subject_id int(100) not null,
+	file_id int(100) not null,
+	primary key(id),
+	foreign key(file_id) references uploaded_files(file_id),
 	foreign key(subject_id) references subject(subject_id)
 );
 
@@ -90,9 +99,25 @@ create table assignment(
 	deadline_time time not null,
 	title varchar(100) not null,
 	instruction varchar(1000) not null,
-	file blob not null,
+	score int(100) not null,
+	file_id int(100) null,
 	primary key(assignment_id),
+	foreign key(file_id) references uploaded_files(file_id),
 	foreign key(subject_id) references subject(subject_id)
+);
+
+create table answer_assignment(
+	id int(100) not null auto_increment,
+	content varchar(1000) not null,
+	date_posted timestamp not null,
+	grade int(100) null,
+	student_id int(100) not null,
+	file_id int(100) null,
+	assignment_id int(100) not null,
+	primary key(id),
+	foreign key(student_id) references student(student_id),
+	foreign key(file_id) references uploaded_files(file_id),
+	foreign key(assignment_id) references assignment(assignment_id)
 );
 
 create table quiz(

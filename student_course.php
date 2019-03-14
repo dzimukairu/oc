@@ -144,7 +144,7 @@
 						<div class="clever-tabs-content">
 							<ul class="nav nav-tabs" id="myTab" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link active" id="tab--1" data-toggle="tab" href="#tab1" role="tab" aria-controls="tab1" aria-selected="false">About</a>
+									<a class="nav-link active" id="tab--1" data-toggle="tab" href="#tab1" role="tab" aria-controls="tab1" aria-selected="false">Main</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link" id="tab--2" data-toggle="tab" href="#tab2" role="tab" aria-controls="tab2" aria-selected="true">Announcement</a>
@@ -178,25 +178,34 @@
 										<!-- All Learning Materials -->
 										<button type="button" class="btn clever-btn mb-30" data-toggle="modal" data-target="#upload-modal" hidden>Add Learning Materials</button>
 										<div class="all-instructors mb-30">
-											<h6>Learning Materials</h6>
+											<h4>Learning Materials</h4>
 											<div class="row">
 												<div class="col-lg-6">
-													<div class="single-learning-materials mb-50 wow fadeInUp" data-wow-delay="500ms">
-														<div class="events-thumb">
-															<img src="img/document.png" alt="">
-															<h6 class="lecture-number">Lecture 2</h6>
-															<h4 class="lecture-title">Lecture No.2 Topic</h4>
-														</div>
-														<div class="open-save d-flex justify-content-between">
-															<div class="extra-space">
-																<span></span>
-															</div>
-															<div class="save-btn">
-																<a class="delete" href="#">Delete</a>
-																<a href="#">Save</a>
-															</div>
-														</div>
-													</div>
+													<?php
+														$get_lecture_id = $dbconn->query("SELECT * from learning_materials where subject_id = '$id'");
+
+														if (mysqli_num_rows($get_lecture_id) == 0) {
+															echo "<h5>No Uploaded File/s.</h5>";
+														} else {
+															while ($row = mysqli_fetch_array($get_lecture_id)) {
+																$f_id = $row['file_id'];
+																$f_title = $row['title'];
+
+																$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$f_id'");
+																$frow = mysqli_fetch_array($get_file);
+																$f_name = $frow['filename']
+
+																?>
+																<h6>
+																	<?php echo $f_title?>
+																	<a href='uploads/<?php echo $f_name ?>'>(<i class='fa fa-download'></i> Download)</a>
+																<h6>
+
+																<?php
+
+															}
+														}
+													?>
 												</div>
 											</div>
 										</div>
@@ -222,20 +231,13 @@
 										?>
 														<div class="about-curriculum mb-30">
 															<?php 
-																echo "<h6>".$row[3]."</h6>";
-																echo "<p>".$row[4]."</p>";
+																echo "<h5>".$row[3]."</h5>";
+																echo "<h7>".$row[4]."</h7>";
 
 																$xdate = new DateTime($row[2]);
-																// $x = DateTime::createFromFromat('M d, Y', $xdate);
 																$y = date_format($xdate, 'M d, Y - h:i A');
-																echo "<br>";
-																echo $y;
-
-																echo "<br>";
-																echo "<br>";
-																echo "<br>";
-																$a_id = $row[0];
-																
+																echo "<br><br><br>";
+																echo "<p>".$y."</p>";
 															?>
 														</div>
 												<?php } ?>
@@ -265,19 +267,19 @@
 										?>
 														<div class="about-curriculum mb-30">
 															<?php 
-																echo "<h6>".$row[5]."</h6>";
-																echo "<p>".$row[6]."</p>";
+																echo "<h5>".$row[5]."</h5>";
+																echo "<h7>".$row[6]."</h7>";
+																echo "<br>";
+
+																$combinedtime = date('Y-m-d H:i:s', strtotime("$row[3] $row[4]"));
+																$xdate = new DateTime($combinedtime);
+																$combinedtime = date_format($xdate, 'M d, Y - h:i A');
+																echo "<h7>Deadline: ".$combinedtime."</h7>";
 
 																$xdate = new DateTime($row[2]);
-																// $x = DateTime::createFromFromat('M d, Y', $xdate);
 																$y = date_format($xdate, 'M d, Y - h:i A');
-																echo "<br>";
-																echo $y;
-
-																echo "<br>";
-																echo "<br>";
-																echo "<br>";
-																$a_id = $row[0];
+																echo "<br><br><br>";
+																echo "<p>".$y."</p>";
 																
 															?>
 														</div>
@@ -297,10 +299,44 @@
 
 										<div class="all-instructors mb-30">
 											<div class="row">
+												<h6>Teacher</h6>
+											</div>
+
+											<?php
+												$get_teacher_id_query = $dbconn->query("SELECT teacher_id from subject where subject_id = '$id' ");
+												$row = mysqli_fetch_array($get_teacher_id_query);
+												$teacher_id = $row['teacher_id'];
+
+												$get_teacher_query = $dbconn->query("SELECT * from teacher where teacher_id = '$teacher_id' ");
+												$teacher = mysqli_fetch_array($get_teacher_query);
+											?>
+
+											<div class='row'>
+												<div class="col-lg-12">
+													<div class="single-instructor d-flex align-items-center mb-30">
+														<div class="instructor-thumb">
+															<img src="img/bg-img/t1.png" alt="">
+														</div>
+														<div class="instructor-info">
+															<?php 
+																echo "<h6>".$teacher['first_name']." ".$teacher['last_name']."</h6>";
+															
+															?>
+															<button class="btn btn-info">
+																<a><i class="fa fa-comments-o fa-2x"> Chat</i></a>
+															</button>
+
+														</div>
+														<br>
+													</div>
+												</div>
+											</div>
+
+											<div class="row">
 												<h6>Students List</h6>
 											</div>
+
 											<div class="row">
-											
 											<?php
 												$get_student_id = "SELECT student_id FROM enrolls WHERE subject_id = '$id'";
 												$connect_to_db = mysqli_query($dbconn,$get_student_id);
@@ -322,8 +358,7 @@
 																<div class="instructor-info">
 																	<?php 
 																		echo "<h6>".$student['first_name']." ".$student['last_name']."</h6>";
-																	?>
-																	<?php
+																
 																		echo "<a href=del_student.php?subject_id=",urlencode($id),"&student_id=",urlencode($student_id)," class='btn text-danger' hidden><i class='fa fa-user-times'></i> Remove</a>";
 
 																		if ($student_id == $s_id) {
@@ -381,65 +416,6 @@
 									<a href="#"><h6><i class="fa" aria-hidden="true"></i>Quizzes</h6></a>
 								</li>
 							</ul>
-						</div>
-
-						<!-- Add Learning Matrials modal -->
-						<div id="upload-modal" class="modal fade" role="dialog">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h4 class="modal-title pull-left">Upload Learnng Material</h4>
-									</div>
-									<div class="modal-body">
-										<form method="POST">
-											<div class="form-group">
-												<div class="col-auto">
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">Lecture No.</div>
-														</div>
-														<input type="text" class="form-control" id="inlineFormInputGroup" name="lecture-number" placeholder="(example: 1)" />
-													</div>
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">Lecture Topic</div>
-														</div>
-														<input type="text" class="form-control" id="inlineFormInputGroup" name="lecture_topic" />
-													</div>
-												</div>
-											</div>
-											<input type="file" name="material_file" />
-											<div class="pull-right">
-												<button type="button" class="btn btn-info" name="add_material">Add</button>
-												<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Update About Modal -->
-						<div id="update-about-modal" class="modal fade" role="dialog">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h4 class="modal-title pull-left">Update About</h4>
-									</div>
-									<div class="modal-body">
-										<form method="POST">
-											<div class="input-group">
-												<textarea class="form-control" name="new_about"><?php echo $course_about?></textarea>
-											</div> 
-											<br/>  
-											<div class="pull-right">
-												<button  class="btn btn-primary" name="update_about">Update</button>
-												<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
 						</div>
 
 

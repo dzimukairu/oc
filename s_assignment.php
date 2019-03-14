@@ -6,8 +6,9 @@
 
 	$id = $_GET['assignment_id'];
 	$s_id = $_GET['s_id'];
+	$date = date('Y-m-d H:i:s');
 
-	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, subject.teacher_id, assignment.title, assignment.instruction, assignment.date_posted, assignment.deadline_date, assignment.deadline_time  from subject INNER JOIN assignment on (assignment.assignment_id = $id and subject.subject_id = assignment.subject_id)";
+	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, subject.teacher_id, assignment.title, assignment.instruction, assignment.date_posted, assignment.deadline_date, assignment.deadline_time, assignment.score, assignment.file_id  from subject INNER JOIN assignment on (assignment.assignment_id = $id and subject.subject_id = assignment.subject_id)";
 
 	$result = mysqli_query($dbconn, $sql);
 	$row = mysqli_fetch_array($result);
@@ -24,10 +25,21 @@
 	$deadline_date = $row['deadline_date'];
 	$deadline_time = $row['deadline_time'];
 	$date_posted = $row['date_posted'];
-	// $file = $row['file'];
+	$score = $row['score'];
+	$file_id = $row['file_id'];
 
-	$combinedtime = date('Y-m-d H:i:s', strtotime("$deadline_date $deadline_time"));
-	$xdate = new DateTime($combinedtime);
+	$isFileEmpty = true;
+	$fileName = "";
+	if ($file_id != NULL) {
+		$get_file_query = $dbconn->query("SELECT * from uploaded_files where file_id = '$file_id'");
+		$frow = mysqli_fetch_array($get_file_query);
+
+		$fileName = $frow['filename'];
+		$isFileEmpty = false;
+	}
+
+	$first_time = date('Y-m-d H:i:s', strtotime("$deadline_date $deadline_time"));
+	$xdate = new DateTime($first_time);
 	$combinedtime = date_format($xdate, 'M d, Y - h:i A');
 
 	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$s_id';");
@@ -37,17 +49,84 @@
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
 
-	if(isset($_POST['update_assignment'])){
-		$new_title = ($_POST['new_title']);
-		$new_instruction = ($_POST['new_instruction']);
-		$new_ddate = $_POST['new_ddate'];
-		$new_dtime = $_POST['new_dtime'];
+	$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$s_id' and assignment_id = '$id'");
+	$a_row = mysqli_fetch_array($get_answer_query);
+	$answer_id = $a_row['id'];
+	$content = $a_row['content'];
+	$a_file_id = $a_row['file_id'];
+	$grade = $a_row['grade'];
 
-		$update_query = "UPDATE assignment SET title = '$new_title', instruction = '$new_instruction', deadline_date = '$new_ddate', deadline_time = '$new_dtime' WHERE assignment_id = '$id'";
-		// $update_query = "UPDATE assignment SET instruction = '$new_instruction' WHERE assignment_id = '$id'";
+	$is_a_FileEmpty = true;
+	$a_fileName = "";
+	if ($a_file_id != NULL) {
+		$get_file_query = $dbconn->query("SELECT * from uploaded_files where file_id = '$a_file_id'");
+		$frow = mysqli_fetch_array($get_file_query);
 
-		if ($update_connect = mysqli_query($dbconn, $update_query)) {
-			header("Location: assignment.php?assignment_id=".$id);
+		$a_fileName = $frow['filename'];
+		$is_a_FileEmpty = false;
+	}
+
+
+	if (isset($_POST['pass_assignment'])) {
+		$answer_content = $_POST['answer_content'];
+
+		if($_FILES['fileToUpload']['size'] == 0) {
+			$query = $dbconn->query("INSERT into answer_assignment(content, date_posted, student_id, assignment_id) VALUES('$answer_content', NOW(), '$s_id', '$id')");
+			
+			if ($query) {
+				header("Location: s_assignment.php?s_id=".$s_id."&assignment_id=".$id);
+			}
+		} else {
+			$target_dir = "uploads/";
+			$fileName = basename($_FILES["fileToUpload"]["name"]);
+			$target_files = $target_dir . $fileName;
+			$fileType = pathinfo($target_files,PATHINFO_EXTENSION);
+
+			if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_files)) {
+				$insert_file_query = $dbconn->query("INSERT into uploaded_files(filename, date_posted) values ('".$fileName."', NOW())");
+			}
+
+			if ($insert_file_query) {
+				$file_id = $dbconn->insert_id;
+
+				$query = $dbconn->query("INSERT into answer_assignment(content, date_posted, student_id, assignment_id, file_id) VALUES('$answer_content', NOW(), '$s_id', '$id', '$file_id')");
+			
+				if ($query) {
+					header("Location: s_assignment.php?s_id=".$s_id."&assignment_id=".$id);
+				}
+			}
+		}
+	}
+
+	if (isset($_POST['update_assignment'])) {
+		$new_answer_content = $_POST['new_answer_content'];
+		$a_id = $_POST['a_id'];
+
+		if($_FILES['fileToUpdate']['size'] == 0) {
+			$query = $dbconn->query("UPDATE answer_assignment set content = '$new_answer_content', date_posted = NOW() where id = '$a_id' ");
+			
+			if ($query) {
+				header("Location: s_assignment.php?s_id=".$s_id."&assignment_id=".$id);
+			}
+		} else {
+			$target_dir = "uploads/";
+			$ufileName = basename($_FILES["fileToUpdate"]["name"]);
+			$target_files = $target_dir . $ufileName;
+			$fileType = pathinfo($target_files,PATHINFO_EXTENSION);
+
+			if (move_uploaded_file($_FILES["fileToUpdate"]["tmp_name"], $target_files)) {
+				$insert_file_query = $dbconn->query("UPDATE uploaded_files set filename = '$ufileName' where file_id = '$a_file_id' ");
+			}
+
+			if ($insert_file_query) {
+				$file_id = $dbconn->insert_id;
+
+				$query = $dbconn->query("UPDATE answer_assignment set content = '$new_answer_content', date_posted = NOW() where id = '$a_id'");
+			
+				if ($query) {
+					header("Location: s_assignment.php?s_id=".$s_id."&assignment_id=".$id);
+				}
+			}
 		}
 	}
 ?>
@@ -76,6 +155,34 @@
 
 
 	<!-- https://stephanwagner.me/auto-resizing-textarea -->
+	<style>
+		#answerDiv {
+			display: none;
+		}
+
+		#updateDiv {
+			display: none;
+		}
+	</style>
+	<script>
+		function show_hide() {
+			var x = document.getElementById("answerDiv");
+			if (x.style.display === "block") {
+				x.style.display = "none";
+			} else {
+				x.style.display = "block";
+			} 
+		}
+
+		function show_hide_update() {
+			var x = document.getElementById("updateDiv");
+			if (x.style.display === "block") {
+				x.style.display = "none";
+			} else {
+				x.style.display = "block";
+			} 
+		}
+	</script>
 </head>
 
 <body>
@@ -174,112 +281,131 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-12 col-lg-12 border rounded">
-					<div style="padding: 20px 12px 50px 12px;">
-					<!-- <?php echo $id; ?> -->
+					<div style="padding: 20px 12px 60px 12px;">
 						<h5><?php echo $assignment_title;?></h5>
 						<br>
 						<h6><?php echo $assignment_instruction;?></h6>
+						<h6>Points: <?php echo $score ?></h6>
 						<br>
-						<h6>File: WALA PA GAWORK
+						<h6>File:
 							<?php
-								// if ($file == 0) {
-								// 	echo "No file found.";
-								// } else {
-								// 	echo "file.jpg";
-								// }
+								if ($isFileEmpty == false) {
+									echo $fileName;
+									echo "&nbsp&nbsp";
+									?> 
+									<a href='uploads/<?php echo $fileName ?>'>(<i class='fa fa-download'></i> Download)</a>
+									<?php
+								} else {
+									echo "No Uploaded File";
+								}
 							?>
-
 						</h6>
 						<br>
 						<h6>Deadline: <?php echo $combinedtime ?></h6>
 						<br>
-						<p><?php 
-							$xdate = new DateTime($date_posted);
-							// $x = DateTime::createFromFromat('M d, Y', $xdate);
-							$y = date_format($xdate, 'M d, Y - h:i A');
-							echo $y;
-						?></p>
-											
+						<p>
+							<?php 
+								$xdate = new DateTime($date_posted);
+								$y = date_format($xdate, 'M d, Y - h:i A');
+								echo $y;
+							?>
+						</p>
+						<p style="font-style: italic;">Note: Button will be disabled once past deadline.</p>
 
-						<button class="btn btn-info" data-toggle="modal" data-target="#update-assignment-modal">Update</button>
-						<!-- <button class="btn btn-danger" onclick="javascript:location.href='assignment_delete.php?id=<?php echo $id;?>';">Delete</button> -->
-
-						<button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
-
-						<script>
-							function deleteFunction(id) {
-								var del = confirm("Do you really want to delete this assignment?");
-
-								if (del == true) {
-									document.location.href = 'assignment_delete.php?id='+id;
-								}
+						<?php 
+							if (strtotime($date) > strtotime($first_time)) { ?>
+								<button class='btn btn-primary clever-btn pull-right' onclick='show_hide()' disabled>Answer</button>
+							<?php
+							} else { ?>
+								<button class='btn btn-primary clever-btn pull-right' onclick='show_hide()'>Answer</button>
+							<?php
 							}
-						</script>
+						?>
 					</div>
 				</div>
 
-				<div style="margin-top:12px;">
-					<?php 
-						echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
-					?>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
-	<!-- Update assignment Modal -->
-	<div id="update-assignment-modal" class="modal fade" role="dialog">
-		<div class="modal-dialog" style="max-width: 80% !important;">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title pull-left">Update assignment</h4>
-				</div>
-				<div class="modal-body">
-					<form method="POST" action="assignment.php?assignment_id=<?php echo $id?>" enctype="multipart/form-data">
-						<div class="offset-md-2 col-8 input-group">
-							<div class="input-group-prepend">
-								<div class="input-group-text">Title:</div>
-								<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="new_title" name="new_title"><?php echo $assignment_title ?></textarea>
-							</div>
-						</div>
-
-						<br>
-
-						<div class="offset-md-3 col-6 input-group">
-							<div class="input-group-prepend">
-								<div class="input-group-text">Deadline:</div>
-							</div>
-
+				<div class="col-12 col-lg-12 border rounded" style="padding-top: 20px; padding-bottom: 20px">
+					<div style="padding-left: 80px; padding-right: 80px;">
+						<h6>Your Work:</h6>
+						<div>
+							<p><?php echo $content; ?></p>
+							
 							<?php
-								$month = date('m');
-								$day = date('d');
-								$year = date('Y');
-								$today_date = $year . '-' . $month . '-' . $day;
+								if ($is_a_FileEmpty == false) {
+									echo "File: ".$a_fileName;
+									echo "&nbsp&nbsp";
+									?> 
+									<a href='uploads/<?php echo $a_fileName ?>'>(<i class='fa fa-download'></i> Download)</a>
+									<?php
+								}
 							?>
 
-							<input type="date" name="new_ddate" id="new_ddate" value="<?php echo $today_date; ?>" min="2019-01-01" class="form-control">
-							<input type="time" name="new_dtime" id="new_dtime" value="<?php echo date('H:i', time()+3600);?>" class="form-control">
-						</div>
-			
-						<div class="offset-md-3 col-6">
-							<p style="font-style: italic">Deadline time is set on <span style="font-weight: bold;"><?php echo $combinedtime ?></span>.</p>
-						</div>
-						<br><br>
+							<br><br>
+							<h7>Your Grade:
+								<?php 
+									if ($grade == NULL) {
+										echo "<i>Not graded yet.</i>";
+									} else {
+										echo "<b>".$grade."/".$score."</b>";
+									}
 
-						<div class="form-group offset-md-1 col-10">
-							<label style="font-weight: bold">Instruction:</label>
-							<textarea data-autoresize rows="2" class="form-control expand_this" id="new_instruction" name="new_instruction"><?php echo $assignment_instruction ?></textarea>
-
-							<input type="file" name="sent_file" id="sent_file">
+								?>
+							</h7>
 						</div>
-						<br/>  
-						<div class="pull-right">
-							<button  class="btn btn-primary" name="update_assignment">Update</button>
-							<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
-						</div>
-					</form>
+						<?php 
+							if (strtotime($date) > strtotime($first_time)) { ?>
+								<button class='btn btn-info pull-right' onclick='show_hide_update()' disabled>Update</button>
+							<?php
+							} else { ?>
+								<button class='btn btn-info pull-right' onclick='show_hide_update()'>Update</button>
+							<?php
+							}
+						?>
+					</div>
 				</div>
+			</div>
+
+			<div class="row" style="margin-top:20px" id="answerDiv" name="answerDiv">
+				<div class="col-12 col-lg-12 border rounded" style="padding-top: 20px; padding-bottom: 70px">
+					<div style="padding-left: 80px; padding-right: 80px;">
+						<h6>Your Answer:</h6>
+
+						<div>
+							<form method="POST" enctype="multipart/form-data">
+								<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="answer_content" name="answer_content"></textarea>
+								<input type="file" name="fileToUpload">
+
+								<br><br>
+								<input type="submit" class="btn btn-success pull-right" name="pass_assignment" value="SUBMIT"/>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row" style="margin-top:20px" id="updateDiv" name="updateDiv">
+				<div class="col-12 col-lg-12 border rounded" style="padding-top: 20px; padding-bottom: 70px">
+					<div style="padding-left: 80px; padding-right: 80px;">
+						<h6>Update Your Answer:</h6>
+
+						<div>
+							<form method="POST" enctype="multipart/form-data">
+								<input type="text" value="<?php echo $answer_id; ?>" name="a_id" hidden>
+								<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="new_answer_content" name="new_answer_content"><?php echo $content;?></textarea>
+								<input type="file" name="fileToUpdate">
+
+								<br><br>
+								<input type="submit" class="btn btn-success pull-right" name="update_assignment" value="UPDATE"/>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row" style="margin-top:20px">
+				<?php 
+					echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
+				?>
 			</div>
 		</div>
 	</div>

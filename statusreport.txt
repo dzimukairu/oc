@@ -60,6 +60,13 @@ add_subject.php
 	Adding Subjects
 		--> add_sub.php
 
+all_assignment.php
+	Show Students' Answers
+		-done-
+
+	Grade
+		-done-
+
 announcement.php
 	Preview
 		-done-
@@ -90,6 +97,9 @@ assignment.php
 
 	Preview
 		-done-
+
+	Preview All Answers
+		--> all_assignment.php
 
 	Update
 		-done-

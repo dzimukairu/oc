@@ -32,6 +32,28 @@
 		}
 	}
 
+	if(isset($_POST['add_lecture'])){
+		$lecture_title = $_POST['lecture_title'];
+		$target_dir = "uploads/";
+		$fileName = basename($_FILES["fileToUpload"]["name"]);
+		$target_files = $target_dir . $fileName;
+		$fileType = pathinfo($target_files,PATHINFO_EXTENSION);
+
+		if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_files)) {
+			$insert_file_query = $dbconn->query("INSERT into uploaded_files(filename, date_posted) values ('".$fileName."', NOW())");
+		}
+
+		if ($insert_file_query) {
+			$file_id = $dbconn->insert_id;
+
+			$query = $dbconn->query("INSERT into learning_materials(title, date_posted, subject_id, file_id) VALUES('$lecture_title', NOW(), '$id', '$file_id')");
+			
+			if ($query) {
+				header("Location: teacher_course.php?subject_id=".$id);
+			}
+		}
+	}
+
 ?>
 
 <!DOCTYPE html>
@@ -52,6 +74,8 @@
 
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="css/expand.css">
+	
 
 </head>
 
@@ -154,7 +178,7 @@
 						<div class="clever-tabs-content">
 							<ul class="nav nav-tabs" id="myTab" role="tablist">
 								<li class="nav-item">
-									<a class="nav-link active" id="tab--1" data-toggle="tab" href="#tab1" role="tab" aria-controls="tab1" aria-selected="false">About</a>
+									<a class="nav-link active" id="tab--1" data-toggle="tab" href="#tab1" role="tab" aria-controls="tab1" aria-selected="false">Main</a>
 								</li>
 								<li class="nav-item">
 									<a class="nav-link" id="tab--2" data-toggle="tab" href="#tab2" role="tab" aria-controls="tab2" aria-selected="true">Announcement</a>
@@ -183,31 +207,40 @@
 											?>
 											<h6>About this course</h6>
 											<p><?php echo $course_about; ?></p>
-											<button class="btn btn-info" data-toggle="modal" data-target="#update-about-modal">Update About</button>
+											<button class="btn btn-info" data-toggle="modal" data-target="#update-about-modal"><i class="fa fa-info-circle"></i> Update About</button>
 										</div>
 
 										<!-- All Learning Materials -->
-										<button type="button" class="btn clever-btn mb-30" data-toggle="modal" data-target="#upload-modal">Add Learning Materials</button>
+										<button type="button" class="btn clever-btn mb-30" data-toggle="modal" data-target="#upload-modal"><i class="fa fa-file"></i> Add Learning Materials</button>
 										<div class="all-instructors mb-30">
-											<h6>Learning Materials</h6>
+											<h4>Learning Materials</h4>
 											<div class="row">
 												<div class="col-lg-6">
-													<div class="single-learning-materials mb-50 wow fadeInUp" data-wow-delay="500ms">
-														<div class="events-thumb">
-															<img src="img/document.png" alt="">
-															<h6 class="lecture-number">Lecture 2</h6>
-															<h4 class="lecture-title">Lecture No.2 Topic</h4>
-														</div>
-														<div class="open-save d-flex justify-content-between">
-															<div class="extra-space">
-																<span></span>
-															</div>
-															<div class="save-btn">
-																<a class="delete" href="#">Delete</a>
-																<a href="#">Save</a>
-															</div>
-														</div>
-													</div>
+													<?php
+														$get_lecture_id = $dbconn->query("SELECT * from learning_materials where subject_id = '$id'");
+
+														if (mysqli_num_rows($get_lecture_id) == 0) {
+															echo "<h5>No Uploaded File/s.</h5>";
+														} else {
+															while ($row = mysqli_fetch_array($get_lecture_id)) {
+																$f_id = $row['file_id'];
+																$f_title = $row['title'];
+
+																$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$f_id'");
+																$frow = mysqli_fetch_array($get_file);
+																$f_name = $frow['filename']
+
+																?>
+																<h6>
+																	<?php echo $f_title?>
+																	<a href='uploads/<?php echo $f_name ?>'>(<i class='fa fa-download'></i> Download)</a>
+																<h6>
+
+																<?php
+
+															}
+														}
+													?>
 												</div>
 											</div>
 										</div>
@@ -233,19 +266,13 @@
 										?>
 														<div class="about-curriculum mb-30">
 															<?php 
-																echo "<h6>".$row[3]."</h6>";
-																echo "<p>".$row[4]."</p>";
+																echo "<h5>".$row[3]."</h5>";
+																echo "<h7>".$row[4]."</h7>";
 
 																$xdate = new DateTime($row[2]);
-																// $x = DateTime::createFromFromat('M d, Y', $xdate);
 																$y = date_format($xdate, 'M d, Y - h:i A');
-																echo "<br>";
-																echo $y;
-
-																echo "<br>";
-																echo "<br>";
-																echo "<br>";
-																$a_id = $row[0];
+																echo "<br><br><br>";
+																echo "<p>".$y."</p>";
 																
 															?>
 														</div>
@@ -276,19 +303,19 @@
 										?>
 														<div class="about-curriculum mb-30">
 															<?php 
-																echo "<h6>".$row[5]."</h6>";
-																echo "<p>".$row[6]."</p>";
+																echo "<h5>".$row[5]."</h5>";
+																echo "<h7>".$row[6]."</h7>";
+																echo "<br>";
+
+																$combinedtime = date('Y-m-d H:i:s', strtotime("$row[3] $row[4]"));
+																$xdate = new DateTime($combinedtime);
+																$combinedtime = date_format($xdate, 'M d, Y - h:i A');
+																echo "<h7>Deadline: ".$combinedtime."</h7>";
 
 																$xdate = new DateTime($row[2]);
-																// $x = DateTime::createFromFromat('M d, Y', $xdate);
 																$y = date_format($xdate, 'M d, Y - h:i A');
-																echo "<br>";
-																echo $y;
-
-																echo "<br>";
-																echo "<br>";
-																echo "<br>";
-																$a_id = $row[0];
+																echo "<br><br><br>";
+																echo "<p>".$y."</p>";
 																
 															?>
 														</div>
@@ -337,13 +364,30 @@
 																	<?php 
 																		echo "<h6>".$student['first_name']." ".$student['last_name']."</h6>";
 																	?>
-																	<?php
+																	<!-- <?php
 																		echo "<a href=del_student.php?subject_id=",urlencode($id),"&student_id=",urlencode($student_id)," class='btn text-danger'><i class='fa fa-user-times'></i> Remove</a>";
-																	?>
+																	?> -->
+																	<button class="btn btn-info btn-xs">
+																		<a><i class="fa fa-comments-o"></i> Chat</a>
+																	</button>
+																	<button class="btn btn-danger btn-xs" onclick='delStudent("<?php echo $id; ?>", "<?php echo $student_id; ?>", "<?php echo $student['first_name']." ".$student['last_name']?>")'>
+																		<a><i class='fa fa-user-times'></i> Remove</a>
+																	</button>
+
+																	<script>
+																		function delStudent(subject_id, student_id, name) {
+																			var del = confirm("Do you want to remove "+ name + "?");
+
+																			if (del == true) {
+																				document.location.href = 'del_student.php?subject_id='+subject_id+'&student_id='+student_id;
+																			}
+																		}
+																	</script>
 																</div>
 															</div>
 														</div>
 												<?php  echo "</a>"; } ?>
+												
 											<?php } else {
 												echo "<h4>No students found.</h4>";
 											} ?>
@@ -377,11 +421,6 @@
 							echo "<a href=classrecord.php?subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'><i class='fa fa-table'></i> Class Record</a>";
 						?>
 
-						<!-- <?php
-							echo "<h4>Subject Code: ".$subject_code."</h4>";
-							echo "<br>";
-						?> -->
-
 						<!-- Widget -->
 						<div class="sidebar-widget">
 							<h4>Submitted Works</h4>
@@ -397,62 +436,33 @@
 
 						<!-- Add Learning Matrials modal -->
 						<div id="upload-modal" class="modal fade" role="dialog">
-							<div class="modal-dialog">
+							<div class="modal-dialog" style="max-width: 50% !important;">
 								<div class="modal-content">
 									<div class="modal-header">
-										<h4 class="modal-title pull-left">Upload Learnng Material</h4>
+										<h4 class="modal-title pull-left">Upload Learning Material</h4>
 									</div>
 									<div class="modal-body">
-										<form method="POST">
+										<form method="POST" action="teacher_course.php?subject_id=<?php echo $id ?>" enctype="multipart/form-data">
 											<div class="form-group">
 												<div class="col-auto">
 													<div class="input-group">
 														<div class="input-group-prepend">
-															<div class="input-group-text">Lecture No.</div>
+															<div class="input-group-text">Lecture Title</div>
 														</div>
-														<input type="text" class="form-control" id="inlineFormInputGroup" name="lecture-number" placeholder="(example: 1)" />
+														<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="lecture_title" name="lecture_title"></textarea>
 													</div>
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">Lecture Topic</div>
-														</div>
-														<input type="text" class="form-control" id="inlineFormInputGroup" name="lecture_topic" />
-													</div>
+													<br>
+													<input type="file" name="fileToUpload">
 												</div>
 											</div>
-											<input type="file" name="material_file" />
+											
+										
+												<!-- <button type="button" class="btn btn-primary" name="add_lecture">Submit</button> -->
+											 &nbsp;
+											<!-- <button type="button" class="btn btn-danger pull-right" data-dismiss="modal">Close</button> -->
 											<div class="pull-right">
-												<button type="button" class="btn btn-info" name="add_material">Add</button>
-												<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Add student Modal -->
-						<div id="add-student-modal" class="modal fade" role="dialog">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h4 class="modal-title pull-left">Add Student</h4>
-									</div>
-									<div class="modal-body">
-										<form method="POST">
-											<div class="form-group">
-												<div class="col-auto">
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">Search</div>
-														</div>
-														<input type="search" class="form-control" placeholder="Name of Student"/>
-													</div>
-												</div>
-											</div>
-											<div class="pull-right">
-												<button type="button" class="btn btn-primary" name="add_student">Add</button>
-												<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+												<input type="submit" class="btn btn-success" name="add_lecture" value="SUBMIT"/>
+												<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
 											</div>
 										</form>
 									</div>
@@ -470,7 +480,7 @@
 									<div class="modal-body">
 										<form method="POST">
 											<div class="input-group">
-												<textarea class="form-control" name="new_about"><?php echo $course_about?></textarea>
+												<textarea data-autoresize rows="2" class="form-control expand_this" id="new_about" name="new_about"><?php echo $course_about?></textarea>
 											</div> 
 											<br/>  
 											<div class="pull-right">
@@ -526,6 +536,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="js/plugins/plugins.js"></script>
 	<!-- Active js -->
 	<script src="js/active.js"></script>
+	<script src="js/expand.js"></script>
 </body>
 
 </html>

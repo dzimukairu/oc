@@ -17,29 +17,24 @@
 		
 
 		//checks if the input fields are empty
-		if (empty($first_name)|empty($last_name)|empty($username)|empty($email)|empty($pwd)|empty($retype_pwd)|empty($user_type) ) {
+		if (empty($first_name)||empty($last_name)||empty($username)||
+			empty($email)||empty($pwd)||empty($retype_pwd)||empty($user_type)) {
 			$error2= 'Please fillup all the fields below';
 		} else if ($_POST['pwd']!=$_POST['retype_pwd']) {
 			$error2= 'Password does not match';
 		} else {
-			if ($user_type == 1) {
-				$username_check = $dbconn->query("SELECT username from teacher where username = '$username'");
-				$checknum = mysqli_num_rows($username_check);
-				if ($checknum >= 1) {
-					$error2 = 'Username exist, please input another username.';
-				} else {
-					$input_teacher = $dbconn->query("INSERT INTO teacher(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
+			$username_check = $dbconn->query("SELECT username from teacher, student where username = '$username'");
+			$checknum = mysqli_num_rows($username_check);
+			if ($checknum >= 1) {
+				$error2 = 'Username exists, please input another username.';
+			} else {
+				if ($user_type == 1) {
+				 	$input_teacher = $dbconn->query("INSERT INTO teacher(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
 					if ($input_teacher) {
 						$_SESSION['username'] = $username;
 						$error3 = "You may now log-in.";
 					}
-				}
-			} else if ($user_type == 0) {
-				$username_check = $dbconn->query("SELECT username from student where username = '$username'");
-				$checknum = mysqli_num_rows($username_check);
-				if ($checknum >= 1) {
-					$error2 = 'Username exist, please input another username.';
-				} else {
+				} else if ($user_type == 0) {
 					$input_student = $dbconn->query("INSERT INTO student(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
 					if ($input_student) {
 						$_SESSION['username'] = $username;

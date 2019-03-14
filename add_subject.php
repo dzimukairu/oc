@@ -187,13 +187,13 @@
 													echo "Enrolled";
 												} else {
 											?>
-											<button class="btn" onclick='addSubject("<?php echo $subject_id; ?>", "<?php echo $student_id; ?>")'><i class="fa fa-plus"></i></button>
+											<button class="btn" onclick='addSubject("<?php echo $subject_id; ?>", "<?php echo $student_id; ?>", "<?php echo $row['course_title'];?>")'><i class="fa fa-plus"></i></button>
 										<?php } ?>
 										</td>
 
 										<script>
-											function addSubject(subject_id, student_id) {
-												var add = confirm("Is this the right subject you want to add?");
+											function addSubject(subject_id, student_id, name) {
+												var add = confirm("Do you want to add "+ name +"?");
 
 												if (add == true) {
 													document.location.href = 'add_sub.php?subject_id='+subject_id+'&student_id='+student_id;

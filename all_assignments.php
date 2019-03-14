@@ -40,6 +40,8 @@
 	$xdate = new DateTime($combinedtime);
 	$combinedtime = date_format($xdate, 'M d, Y - h:i A');
 
+
+
 	$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$teacher_id';");
 	$trow = mysqli_fetch_array($get_teacher);
 
@@ -47,17 +49,14 @@
 	$t_firstname = $trow['first_name'];
 	$t_lastname = $trow['last_name'];
 
-	if(isset($_POST['update_assignment'])){
-		$new_title = ($_POST['new_title']);
-		$new_instruction = ($_POST['new_instruction']);
-		$new_ddate = $_POST['new_ddate'];
-		$new_dtime = $_POST['new_dtime'];
+	if(isset($_POST['pass_grade'])) {
+		$answer_id = $_POST['answer_id'];
+		$grade = $_POST['grade'];
 
-		$update_query = "UPDATE assignment SET title = '$new_title', instruction = '$new_instruction', deadline_date = '$new_ddate', deadline_time = '$new_dtime' WHERE assignment_id = '$id'";
-		// $update_query = "UPDATE assignment SET instruction = '$new_instruction' WHERE assignment_id = '$id'";
-
-		if ($update_connect = mysqli_query($dbconn, $update_query)) {
-			header("Location: assignment.php?assignment_id=".$id);
+		if ($grade > $score) {
+			$error = "Grade cannot be submitted. It's higher than the score.";
+		} else {
+			$submit_grade = $dbconn->query("UPDATE answer_assignment set grade = '$grade' where id = '$answer_id' ");
 		}
 	}
 ?>
@@ -165,11 +164,10 @@
 	<!-- ##### Breadcumb Area End ##### -->
 
 	<!-- ##### Single Course Intro Start ##### -->
-   <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
+   	<!-- <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
 		<div class="container h-100">
 			<div class="row h-100 align-items-center">
 				<div class="col-12">
-					<!-- Hero Content -->
 					<div class="hero-content text-center">
 						<h2><?php echo $course_description;?></h2>
 						<h3><?php echo $course_title;?></h3>
@@ -177,126 +175,111 @@
 				</div>
 			</div>
 		</div>
-	</section>
+	</section> -->
 	<!-- ##### Single Course Intro End ##### -->
 
 	<div class="student-quiz-content section-padding-100">
 		<div class="container">
-			<div class="row">
-				<div class="col-12 col-lg-12 border rounded">
-					<div style="padding: 20px 12px 50px 12px;">
-					<!-- <?php echo $id; ?> -->
-						<h5><?php echo $assignment_title;?></h5>
-						<br>
-						<h6><?php echo $assignment_instruction;?></h6>
-						<h6>Points: <?php echo $score ?></h6>
-						<br>
-						<h6>File:
-							<?php
-								if ($isFileEmpty == false) {
-									echo $fileName;
-									echo "&nbsp&nbsp";
-									?> 
-									<a href='uploads/<?php echo $fileName ?>'>(<i class='fa fa-download'></i> Download)</a>
-									<?php
-								} else {
-									echo "No Uploaded File";
-								}
-							?>
-						</h6>
-						<br>
-						<h6>Deadline: <?php echo $combinedtime ?></h6>
-						<br>
-						<p><?php 
-							$xdate = new DateTime($date_posted);
-							// $x = DateTime::createFromFromat('M d, Y', $xdate);
-							$y = date_format($xdate, 'M d, Y - h:i A');
-							echo $y;
-						?></p>
-											
-						<?php 
-							echo "<a href=all_assignments.php?assignment_id=",urlencode($id),">
-								<button class='btn btn-success'>View All Assignments</button>
-							</a>";
-						?>
-						<button class="btn btn-info" data-toggle="modal" data-target="#update-assignment-modal">Update</button>
-						<button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
+			<div style='margin-left: 1px'>
+			<?php
+				$get_student_id = $dbconn->query("SELECT * from enrolls where subject_id = '$subject_id' ");
+				
 
-						<script>
-							function deleteFunction(id) {
-								var del = confirm("Do you really want to delete this assignment?");
+				if (mysqli_num_rows($get_student_id) != 0) {
+					echo "<h4>Student Answers:</h4><br>";
+					
+					echo "<div class='row'>";
+					while($row = mysqli_fetch_array($get_student_id)) {
+						$student_id = $row['student_id'];
 
-								if (del == true) {
-									document.location.href = 'assignment_delete.php?id='+id;
-								}
+						$get_student_query = $dbconn->query("SELECT * from student where student_id = '$student_id' ");
+						$srow = mysqli_fetch_array($get_student_query);
+						$student_first_name = $srow['first_name'];
+						$student_last_name = $srow['last_name'];
+
+						$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$student_id' and assignment_id = '$id' ");
+
+						$haveAns = false;
+						$hasFile = false;
+						if (mysqli_num_rows($get_answer_query) != 0 ) {
+							$arow = mysqli_fetch_array($get_answer_query);
+							$answer_id = $arow['id'];
+							$answer_content = $arow['content'];
+							$answer_posted = $arow['date_posted'];
+							$answer_file_id = $arow['file_id'];
+							$grade = $arow['grade'];
+							$haveAns = true;
+
+							if ($answer_file_id != NULL) {
+								$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$answer_file_id' ");
+								$frow = mysqli_fetch_array($get_file);
+								$fileName = $frow['filename'];
+								$hasFile = true;
 							}
-						</script>
-					</div>
-				</div>
+						} else {
+							$answer_id = NULL;
+						}
 
-				<div style="margin-top:12px;">
-					<?php 
-						echo "<a href=teacher_course.php?subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
-					?>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
-	<!-- Update assignment Modal -->
-	<div id="update-assignment-modal" class="modal fade" role="dialog">
-		<div class="modal-dialog" style="max-width: 80% !important;">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title pull-left">Update assignment</h4>
-				</div>
-				<div class="modal-body">
-					<form method="POST" action="assignment.php?assignment_id=<?php echo $id?>" enctype="multipart/form-data">
-						<div class="offset-md-2 col-8 input-group">
-							<div class="input-group-prepend">
-								<div class="input-group-text">Title:</div>
-								<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="new_title" name="new_title"><?php echo $assignment_title ?></textarea>
+			?>		
+					
+						<div class="col-lg-4 border rounded">
+							<div style="padding: 20px 12px 10px 12px;">
+								<?php
+									echo "<h5>".$student_first_name." ".$student_last_name."</h5>";
+									echo "<br>";
+									
+									if ($haveAns) {
+										echo "<h7>".$answer_content."</h7>";
+										echo "<br><br>";
+										echo "<h7>File: </h7>";
+										if ($hasFile) {
+											echo $fileName; ?>
+											<a href='uploads/<?php echo $fileName ?>'>(<i class='fa fa-download'></i> Download)</a>
+										<?php } else {
+											echo "No uploaded file";
+										}
+										echo "<br><br>";
+										echo "<b>Grade: ".$grade."</b>";
+									?>
+										<br><br><br><br>
+										<i>Maximum Score: <?php echo $score; ?></i>
+										<form method="post">
+											<input name="answer_id" value="<?php echo $answer_id; ?>" hidden>
+											<div class="input-group mb-3">
+		  										<input type="text" class="form-control" name="grade" placeholder="Input Grade"value="<?php echo $grade; ?>">
+		  										<div class="input-group-append">
+		  											<span>&nbsp;</span>
+		    										<button class="btn btn-success" name="pass_grade"><i class='fa fa-check'></i></button>
+		  										</div>
+											</div>
+										</form>
+										<i class="text-danger"><?php echo $error; ?></i>
+									<?php
+									} else {
+										echo "<h7><i>(No answer submitted.)</i></h7>";
+										echo "<br><br>";
+										echo "<b>Grade: ".$grade."</b>";
+									}
+								?>
+								
 							</div>
 						</div>
-
-						<br>
-
-						<div class="offset-md-3 col-6 input-group">
-							<div class="input-group-prepend">
-								<div class="input-group-text">Deadline:</div>
-							</div>
-
-							<?php
-								$month = date('m');
-								$day = date('d');
-								$year = date('Y');
-								$today_date = $year . '-' . $month . '-' . $day;
-							?>
-
-							<input type="date" name="new_ddate" id="new_ddate" value="<?php echo $today_date; ?>" min="2019-01-01" class="form-control">
-							<input type="time" name="new_dtime" id="new_dtime" value="<?php echo date('H:i', time()+3600);?>" class="form-control">
-						</div>
-			
-						<div class="offset-md-3 col-6">
-							<p style="font-style: italic">Deadline time is set on <span style="font-weight: bold;"><?php echo $combinedtime ?></span>.</p>
-						</div>
-						<br><br>
-
-						<div class="form-group offset-md-1 col-10">
-							<label style="font-weight: bold">Instruction:</label>
-							<textarea data-autoresize rows="2" class="form-control expand_this" id="new_instruction" name="new_instruction"><?php echo $assignment_instruction ?></textarea>
-
-							<input type="file" name="sent_file" id="sent_file">
-						</div>
-						<br/>  
-						<div class="pull-right">
-							<button  class="btn btn-primary" name="update_assignment">Update</button>
-							<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
-						</div>
-					</form>
-				</div>
+			<?php
+					$grade = 0;
+					}
+				echo "</div>";
+				} else {
+					echo "<h4>No Student/s found.</h4";
+				}
+			?>
 			</div>
+			<br>
+			<div style="margin-top:12px;">
+				<?php 
+					echo "<a href=assignment.php?assignment_id=",urlencode($id)," class='btn clever-btn'>Back</a>";
+				?>
+			</div>
+			<br>
 		</div>
 	</div>
 

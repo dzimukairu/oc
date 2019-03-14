@@ -33,7 +33,6 @@
 		$assignment_instruction = $_POST['assignment_instruction'];
 		$deadline_date = $_POST['deadline_date'];
 		$deadline_time = $_POST['deadline_time'];
-		// $file = $_FILES['sent_file'];
 
 		$xdate = date('m/d/Y');
 		$xtime = date('H:i');
@@ -78,17 +77,35 @@
 
 		if ($errorcount > 2) {
 			$error = $error1. ' '. $error2.' ';
-		} else {
-			echo $error1;
-			echo $error2;
 		}
 
 		if ($errorcount) {
-			$query = $dbconn->query("INSERT into assignment(subject_id, date_posted, deadline_date, deadline_time, title, instruction) VALUES('$id', NOW(), '$deadline_date', '$deadline_time', '$assignment_title', '$assignment_instruction')");
+			if($_FILES['fileToUpload']['size'] == 0) {
+				$query = $dbconn->query("INSERT into assignment(subject_id, date_posted, deadline_date, deadline_time, title, instruction) VALUES('$id', NOW(), '$deadline_date', '$deadline_time', '$assignment_title', '$assignment_instruction')");
 			
-			if ($query) {
-				header("Location: teacher_course.php?subject_id=".$id);
-			}
+				if ($query) {
+					header("Location: teacher_course.php?subject_id=".$id);
+				}
+			} else {
+				$target_dir = "uploads/";
+				$fileName = basename($_FILES["fileToUpload"]["name"]);
+				$target_files = $target_dir . $fileName;
+				$fileType = pathinfo($target_files,PATHINFO_EXTENSION);
+
+				if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_files)) {
+					$insert_file_query = $dbconn->query("INSERT into uploaded_files(filename, date_posted) values ('".$fileName."', NOW())");
+				}
+
+				if ($insert_file_query) {
+					$file_id = $dbconn->insert_id;
+
+					$query = $dbconn->query("INSERT into assignment(subject_id, date_posted, deadline_date, deadline_time, title, instruction, file_id) VALUES('$id', NOW(), '$deadline_date', '$deadline_time', '$assignment_title', '$assignment_instruction', '$file_id')");
+			
+					if ($query) {
+						header("Location: teacher_course.php?subject_id=".$id);
+					}
+				}
+			}	
 		}
 	}
 ?>
@@ -224,7 +241,8 @@
 			   </div>
 			</div>
 			<div class="row">
-				<h7 class="text-danger"><?php echo $error ?></h7>
+				<h7 class="text-danger"><?php echo $error1 ?></h7>
+				<h7 class="text-danger"><?php echo $error2 ?></h7>
 				
 				<div class="col-12 col-lg-12 border rounded">
 					<div style="padding: 20px 12px 50px 12px;">
@@ -254,7 +272,7 @@
 								<input type="time" name="deadline_time" id="deadline_time" value="<?php echo date('H:i', time()+3600);?>" class="form-control">
 							</div>
 							<div class="offset-md-3 col-6">
-								<p style="font-style: italic">Deadline time is set 1 hour after of current time.</p>
+								<p style="font-style: italic">Deadline time is set 1 hour after of current time. (You can change it)</p>
 							</div>
 							<br><br>
 
@@ -262,7 +280,7 @@
 								<label style="font-weight: bold">Instruction:</label>
 								<textarea data-autoresize rows="2" class="form-control expand_this" id="assignment_instruction" name="assignment_instruction"></textarea>
 
-								<input type="file" name="sent_file" id="sent_file">
+								<input type="file" name="fileToUpload">
 							</div>
 
 							<br>
