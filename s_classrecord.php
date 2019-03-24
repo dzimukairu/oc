@@ -1,5 +1,10 @@
 <?php
 	include("db_connection.php");
+	
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
 
 	$id = $_GET['subject_id'];
 	$s_id = $_GET['s_id'];
@@ -111,10 +116,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=student_home.php?student_id=",urlencode($s_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=student_home.php class='dropdown-item'>Home</a>";
+												echo "<a href=s_profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -144,11 +149,10 @@
 	<!-- ##### Breadcumb Area End ##### -->
 
 	<!-- ##### Single Course Intro Start ##### -->
-	<section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
+	<!-- <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
 		<div class="container h-100">
 			<div class="row h-100 align-items-center">
 				<div class="col-12">
-					<!-- Hero Content -->
 					<div class="hero-content text-center">
 						<h2><?php echo $course_description;?></h2>
 						<h3><?php echo $course_title;?></h3>
@@ -156,156 +160,119 @@
 				</div>
 			</div>
 		</div>
-	</section>
+	</section> -->
 
 	<div class="student-quiz-content section-padding-100">
 		<div class="container">
 			<div class="row">
 				<div class="col-12 col-lg-12">
 					<div class="section-heading">
-						<h3>Class Record</h3>
+						<h3>Your Grades</h3>
 					</div>        
 			   </div>
 			</div>
+
+			<?php
+				// GET ALL ASSIGNMENT
+					$all_ass_id = array();
+					$assignment_count = 0;
+					$get_ass_id = $dbconn->query("SELECT * from assignment where subject_id = '$id' ");
+					while ($arow = mysqli_fetch_array($get_ass_id)) {
+						$all_ass_id[] = $arow['assignment_id'];
+					}
+					$assignment_count = count($all_ass_id);
+					$ass_colspan = 2;
+					if ($assignment_count > 1) {
+						$ass_colspan = $assignment_count+1;
+					}
+					echo "assignment_count: ".$assignment_count;
+					echo "<br>";
+
+
+					// GET ALL QUIZ
+					$all_quiz_id = array();
+					$quiz_count = 0;
+					$get_quiz_id = $dbconn->query("SELECT * from quiz where subject_id = '$id' ");
+					while ($arow = mysqli_fetch_array($get_quiz_id)) {
+						$all_quiz_id[] = $arow['quiz_id'];
+					}
+					$quiz_count = count($all_quiz_id);
+					$quiz_colspan = 2;
+					if ($quiz_count > 1) {
+						$quiz_colspan = $quiz_count+1;
+					}
+					echo "quiz_count: ".$quiz_count;
+			?>
+
 			<div class="row">
 				<div class="col-12 col-lg-12">
-					<table class="table table-bordered table-hover">
-						<tr>
-							<th>Name</th>
-							<th>Quiz 1</th>
-							<th>Quiz 2</th>
-							<th>Assignment 1</th>
-							<th>Total Score</th>
-							<th>Percentage</th>
+					<table class="table table-bordered">
+						<tr style="text-align: center">
+							<th rowspan="2" style="width: 25%; vertical-align: middle;">NAME</th>
+							<th colspan="<?php echo $ass_colspan; ?>">ASSIGNMENTS</th>
+							<th colspan="<?php echo $quiz_colspan; ?>">QUIZZES</th>
+							<!-- <th rowspan="2" style="width: 5%; vertical-align: middle;">PERCENTAGE</th> -->
 						</tr>
-						<tr>
-							<td>Humphrey, Noelani O.</td>
-							<td>6</td>
-							<td>7</td>
-							<td>9</td>
-							<td>30</td>
-							<td>99.9%</td>
-						</tr>
-						<tr>
-							<td>Byers, Tanner P.</td>
-							<td>4</td>
-							<td>1</td>
-							<td>2</td>
-							<td>30</td>
-							<td>99.9%</td>
-						</tr>
-						<tr>
-							<td>Santana, Dean I.</td>
-							<td>10</td>
-							<td>4</td>
-							<td>5</td>
-							<td>30</td>
-							<td>99.9%</td>
-						</tr>
-						<tr>
-							<td>Barton, Colt A.</td>
-							<td>2</td>
-							<td>10</td>
-							<td>7</td>
-							<td>30</td>
-							<td>99.9%</td>
-						</tr>
-						<tr>
-							<td>Gutierrez, Alana N.</td>
-							<td>10</td>
-							<td>9</td>
-							<td>7</td>
-							<td>30</td>
-							<td>99.9%</td>
-						</tr>
-						<tr>
-							<td>Horne, Wyatt S.</td>
-							<td>1</td>
-							<td>8</td>
-							<td>4</td>
-							<td>30</td>
-							<td>99.9%</td>
-						</tr>
+						<?php
+							$totalscore = 0;
+							$allscore = array();
+							foreach ($all_ass_id as $ass_id) {
+								$getass = $dbconn->query("SELECT * from assignment where assignment_id = '$ass_id' ");
+								$ass = mysqli_fetch_array($getass);
+								$xscore = $ass['score'];
+								$allscore[] = $xscore;
+								$totalscore = $totalscore + $xscore;
+							}
+							echo "<tr style='text-align: center'>";
+							if ($assignment_count != 0) {
+								for($x = 0; $x < $assignment_count; $x++) {
+									echo "<td style='vertical-align: middle'><a href='s_assignment.php?s_id=$s_id&assignment_id=$all_ass_id[$x]'><b class='text-success'>".($x+1)."  (".$allscore[$x].")</b></a></td>";
+								}
+								echo "<td style='width: 140px'><b>Grades (".$totalscore.")</b></td>";
+							} else {
+								echo "<td><i>No assignment/s found.</i></td>";
+							}
+
+							if ($quiz_count != 0) {
+								for($x = 0; $x < $quiz_count; $x++) {
+									echo "<td><b>".($x+1)."</b></td>";
+								}
+							} else {
+								echo "<td><i>No quiz/es found.</i></td>";
+							}
+							echo "</tr>";
+
+							echo "<th>".$s_lastname.", ".$s_firstname."</th>";
+							$totalgrade = 0;
+							foreach ($all_ass_id as $key) {
+								$get_ans = $dbconn->query("SELECT * from answer_assignment where assignment_id = '$key' and student_id = '$s_id' ");
+								$hasAns = false;
+								$grade = 0;
+								if (mysqli_num_rows($get_ans) != 0) {
+									$hasAns = true;
+									$ansrow = mysqli_fetch_array($get_ans);
+									$grade = $ansrow['grade'];
+									$totalgrade = $totalgrade + $grade;
+								}
+
+								if ($hasAns) {
+									echo "<td style='text-align: center'><b>".$grade."<b></td>";
+								} else {
+									echo "<td style='text-align: center'><b>-</b></td>";
+								}
+							}
+							echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
+							echo "</tr>";
+						?>
 					</table>
 				</div>
 			</div>
 			<?php 
 				echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($id)," class='btn clever-btn pull-right'>Back</a>";
 			?>
-			<button type="button" class="btn btn-primary pull-right clever-btn mb-30" data-toggle="modal" data-target="#editClassrecord" style="margin-right: 5px;">Edit</button>
 		</div>
 	</div>
 
-	<!-- MODAL STARTS HERE (EDIT CLASSRECORD) -->
-	<div class="modal fade" id="editClassrecord" role="dialog">
-		<div class="modal-dialog modal-lg">
-		
-			<!-- Modal content-->
-				<div class="modal-content">
-					<div class="modal-header">
-						<h4 class="modal-title">Edit Classrecord</h4>
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-					</div>
-					<form>
-						<div class="modal-body input-group">
-							<table class="table table-bordered table-hover">
-								<tr>
-									<th>Name</th>
-									<th>Quiz 1</th>
-									<th>Quiz 2</th>
-									<th>Assignment 1</th>
-								</tr>
-								<tr>
-									<td>Humphrey, Noelani O.</td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-								</tr>
-								<tr>
-									<td>Byers, Tanner P.</td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-								</tr>
-								<tr>
-									<td>Santana, Dean I.</td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-								</tr>
-								<tr>
-									<td>Barton, Colt A.</td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-								</tr>
-								<tr>
-									<td>Gutierrez, Alana N.</td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-								</tr>
-								<tr>
-									<td>Horne, Wyatt S.</td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-									<td><input type="text" class="form-control"></td>
-								</tr>
-							</table>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-primary clever-btn mb-30">Add Row</button>
-							<button type="button" class="btn btn-primary clever-btn mb-30">Add Column</button>
-							<button type="button" class="btn btn-success clever-btn mb-30" data-dismiss="modal">Submit</button>
-							<button type="submit" class="btn btn-default clever-btn mb-30" data-dismiss="modal">Close</button>
-						</div>
-					</form>
-				</div>
-		  
-		</div>
-	</div>
-
-	<!-- MODAL ENDS HERE -->
 
 	<!-- ##### Footer Area Start ##### -->
 	<footer class="footer-area">

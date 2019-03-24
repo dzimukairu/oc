@@ -11,10 +11,10 @@ create table teacher(
 	primary key(teacher_id)
 );
 
-create table teaches(
-	teacher_id int(100) not null,
-	student_id int(100) not null
-);
+-- create table teaches(
+-- 	teacher_id int(100) not null,
+-- 	student_id int(100) not null
+-- );
 
 create table student(
 	student_id int(100) not null auto_increment,
@@ -23,12 +23,14 @@ create table student(
 	username varchar(100) not null,
 	email_address varchar(100) not null,
 	password varchar(100) not null,
+	image varchar(100) null,
 	primary key(student_id)
 );
 
 create table enrolls (
 	student_id int(100) not null,
-	subject_id int(100) not null
+	subject_id int(100) not null,
+	status varchar(1000) not null
 );
 
 create table subject(

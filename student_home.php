@@ -1,10 +1,16 @@
 <?php
 	require "db_connection.php";
 
-	$id = $_GET['student_id'];
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
 
-	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$id';");
+	$username = $_SESSION['username'];
+
+	$get_student = $dbconn->query("SELECT * from student where username = '$username'");
 	$srow = mysqli_fetch_array($get_student);
+	$id = $srow['student_id'];
 
 	$s_username = $srow['username'];
 	$s_firstname = $srow['first_name'];
@@ -76,10 +82,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=student_home.php?student_id=",urlencode($id)," class='dropdown-item'>Home</a>";
+												echo "<a href=student_home.php class='dropdown-item'>Home</a>";
+												echo "<a href=s_profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -112,7 +118,7 @@
 			<div class="row">
 
 				<?php 
-					$subject_list_query= "SELECT * FROM `subject` INNER JOIN enrolls on enrolls.student_id = '$id' and enrolls.subject_id = subject.subject_id";
+					$subject_list_query= "SELECT * FROM `subject` INNER JOIN enrolls on enrolls.student_id = '$id' and enrolls.subject_id = subject.subject_id and enrolls.status = 'enrolled' ";
 					$connect_to_db = mysqli_query($dbconn,$subject_list_query);
 					$affected = mysqli_num_rows($connect_to_db);
 							

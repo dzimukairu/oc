@@ -8,24 +8,15 @@
 
 	$error = "<br>";
 
-	$id = $_GET['subject_id'];
-	$sql = "SELECT subject_code, course_title, course_description, course_about, teacher_id from subject where subject_id = '$id'";
+	$username = $_SESSION['username'];
+	$sql = $dbconn->query("SELECT * from student where username = '$username'");
 	
-	$result = mysqli_query($dbconn, $sql);
-	$row = mysqli_fetch_array($result);
-							
-	// $subject_code = $row['subject_code']; 
-	// $course_title = $row['course_title'];
-	// $course_description = $row['course_description'];
-	// $course_about = $row['course_about'];
-	$teacher_id = $row['teacher_id'];
+	$srow = mysqli_fetch_array($sql);
 
-	$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$teacher_id';");
-	$trow = mysqli_fetch_array($get_teacher);
-
-	$t_username = $trow['username'];
-	$t_firstname = $trow['first_name'];
-	$t_lastname = $trow['last_name'];
+	$id = $srow['student_id'];
+	$s_username = $srow['username'];
+	$s_firstname = $srow['first_name'];
+	$s_lastname = $srow['last_name'];
 ?>
 
 
@@ -101,10 +92,10 @@
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
 									<div class="dropdown">
-										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
+										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=teacher_home.php class='dropdown-item'>Home</a>"; 
+												echo "<a href=student_home.php class='dropdown-item'>Home</a>"; 
 												echo "<a href=profile.php class='dropdown-item'>Profile</a>";
 												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
@@ -130,95 +121,10 @@
 	
 	<div class="announcement-page-area" style="padding-bottom: 20px">
 		<div class="container">
-			<div class="col-12">
-				<div class="section-heading">
-					<h3>ADD STUDENT</h3>
-				</div>
-			</div>
-			<div class="page-content">
-				<h7 class="text text-danger"><?php echo $error;?></h7>
-				<form method="GET">
-					<div class="input-group mb-3">
-						<input value="<?php echo $id ?>" name="subject_id" hidden>
-  						<input type="text" name="search" class="form-control" placeholder="Student Name/Username">
-  						<div class="input-group-append">
-  							<span>&nbsp;</span>
-  							<input type="reset" class="btn" value="X">
-  							<span>&nbsp;</span>
-    						<button  type="submit" class="btn btn-success" name="find_student"><i class="fa fa-search"></i> Find</button>
-  						</div>
-					</div>
-				</form>
-
-				<div id="student-list">
-					<?php
-						if (isset($_GET['find_student'])) {
-							$subject_id = $_GET['subject_id'];
-							$search = $_GET['search'];
-
-							$check_stu = $dbconn->query("SELECT * from student where (username = '$search') or (first_name like '%$search%') or (last_name like '%$search%')");
-							$result = mysqli_num_rows($check_stu);
-
-							if ($result == 0) {
-								echo "No student/s found named <b>".$search."</b>.";
-							} else {
-					?>
-								<table class="table">
-									<tr>
-										<th>First Name</th>
-										<th>Last Name</th>
-										<th>Username</th>
-										<th>Action</th>
-									</tr>
-									<?php 
-										while($row = mysqli_fetch_array($check_stu)) {
-											$student_id = $row['student_id'];
-
-											$check = $dbconn->query("SELECT subject_id from enrolls where student_id = '$student_id'");
-
-											$all_enrolled_subjects = array();
-
-											while ($sub = mysqli_fetch_array($check)) {
-												$all_enrolled_subjects[] = $sub['subject_id'];
-											}
-									?>
-									<tr>
-										<td><?php echo $row['first_name']; ?></td>
-										<td><?php echo $row['last_name']; ?></td>
-										<td><?php echo $row['username']; ?></td>
-										<td>
-											<?php 
-												if (in_array($subject_id, $all_enrolled_subjects)) {
-													echo "Enrolled";
-												} else {
-											?>
-											<button class="btn" onclick='addStudent("<?php echo $subject_id; ?>", "<?php echo $student_id; ?>", "<?php echo $row['first_name']." ".$row['last_name']?>")'><i class="fa fa-plus"></i></button>
-										<?php } ?>
-										</td>
-
-										<script>
-											function addStudent(subject_id, student_id, name) {
-												var add = confirm("Do you want to add " + name + "?");
-
-												if (add == true) {
-													document.location.href = 'add_stu.php?subject_id='+subject_id+'&student_id='+student_id;
-												}
-											}
-										</script>
-									</tr>
-								<?php } ?>
-								</table>
-
-								<?php
-							}
-						}
-						
-					?>
-				</div>
-			</div>
+			<?php echo "hi"; ?>
 			<br>
 			<?php 
-				echo "<a href=teacher_course.php?subject_id=",urlencode($id)," class='btn clever-btn'>Back</a>";
+				echo "<a href=student_home.php class='btn clever-btn'>Home</a>";
 			?> 
 		</div>
 	</div>

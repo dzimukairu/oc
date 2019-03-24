@@ -1,16 +1,10 @@
 <?php
 	require "db_connection.php";
 
-	session_start();
-	if (!isset($_SESSION['username'])) {
-		header("Location:index.php");
-	}
+	$id = $_GET['teacher_id'];
 
-	$username = $_SESSION['username'];
-
-	$get_teacher = $dbconn->query("SELECT * from teacher where username = '$username' ");
+	$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$id';");
 	$trow = mysqli_fetch_array($get_teacher);
-	$id = $trow['teacher_id'];
 
 	$t_username = $trow['username'];
 	$t_firstname = $trow['first_name'];
@@ -70,20 +64,16 @@
 						<!-- Nav Start -->
 
 						<div class="classynav">
-							<div class="search-area">
-								<form action="#" method="post">
-									<input type="search" name="search" id="search" placeholder="Search">
-									<button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
-								</form>
-							</div>
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
 									<div class="dropdown">
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=teacher_home.php class='dropdown-item'>Home</a>"; 
-												echo "<a href=profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=teacher_home.php?teacher_id=",urlencode($id)," class='dropdown-item'>Home</a>";
+											?>
+											<a class="dropdown-item" href="#">Profile</a>
+											<?php 
 												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
 										</div>
@@ -108,44 +98,46 @@
 	
 	<section>
 		<div class="container">
-			<?php 
-				echo "<a href=create_subject.php?teacher_id=",urlencode($id)," class='btn btn-primary clever-btn'>Create Subject</a>";
+			<?php
+				echo "<a href=student_home.php?student_id=",urlencode($id)," class='btn btn-primary clever-btn'>Back</a>";
 			?>
-
-			<div class="free-space">
-				<br/>
-			</div>
 			<div class="row">
 
 				<?php 
-					$subject_list_query= "SELECT * FROM `subject` WHERE teacher_id = '$id'";
-					$connect_to_db = mysqli_query($dbconn,$subject_list_query);
-					$affected = mysqli_num_rows($connect_to_db);
-							
-					if ($affected != 0) {
-						// $_SESSION['subject'] = array();
-						while ($row = mysqli_fetch_row($connect_to_db)) {
-					?>
-							<div class="col-12 col-md-6 col-lg-4">
-								<div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="250ms">
-									<!-- <form method="post"> -->
-									   <img src="img/bg-img/c1.jpg" alt="">
-									<!-- Course Content -->
-										<div class="course-content">
-											<?php
-												echo "<a href='teacher_course.php?subject_id=".$row[0]."'><h4>$row[2]</h4></a>";
-											?>
-											<div class="meta d-flex align-items-center">
-												<h7><b><?php echo $row[3]?></b></h7>
-											</div>
-										</div> 
-									<!-- </form> -->
-								</div>
-							</div>
-						<?php } ?>
-					<?php } else {
-						echo "<h4>No subjects found.</h4>";
 
+				if (isset($_GET['find_subject'])) {
+						$search = $_GET['search'];
+
+						$check_sub = $dbconn->query("SELECT * from subject where (course_title like '%$search%')");
+						$result = mysqli_num_rows($check_sub);
+
+						if ($result == 0) {
+							echo "<h4>No subjects found.</h4>";
+						} else {
+						$subject_list_query= "SELECT * FROM `subject` where teacher_id='$id' and (course_title like '%$search%')"
+							;
+						$connect_to_db = mysqli_query($dbconn,$subject_list_query);
+						$affected = mysqli_num_rows($connect_to_db);
+								
+						if ($affected != 0) {
+							while ($row = mysqli_fetch_row($connect_to_db)) {?>
+								<div class="col-12 col-md-6 col-lg-4">
+									<div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="250ms">
+										<form method="post">
+										   <img src="img/bg-img/c1.jpg" alt="">
+										<!-- Course Content -->
+											<div class="course-content">
+												<?php echo "<a href='teacher_course.php?s_id=".$id."&subject_id=".$row[0]."'><h4>$row[2]</h4></a>"; ?>
+												<div class="meta d-flex align-items-center">
+													<h7><b><?php echo $row[3]?></b></h7>
+												</div>
+											</div> 
+										</form>
+									</div>
+								</div>
+							<?php } ?>
+						<?php } 
+						}
 					}?>
 			</div>
 		</div>
@@ -163,7 +155,7 @@
 							<a href="index.php"><img src="img/core-img/logo2.png" alt=""></a>
 						</div>
 						<!-- Copywrite -->
-						<p><a href="#"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+						<p><a href="#">Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0.
 Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
 <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
 					</div>

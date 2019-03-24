@@ -1,6 +1,11 @@
 <?php
 	require "db_connection.php";
 	
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
+	
 	$id = $_GET['subject_id'];
 	$error = '';
 	$error1 = '';
@@ -33,6 +38,7 @@
 		$assignment_instruction = $_POST['assignment_instruction'];
 		$deadline_date = $_POST['deadline_date'];
 		$deadline_time = $_POST['deadline_time'];
+		$score = $_POST['score'];
 
 		$xdate = date('m/d/Y');
 		$xtime = date('H:i');
@@ -81,7 +87,7 @@
 
 		if ($errorcount) {
 			if($_FILES['fileToUpload']['size'] == 0) {
-				$query = $dbconn->query("INSERT into assignment(subject_id, date_posted, deadline_date, deadline_time, title, instruction) VALUES('$id', NOW(), '$deadline_date', '$deadline_time', '$assignment_title', '$assignment_instruction')");
+				$query = $dbconn->query("INSERT into assignment(subject_id, date_posted, deadline_date, deadline_time, title, instruction, score) VALUES('$id', NOW(), '$deadline_date', '$deadline_time', '$assignment_title', '$assignment_instruction', '$score')");
 			
 				if ($query) {
 					header("Location: teacher_course.php?subject_id=".$id);
@@ -99,7 +105,7 @@
 				if ($insert_file_query) {
 					$file_id = $dbconn->insert_id;
 
-					$query = $dbconn->query("INSERT into assignment(subject_id, date_posted, deadline_date, deadline_time, title, instruction, file_id) VALUES('$id', NOW(), '$deadline_date', '$deadline_time', '$assignment_title', '$assignment_instruction', '$file_id')");
+					$query = $dbconn->query("INSERT into assignment(subject_id, date_posted, deadline_date, deadline_time, title, instruction, score, file_id) VALUES('$id', NOW(), '$deadline_date', '$deadline_time', '$assignment_title', '$assignment_instruction', '$score', '$file_id')");
 			
 					if ($query) {
 						header("Location: teacher_course.php?subject_id=".$id);
@@ -184,10 +190,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=teacher_home.php?teacher_id=",urlencode($teacher_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=teacher_home.php class='dropdown-item'>Home</a>"; 
+												echo "<a href=profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -245,7 +251,7 @@
 				<h7 class="text-danger"><?php echo $error2 ?></h7>
 				
 				<div class="col-12 col-lg-12 border rounded">
-					<div style="padding: 20px 12px 50px 12px;">
+					<div style="padding: 20px 12px 60px 12px;">
 						<form method="post" action="teacher_assignment.php?subject_id=<?php echo $id ?>" enctype="multipart/form-data">
 							<div class="offset-md-2 col-8 input-group">
 								<div class="input-group-prepend">
@@ -281,6 +287,10 @@
 								<textarea data-autoresize rows="2" class="form-control expand_this" id="assignment_instruction" name="assignment_instruction"></textarea>
 
 								<input type="file" name="fileToUpload">
+							</div>
+							<div class="offset-md-3 col-6 input-group">
+								<div class="input-group-text">Score:</div>
+								<input type="number" pattern= "^[0–9]$" class="form-control expand_this" id="score" name="score" required>
 							</div>
 
 							<br>

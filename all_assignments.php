@@ -1,5 +1,10 @@
 <?php
 	require "db_connection.php";
+	
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
 
 	$error = "";
 	date_default_timezone_set("Asia/Manila");
@@ -132,10 +137,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=teacher_home.php?teacher_id=",urlencode($teacher_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=teacher_home.php class='dropdown-item'>Home</a>"; 
+												echo "<a href=profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -178,19 +183,37 @@
 	</section> -->
 	<!-- ##### Single Course Intro End ##### -->
 
-	<div class="student-quiz-content section-padding-100">
+	<div class="student-quiz-content">
 		<div class="container">
 			<div style='margin-left: 1px'>
 			<?php
 				$get_student_id = $dbconn->query("SELECT * from enrolls where subject_id = '$subject_id' ");
 				
-
 				if (mysqli_num_rows($get_student_id) != 0) {
 					echo "<h4>Student Answers:</h4><br>";
+
+					$all_enrolled = array();
+					while ($irow = mysqli_fetch_array($get_student_id)) {
+						$all_enrolled[] = $irow['student_id'];
+					}
+
+					$all_lastname = array();
+					foreach ($all_enrolled as $sid) {
+						$get_lastname = $dbconn->query("SELECT * from student where student_id = '$sid' ");
+						$ln = mysqli_fetch_array($get_lastname);
+						$lastname = $ln['last_name'];
+						$all_lastname[] = $lastname;
+					}
+					
+					$sorted_ln = $all_lastname;
+					sort($sorted_ln);
 					
 					echo "<div class='row'>";
-					while($row = mysqli_fetch_array($get_student_id)) {
-						$student_id = $row['student_id'];
+					foreach ($sorted_ln as $sln) {
+						$get_student = $dbconn->query("SELECT * from student where last_name = '$sln' ");
+						$srow = mysqli_fetch_array($get_student);
+						$fname = $srow['first_name'];
+						$student_id = $srow['student_id'];
 
 						$get_student_query = $dbconn->query("SELECT * from student where student_id = '$student_id' ");
 						$srow = mysqli_fetch_array($get_student_query);
@@ -201,6 +224,8 @@
 
 						$haveAns = false;
 						$hasFile = false;
+						$grade = 0;
+					
 						if (mysqli_num_rows($get_answer_query) != 0 ) {
 							$arow = mysqli_fetch_array($get_answer_query);
 							$answer_id = $arow['id'];
@@ -223,9 +248,9 @@
 			?>		
 					
 						<div class="col-lg-4 border rounded">
-							<div style="padding: 20px 12px 10px 12px;">
+							<div style="padding: 20px 5px 10px">
 								<?php
-									echo "<h5>".$student_first_name." ".$student_last_name."</h5>";
+									echo "<h5>".$student_last_name.", ".$student_first_name."</h5>";
 									echo "<br>";
 									
 									if ($haveAns) {
@@ -261,11 +286,24 @@
 										echo "<b>Grade: ".$grade."</b>";
 									}
 								?>
+
+								<!-- <br><br><br><br>
+								<i>Maximum Score: <?php echo $score; ?></i>
+								<form method="post">
+									<input name="answer_id" value="<?php echo $answer_id; ?>" hidden>
+									<div class="input-group mb-3">
+		  								<input type="text" class="form-control" name="grade" placeholder="Input Grade"value="<?php echo $grade; ?>">
+		  								<div class="input-group-append">
+		  									<span>&nbsp;</span>
+		    								<button class="btn btn-success" name="pass_grade"><i class='fa fa-check'></i></button>
+		  								</div>
+									</div>
+								</form>
+								<i class="text-danger"><?php echo $error; ?></i> -->
 								
 							</div>
 						</div>
 			<?php
-					$grade = 0;
 					}
 				echo "</div>";
 				} else {

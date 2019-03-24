@@ -1,6 +1,8 @@
 <?php
 	require "db_connection.php";
 
+	session_start();
+
 	$error = '';
 	$error2 = '';
 	$error3 = '';
@@ -29,16 +31,22 @@
 				$error2 = 'Username exists, please input another username.';
 			} else {
 				if ($user_type == 1) {
-				 	$input_teacher = $dbconn->query("INSERT INTO teacher(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
+					$input_teacher = $dbconn->query("INSERT INTO teacher(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
 					if ($input_teacher) {
+						$t_id = $row['teacher_id'];
 						$_SESSION['username'] = $username;
-						$error3 = "You may now log-in.";
+						// $error3 = "You may now log-in.";
+						// header("Location:teacher_home.php?teacher_id=".$t_id);
+						header("Location:teacher_home.php");
 					}
 				} else if ($user_type == 0) {
 					$input_student = $dbconn->query("INSERT INTO student(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
 					if ($input_student) {
+						$s_id = $row['student_id'];
 						$_SESSION['username'] = $username;
-						$error3 = "You may now log-in.";
+						// $error3 = "You may now log-in.";
+						// header("Location:student_home.php?student_id=".$s_id);
+						header("Location:student_home.php");
 					}
 				}
 			}
@@ -67,8 +75,10 @@
 
 			$t_id = $row['teacher_id'];
 		   
-			if(mysqli_num_rows($result)) {                  
-				header("Location:teacher_home.php?teacher_id=".$t_id);
+			if(mysqli_num_rows($result)) { 
+				$_SESSION['username'] = $username_log;
+				// header("Location:teacher_home.php?teacher_id=".$t_id);
+				header("Location:teacher_home.php");
 			} else {
 				$student_query = "SELECT * FROM student WHERE username = '$username_log' and password = '$password_log'";
 
@@ -77,8 +87,10 @@
 
 				$s_id = $row['student_id'];
 
-				if(mysqli_num_rows($result)) {                  
-					header("Location:student_home.php?student_id=".$s_id);
+				if(mysqli_num_rows($result)) { 
+					$_SESSION['username'] = $username_log;
+					// header("Location:student_home.php?student_id=".$s_id);
+					header("Location:student_home.php");
 				}
 			}
 			
@@ -107,6 +119,29 @@
 
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style.css">
+
+	<script>
+		function showPass1() {
+  			var x = document.getElementById("pwd");
+  			var y = document.getElementById("retype_pwd")
+  			if (x.type === "password" && y.type === "password") {
+				x.type = "text";
+				y.type = "text";
+  			} else {
+				x.type = "password";
+				y.type = "password";
+  			}
+		}
+
+		function showPass2() {
+  			var x = document.getElementById("password_log");
+  			if (x.type === "password") {
+				x.type = "text";
+  			} else {
+				x.type = "password";
+  			}
+		}
+	</script>
 
 </head>
 
@@ -240,20 +275,10 @@
 														</select>
 													</div>
 												</div>
-												<!-- <div class="row">
-													<div class="col-12 col-lg-6">
-														<label for="pwd">ID Number:</label>
-															<input type="password" class="form-control" name="idnum" id="idnum">
-													</div>
-													<div class="col-12 col-lg-6">
-														<label for="user_type">Register As:</label>
-														<select name="type" id="user_type" class="form-control">
-															<option value="1">Teacher</option>
-															<option value="0">Student</option>
-														</select>
-													</div>
-												</div>
-												<br> -->
+												<div>
+													<input type="checkbox" onclick="showPass1()"> Show Password
+												</div> 
+												<br>
 												<div class="col-12">
 													<button class="btn clever-btn w-100" name="register">Create Account</button>
 												</div>
@@ -283,6 +308,10 @@
 										<input type="password" class="form-control" id="password_log" placeholder="password" name="password_log">
 									</div>
 								</div>
+								<div class="col-12 col-lg-12">
+									<input type="checkbox" onclick="showPass2()"> Show Password
+								</div> 
+								<br>
 								<div class="col-12">
 									<button class="btn clever-btn w-100" name="login_form">Log In</button>
 								</div>

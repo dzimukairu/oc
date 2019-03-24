@@ -1,5 +1,10 @@
 <?php
 	include('db_connection.php');
+	
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
 
 	$error = "<br>";
 
@@ -99,10 +104,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=teacher_home.php?teacher_id=",urlencode($teacher_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=teacher_home.php class='dropdown-item'>Home</a>"; 
+												echo "<a href=profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -123,7 +128,7 @@
 
 	<!-- ##### List of Subjects ##### -->
 	
-	<div class="announcement-page-area section-padding-100">
+	<div class="announcement-page-area" style="padding-bottom: 20px">
 		<div class="container">
 			<div class="col-12">
 				<div class="section-heading">

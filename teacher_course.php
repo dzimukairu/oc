@@ -1,11 +1,16 @@
 <?php
 	include("db_connection.php");
 
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
+
 	$error = "";
 	date_default_timezone_set("Asia/Manila");
-
 				
 	$id = $_GET['subject_id'];
+	// $id = $_SESSION['subject'];
 	$sql = "SELECT subject_code, course_title, course_description, course_about, teacher_id from subject where subject_id = $id";
 	
 	$result = mysqli_query($dbconn, $sql);
@@ -31,6 +36,8 @@
 			header("Location: teacher_course.php?subject_id=".$id);
 		}
 	}
+
+	$get_pending = $dbconn->query("SELECT * from enrolls where subject_id = '$id' and status = 'pending' ");
 
 	if(isset($_POST['add_lecture'])){
 		$lecture_title = $_POST['lecture_title'];
@@ -76,6 +83,25 @@
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="css/expand.css">
 	
+	<?php
+		if (mysqli_num_rows($get_pending) != 0) {
+	?>
+			<style>
+				#pendingDiv {
+					display: block;
+				}
+			</style>
+	<?php
+		} else {
+	?>
+			<style>
+				#pendingDiv {
+					display: none;
+				}
+			</style>
+	<?php
+		}
+	?>
 
 </head>
 
@@ -124,10 +150,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=teacher_home.php?teacher_id=",urlencode($teacher_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=teacher_home.php class='dropdown-item'>Home</a>"; 
+												echo "<a href=profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -334,18 +360,14 @@
 										?>
 
 										<div class="all-instructors mb-30">
-											<div class="row">
-												<h6>Students List</h6>
-											</div>
-											<div class="row">
 											
+											<div id="pendingDiv">
+												<div>
+													<h6><i>Pending Students</i></h6>
+												</div>
+												<div class="row">
 											<?php
-												$get_student_id = "SELECT student_id FROM enrolls WHERE subject_id = '$id'";
-												$connect_to_db = mysqli_query($dbconn,$get_student_id);
-												$affected = mysqli_num_rows($connect_to_db);
-																										
-												if ($affected != 0) {
-													while ($row = mysqli_fetch_array($connect_to_db)) {
+													while ($row = mysqli_fetch_array($get_pending)) {
 														$student_id = $row['student_id'];
 
 														$get_student_query = $dbconn->query("SELECT * from student where student_id = '$student_id'");
@@ -363,6 +385,65 @@
 																<div class="instructor-info">
 																	<?php 
 																		echo "<h6>".$student['first_name']." ".$student['last_name']."</h6>";
+																	?>
+																	<button class="btn btn-primary btn-xs" onclick='addStudent("<?php echo $id; ?>", "<?php echo $student_id; ?>", "<?php echo $student['first_name']." ".$student['last_name']?>")'>
+																		<a><i class='fa fa-user-plus'></i> Add Student</a>
+																	</button>
+
+																	<script>
+																		function addStudent(subject_id, student_id, name) {
+																			var add = confirm("Do you want to add "+ name + "?");
+
+																			if (add == true) {
+																				document.location.href = 'add_s.php?subject_id='+subject_id+'&student_id='+student_id;
+																			}
+																		}
+																	</script>
+																</div>
+															</div>
+														</div>
+												<?php  echo "</a>"; } ?>
+												</div>
+											</div>
+
+											<h6>Students List</h6>
+											<div class="row">
+											<?php
+												$get_student_id = $dbconn->query("SELECT student_id FROM enrolls WHERE subject_id = '$id' and status = 'enrolled' ");
+												$affected = mysqli_num_rows($get_student_id);
+																										
+												if ($affected != 0) {
+													$all_stu_id = array();
+													while ($row = mysqli_fetch_array($get_student_id)) {
+														$all_stu_id[] = $row['student_id'];
+													}
+
+													$all_lastname = array();
+													foreach ($all_stu_id as $sid) {
+														$get_lastname = $dbconn->query("SELECT * from student where student_id = '$sid' ");
+														$ln = mysqli_fetch_array($get_lastname);
+														$lastname = $ln['last_name'];
+														$all_lastname[] = $lastname;
+													}
+
+													$sorted_ln = $all_lastname;
+													sort($sorted_ln);
+
+													foreach ($sorted_ln as $ln) {
+														$get_student_query = $dbconn->query("SELECT * from student where last_name = '$ln'");
+
+														$student = mysqli_fetch_array($get_student_query);
+														$student_id = $student['student_id'];
+														
+											?>
+														<div class="col-lg-6">
+															<div class="single-instructor d-flex align-items-center mb-30">
+																<div class="instructor-thumb">
+																	<img src="img/bg-img/t1.png" alt="">
+																</div>
+																<div class="instructor-info">
+																	<?php 
+																		echo "<h6>".$student['last_name'].", ".$student['first_name']."</h6>";
 																	?>
 																	<!-- <?php
 																		echo "<a href=del_student.php?subject_id=",urlencode($id),"&student_id=",urlencode($student_id)," class='btn text-danger'><i class='fa fa-user-times'></i> Remove</a>";
@@ -400,7 +481,7 @@
 								<div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="tab--5">
 									<div class="clever-review">
 										<?php
-											echo "<a href='#' class='btn clever-btn mb-30'><i class='fa fa-file-text'></i> Add Quiz</a>";
+											echo "<a href='teacher_quiz.php' class='btn clever-btn mb-30'><i class='fa fa-file-text'></i> Add Quiz</a>";
 										?>
 										<!-- Quiz -->
 										<div class="about-review mb-30">

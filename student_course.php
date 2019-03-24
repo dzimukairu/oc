@@ -1,5 +1,10 @@
 <?php
 	include("db_connection.php");
+	
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
 
 	$error = "";
 	date_default_timezone_set("Asia/Manila");
@@ -90,10 +95,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=student_home.php?student_id=",urlencode($s_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=student_home.php class='dropdown-item'>Home</a>";
+												echo "<a href=s_profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -312,7 +317,7 @@
 											?>
 
 											<div class='row'>
-												<div class="col-lg-12">
+												<div class="col-lg-offset-3 col-lg-6">
 													<div class="single-instructor d-flex align-items-center mb-30">
 														<div class="instructor-thumb">
 															<img src="img/bg-img/t1.png" alt="">
@@ -323,7 +328,7 @@
 															
 															?>
 															<button class="btn btn-info">
-																<a><i class="fa fa-comments-o fa-2x"> Chat</i></a>
+																<a><i class="fa fa-comments-o"></i> Chat</a>
 															</button>
 
 														</div>
@@ -338,17 +343,31 @@
 
 											<div class="row">
 											<?php
-												$get_student_id = "SELECT student_id FROM enrolls WHERE subject_id = '$id'";
-												$connect_to_db = mysqli_query($dbconn,$get_student_id);
-												$affected = mysqli_num_rows($connect_to_db);
+												$get_student_id = $dbconn->query("SELECT student_id FROM enrolls WHERE subject_id = '$id' and status = 'enrolled' ");
+												$affected = mysqli_num_rows($get_student_id);
 																										
 												if ($affected != 0) {
-													while ($row = mysqli_fetch_array($connect_to_db)) {
-														$student_id = $row['student_id'];
+													$all_stu_id = array();
+													while ($row = mysqli_fetch_array($get_student_id)) {
+														$all_stu_id[] = $row['student_id'];
+													}
 
-														$get_student_query = $dbconn->query("SELECT * from student where student_id = '$student_id'");
+													$all_lastname = array();
+													foreach ($all_stu_id as $sid) {
+														$get_lastname = $dbconn->query("SELECT * from student where student_id = '$sid' ");
+														$ln = mysqli_fetch_array($get_lastname);
+														$lastname = $ln['last_name'];
+														$all_lastname[] = $lastname;
+													}
+
+													$sorted_ln = $all_lastname;
+													sort($sorted_ln);
+
+													foreach ($sorted_ln as $ln) {
+														$get_student_query = $dbconn->query("SELECT * from student where last_name = '$ln'");
 
 														$student = mysqli_fetch_array($get_student_query);
+														$student_id = $student['student_id'];
 											?>
 														<div class="col-lg-6">
 															<div class="single-instructor d-flex align-items-center mb-30">
@@ -357,7 +376,7 @@
 																</div>
 																<div class="instructor-info">
 																	<?php 
-																		echo "<h6>".$student['first_name']." ".$student['last_name']."</h6>";
+																		echo "<h6>".$student['last_name'].", ".$student['first_name']."</h6>";
 																
 																		echo "<a href=del_student.php?subject_id=",urlencode($id),"&student_id=",urlencode($student_id)," class='btn text-danger' hidden><i class='fa fa-user-times'></i> Remove</a>";
 
@@ -397,7 +416,7 @@
 					<div class="course-sidebar">
 						<!-- Class Record -->
 						<?php 
-							echo "<a href=s_classrecord.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'><i class='fa fa-table'></i> Class Record</a>";
+							echo "<a href=s_classrecord.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'><i class='fa fa-table'></i> Your Grades</a>";
 						?>
 
 						<!-- <?php

@@ -1,5 +1,10 @@
 <?php
 	include('db_connection.php');
+	
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
 
 	$error = "<br>";
 
@@ -89,10 +94,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=student_home.php?student_id=",urlencode($student_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=student_home.php class='dropdown-item'>Home</a>";
+												echo "<a href=s_profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -113,7 +118,7 @@
 
 	<!-- ##### List of Subjects ##### -->
 	
-	<div class="announcement-page-area section-padding-100">
+	<div class="announcement-page-area" style="padding-bottom: 20px">
 		<div class="container">
 			<div class="col-12">
 				<div class="section-heading">
@@ -148,7 +153,7 @@
 								echo "No subjects found.";
 							} else {
 
-								$check = $dbconn->query("SELECT subject_id from enrolls where student_id = '$student_id'");
+								$check = $dbconn->query("SELECT * from enrolls where student_id = '$student_id'");
 
 								$all_enrolled_subjects = array();
 
@@ -162,14 +167,14 @@
 										<th>Subject Title</th>
 										<th>Subject Description</th>
 										<th>Teacher</th>
-										<th>Action</th>
+										<th>Status</th>
 									</tr>
 									<?php 
 										while($row = mysqli_fetch_array($check_sub)) { 
 											$teacher_id = $row['teacher_id'];
 											$subject_id = $row['subject_id'];
 
-											$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$teacher_id' ");
+											$get_teacher = $dbconn->query("SELECT * from teacher where teacher_id = '$teacher_id' ");
 											$trow = mysqli_fetch_array($get_teacher);
 
 											$t_username = $trow['username'];
@@ -183,8 +188,18 @@
 										<td><?php echo $t_firstname." ".$t_lastname; ?></td>
 										<td>
 											<?php 
-												if (in_array($subject_id, $all_enrolled_subjects)) {
-													echo "Enrolled";
+												$get_status = $dbconn->query("SELECT * from enrolls where subject_id = $subject_id ");
+												$hasEnrolled = false;
+												if (mysqli_num_rows($get_status) != 0) {
+													$sta = mysqli_fetch_array($get_status);
+													$status = $sta['status'];
+													$hasEnrolled = true;
+												} 
+
+												if (in_array($subject_id, $all_enrolled_subjects) && $status == 'enrolled') {
+													echo "<i>Enrolled</i>";
+												} else if (in_array($subject_id, $all_enrolled_subjects) && $status == 'pending') {
+													echo "<i>Pending</i>";
 												} else {
 											?>
 											<button class="btn" onclick='addSubject("<?php echo $subject_id; ?>", "<?php echo $student_id; ?>", "<?php echo $row['course_title'];?>")'><i class="fa fa-plus"></i></button>

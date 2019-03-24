@@ -1,5 +1,10 @@
 <?php
 	require "db_connection.php";
+	
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
 
 	$error = "";
 	date_default_timezone_set("Asia/Manila");
@@ -50,22 +55,26 @@
 	$s_lastname = $srow['last_name'];
 
 	$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$s_id' and assignment_id = '$id'");
-	$a_row = mysqli_fetch_array($get_answer_query);
-	$answer_id = $a_row['id'];
-	$content = $a_row['content'];
-	$a_file_id = $a_row['file_id'];
-	$grade = $a_row['grade'];
+	$haveAnswer = false;
+	$grade = 0;
+	if (mysqli_num_rows($get_answer_query) != 0) {
+		$a_row = mysqli_fetch_array($get_answer_query);
+		$answer_id = $a_row['id'];
+		$content = $a_row['content'];
+		$a_file_id = $a_row['file_id'];
+		$grade = $a_row['grade'];
+		$haveAnswer = true;
 
-	$is_a_FileEmpty = true;
-	$a_fileName = "";
-	if ($a_file_id != NULL) {
-		$get_file_query = $dbconn->query("SELECT * from uploaded_files where file_id = '$a_file_id'");
-		$frow = mysqli_fetch_array($get_file_query);
+		$is_a_FileEmpty = true;
+		$a_fileName = "";
+		if ($a_file_id != NULL) {
+			$get_file_query = $dbconn->query("SELECT * from uploaded_files where file_id = '$a_file_id'");
+			$frow = mysqli_fetch_array($get_file_query);
 
-		$a_fileName = $frow['filename'];
-		$is_a_FileEmpty = false;
+			$a_fileName = $frow['filename'];
+			$is_a_FileEmpty = false;
+		}
 	}
-
 
 	if (isset($_POST['pass_assignment'])) {
 		$answer_content = $_POST['answer_content'];
@@ -230,10 +239,10 @@
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
-												echo "<a href=student_home.php?student_id=",urlencode($s_id)," class='dropdown-item'>Home</a>";
+												echo "<a href=student_home.php class='dropdown-item'>Home</a>";
+												echo "<a href=s_profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
 											?>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
 										</div>
 									</div>
 								</div>
@@ -328,27 +337,27 @@
 					<div style="padding-left: 80px; padding-right: 80px;">
 						<h6>Your Work:</h6>
 						<div>
-							<p><?php echo $content; ?></p>
-							
 							<?php
-								if ($is_a_FileEmpty == false) {
-									echo "File: ".$a_fileName;
-									echo "&nbsp&nbsp";
-									?> 
-									<a href='uploads/<?php echo $a_fileName ?>'>(<i class='fa fa-download'></i> Download)</a>
-									<?php
+								if ($haveAnswer) {
+									echo "<p>".$content."</p>";
+									if ($is_a_FileEmpty == false) {
+										echo "File: ".$a_fileName;
+										echo "&nbsp&nbsp";
+										?> 
+										<a href='uploads/<?php echo $a_fileName ?>'>(<i class='fa fa-download'></i> Download)</a>
+										<?php
+									} else {
+										echo "File: <i>No submitted file.</i>";
+									}
+								} else {
+									echo "<i class='text-danger'>No submitted answer.</i>";
 								}
 							?>
 
 							<br><br>
 							<h7>Your Grade:
-								<?php 
-									if ($grade == NULL) {
-										echo "<i>Not graded yet.</i>";
-									} else {
-										echo "<b>".$grade."/".$score."</b>";
-									}
-
+								<?php
+									echo "<b>".$grade."/".$score."</b>";
 								?>
 							</h7>
 						</div>

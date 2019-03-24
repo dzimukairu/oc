@@ -36,7 +36,11 @@ Overall:
    - name of SP
    - comment section for Assignment, Quiz
 
-######################################################################################################################
+#######################################################################################################
+
+add_s.php
+	Confirming Student
+		-done-
 
 add_stu.php
 	Adding Student
@@ -50,7 +54,7 @@ add_student.php
 		--> add_stu.php
 
 add_sub.php
-	Adding Subject
+	Adding Subject (but Pending Status, only Teacher can Accept)
 		-done-
 
 add_subject.php
@@ -115,7 +119,22 @@ assignment_delete.php
 		-done-
 
 classrecord.php
-	wala pa na responsive du edit classrecord.
+	Student
+		Preview
+			-done-
+		Alphabetically
+			-done-
+
+	Assignment
+		Preview
+			-done-
+		By Date
+			-done-
+		Redirection
+			-done-
+
+	Quiz
+		wala pa
 
 create_subject.php
 	-done-
@@ -145,6 +164,8 @@ oc.sql
 		'teaches' table:
 			student_id gdman indi subject_id?
 
+#######################################################################################################
+
 s_announcement.php
 	Preview
 		-done-
@@ -162,12 +183,6 @@ s_assignment.php
 	Can Comment
 		...
 
-
-
-######################################################################################################################
-
-student_assignment.php
-	wala pa nacheck
 
 student_course.php
 	About
@@ -207,7 +222,7 @@ student_home.php
 
 
 
-######################################################################################################################
+#######################################################################################################
 
 teacher_announcement.php
 	PHP
@@ -272,23 +287,19 @@ teacher_course.php
 	student
 		Add
 			--> add_student.php
-		Preview
+
+		Confirm Student
+			PHP
+				--> add_s.php
+
+		Preview Alphabetically
 			-done-
-		Open
+
+		Chat Student
 			...
-		Delete
+
+		Remove Student
 			--> del_student.php
-			
-	chat
-		Create
-		
-		Preview
-
-		Open
-
-		Update
-
-		Delete
 
 teacher_home.php
 	Create Subjects
