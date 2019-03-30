@@ -27,12 +27,13 @@
 	$announcement_content = $row['content'];
 	$date_posted = $row['date_posted'];
 
-	$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$teacher_id';");
+	$get_teacher = $dbconn->query("SELECT * from teacher where teacher_id = '$teacher_id';");
 	$trow = mysqli_fetch_array($get_teacher);
 
 	$t_username = $trow['username'];
 	$t_firstname = $trow['first_name'];
 	$t_lastname = $trow['last_name'];
+	$image = $trow['image'];
 
 	if(isset($_POST['update_announcement'])){
 		$new_title = ($_POST['new_title']);
@@ -143,7 +144,10 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<!-- <img src="img/bg-img/t1.png" alt=""> -->
+									<?php 
+										echo "<a href=profile.php><img src=img/tea-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>

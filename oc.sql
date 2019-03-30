@@ -8,6 +8,7 @@ create table teacher(
 	username varchar(100) not null,
 	email_address varchar(100) not null,
 	password varchar(100) not null,
+	image varchar(100) null,
 	primary key(teacher_id)
 );
 

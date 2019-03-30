@@ -15,6 +15,7 @@
 	$s_username = $srow['username'];
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
+	$image = $srow['image'];
 ?>
 
 <!DOCTYPE html>
@@ -90,7 +91,9 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<?php 
+										echo "<a href=s_profile.php><img src=img/stu-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>

@@ -21,12 +21,13 @@
 	$course_description = $row['course_description'];
 	$course_about = $row['course_about'];
 
-	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$s_id';");
+	$get_student = $dbconn->query("SELECT * from student where student_id = '$s_id';");
 	$srow = mysqli_fetch_array($get_student);
 
 	$s_username = $srow['username'];
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
+	$image = $srow['image'];
 ?>
 
 <!DOCTYPE html>
@@ -47,6 +48,23 @@
 
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style.css">
+
+	<style>
+		#chatDiv {
+			display: none;
+		}
+	</style>
+
+	<script>
+		function showChatDiv() {
+			var x = document.getElementById("chatDiv");
+			if (x.style.display === "block") {
+				x.style.display = "none";
+			} else {
+				x.style.display = "block";
+			}
+		}
+	</script>
 
 </head>
 
@@ -103,7 +121,9 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<?php 
+										echo "<a href=s_profile.php><img src=img/stu-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>
@@ -275,6 +295,10 @@
 																echo "<h5>".$row[5]."</h5>";
 																echo "<h7>".$row[6]."</h7>";
 																echo "<br>";
+																echo "<br>";
+																echo "<h7>Score: ".$row[7]."</h7>";
+																echo "<br>";
+																echo "<br>";
 
 																$combinedtime = date('Y-m-d H:i:s', strtotime("$row[3] $row[4]"));
 																$xdate = new DateTime($combinedtime);
@@ -320,14 +344,16 @@
 												<div class="col-lg-offset-3 col-lg-6">
 													<div class="single-instructor d-flex align-items-center mb-30">
 														<div class="instructor-thumb">
-															<img src="img/bg-img/t1.png" alt="">
+															<?php 
+																echo "<img id='profilePic' style='border-radius: 50%; height: 80px; width: 80px' src=img/tea-img/",urlencode($teacher['image']),">" 
+															?>
 														</div>
 														<div class="instructor-info">
 															<?php 
 																echo "<h6>".$teacher['first_name']." ".$teacher['last_name']."</h6>";
 															
 															?>
-															<button class="btn btn-info">
+															<button class="btn btn-info" onclick="showChatDiv()">
 																<a><i class="fa fa-comments-o"></i> Chat</a>
 															</button>
 
@@ -372,7 +398,9 @@
 														<div class="col-lg-6">
 															<div class="single-instructor d-flex align-items-center mb-30">
 																<div class="instructor-thumb">
-																	<img src="img/bg-img/t1.png" alt="">
+																	<?php 
+																		echo "<img id='profilePic' style='border-radius: 50%; height: 80px; width: 80px' src=img/stu-img/",urlencode($student['image']),">" 
+																	?>
 																</div>
 																<div class="instructor-info">
 																	<?php 
@@ -382,7 +410,11 @@
 
 																		if ($student_id == $s_id) {
 																			echo "<h7><i>(You)</i></h7>";
-																		}
+																		} else { ?>
+																			<button class="btn btn-info"  onclick="showChatDiv()">
+																				<a><i class="fa fa-comments-o"></i> Chat</a>
+																			</button>
+																		<?php }
 																	?>
 																</div>
 															</div>
@@ -437,12 +469,18 @@
 							</ul>
 						</div>
 
-
+						
 					</div>
 				</div>
 			</div>
 		</div>
+		
+		<div class="fixed-bottom position-relative" id="chatDiv">
+			<p>HI</p>
+		</div>
 	</div>
+
+	
 
    
 	<!-- ##### Courses Content End ##### -->

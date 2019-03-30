@@ -18,12 +18,13 @@
 	$course_about = $row['course_about'];
 	$teacher_id = $row['teacher_id'];
 
-	$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$teacher_id';");
+	$get_teacher = $dbconn->query("SELECT * from teacher where teacher_id = '$teacher_id';");
 	$trow = mysqli_fetch_array($get_teacher);
 
 	$t_username = $trow['username'];
 	$t_firstname = $trow['first_name'];
 	$t_lastname = $trow['last_name'];
+	$image = $trow['image'];
 
 ?>
 
@@ -64,6 +65,19 @@
 			overflow-y: auto;
 		}
 	</style>
+
+	<script>
+		function printData(fname, lname, title) {
+			var divToPrint = document.getElementById("printTable");
+
+			newWin = window.open("_blank");
+			newWin.document.write("<h2 class='text-center'><b>"+fname+" "+lname+" - "+title+" Class Record</b></h2>" + divToPrint.outerHTML);
+			newWin.document.close();
+			newWin.focus();
+			newWin.print();
+			newWin.close();
+		}
+	</script>
 
 </head>
 
@@ -120,7 +134,10 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<!-- <img src="img/bg-img/t1.png" alt=""> -->
+									<?php 
+										echo "<a href=profile.php><img src=img/tea-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>
@@ -132,40 +149,17 @@
 	</header>
 	<!-- ##### Header Area End ##### -->
 
-	<!-- ##### Breadcumb Area Start ##### -->
-	<!-- <div class="breadcumb-area">
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="student_home.php">Home</a></li>
-				<li class="breadcrumb-item"><a href="student_course.php">Course</a></li>
-				<li class="breadcrumb-item"><a href="student_quiz.php">Quizzes</a></li>
-			</ol>
-		</nav>
-	</div> -->
-	<!-- ##### Breadcumb Area End ##### -->
-
-	<!-- ##### Single Course Intro Start ##### -->
-	<!-- <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
-		<div class="container h-100">
-			<div class="row h-100 align-items-center">
-				<div class="col-12">
-					<div class="hero-content text-center">
-						<h2><?php echo $course_description;?></h2>
-						<h3><?php echo $course_title;?></h3>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section> -->
-
-	<div class="student-quiz-content section-padding-100">
+	<div class="student-quiz-content">
 		<div class="container">
 			<div class="row">
-				<div class="col-12 col-lg-12">
+				<div class="col-12 col-lg-11">
 					<div class="section-heading">
 						<h3>Class Record</h3>
 					</div>        
 			   </div>
+			   <div class="col-lg-1">
+			   		<button onClick='printData("<?php echo $t_firstname; ?>", "<?php echo $t_lastname; ?>","<?php echo $course_title; ?>")' class="btn btn-primary">Print Record</button>
+			   	</div>
 			</div>
 			<?php
 				$get_student_id = $dbconn->query("SELECT * from enrolls where subject_id = '$id' ");
@@ -201,8 +195,8 @@
 					if ($assignment_count > 1) {
 						$ass_colspan = $assignment_count+1;
 					}
-					echo "assignment_count: ".$assignment_count;
-					echo "<br>";
+					// echo "assignment_count: ".$assignment_count;
+					// echo "<br>";
 
 
 					// GET ALL QUIZ
@@ -217,84 +211,84 @@
 					if ($quiz_count > 1) {
 						$quiz_colspan = $quiz_count+1;
 					}
-					echo "quiz_count: ".$quiz_count;
+					// echo "quiz_count: ".$quiz_count;
 				}
 			?>
 			<div class="row">
 				<div class="col-12 col-lg-12">
 					<?php
 						if ($hasStudent) {
-							echo "ass_colspan: ".$ass_colspan;
-							echo "<br>";
-							echo "quiz_colspan: ".$quiz_colspan;
+							// echo "ass_colspan: ".$ass_colspan;
+							// echo "<br>";
+							// echo "quiz_colspan: ".$quiz_colspan;
 					?>
-					<table class="table table-bordered">
-						<tr style="text-align: center">
-							<th rowspan="2" style="width: 25%; vertical-align: middle;">NAME</th>
-							<th colspan="<?php echo $ass_colspan; ?>">ASSIGNMENTS</th>
-							<th colspan="<?php echo $quiz_colspan; ?>">QUIZZES</th>
-							<!-- <th rowspan="2" style="width: 5%; vertical-align: middle;">PERCENTAGE</th> -->
-						</tr>
-						<?php
-							$totalscore = 0;
-							$allscore = array();
-							foreach ($all_ass_id as $ass_id) {
-								$getass = $dbconn->query("SELECT * from assignment where assignment_id = '$ass_id' ");
-								$ass = mysqli_fetch_array($getass);
-								$xscore = $ass['score'];
-								$allscore[] = $xscore;
-								$totalscore = $totalscore + $xscore;
-							}
-							echo "<tr style='text-align: center'>";
-							if ($assignment_count != 0) {
-								for($x = 0; $x < $assignment_count; $x++) {
-									echo "<td style='vertical-align: middle'><a href='assignment.php?assignment_id=$all_ass_id[$x]'><b class='text-success'>".($x+1)."  (".$allscore[$x].")</b></a></td>";
-								}
-								echo "<td style='width: 140px'><b>Grades (".$totalscore.")</b></td>";
-							} else {
-								echo "<td><i>No assignment/s found.</i></td>";
-							}
-
-							if ($quiz_count != 0) {
-								for($x = 0; $x < $quiz_count; $x++) {
-									echo "<td><b>".($x+1)."</b></td>";
-								}
-							} else {
-								echo "<td><i>No quiz/es found.</i></td>";
-							}
-							echo "</tr>";
-
-							foreach ($sorted_ln as $sln) {
-								$get_student = $dbconn->query("SELECT * from student where last_name = '$sln' ");
-								$srow = mysqli_fetch_array($get_student);
-								$fname = $srow['first_name'];
-								$sid = $srow['student_id'];
-
-								echo "<tr>";
-								echo "<th>".$sln.", ".$fname."</th>";
-								$totalgrade = 0;
-								foreach ($all_ass_id as $key) {
-									$get_ans = $dbconn->query("SELECT * from answer_assignment where assignment_id = '$key' and student_id = '$sid' ");
-									$hasAns = false;
-									$grade = 0;
-									if (mysqli_num_rows($get_ans) != 0) {
-										$hasAns = true;
-										$ansrow = mysqli_fetch_array($get_ans);
-										$grade = $ansrow['grade'];
-										$totalgrade = $totalgrade + $grade;
+							<table class="table table-bordered" id="printTable">
+								<tr style="text-align: center">
+									<th rowspan="2" style="width: 25%; vertical-align: middle;">NAME</th>
+									<th colspan="<?php echo $ass_colspan; ?>">ASSIGNMENTS</th>
+									<th colspan="<?php echo $quiz_colspan; ?>">QUIZZES</th>
+									<!-- <th rowspan="2" style="width: 5%; vertical-align: middle;">PERCENTAGE</th> -->
+								</tr>
+								<?php
+									$totalscore = 0;
+									$allscore = array();
+									foreach ($all_ass_id as $ass_id) {
+										$getass = $dbconn->query("SELECT * from assignment where assignment_id = '$ass_id' ");
+										$ass = mysqli_fetch_array($getass);
+										$xscore = $ass['score'];
+										$allscore[] = $xscore;
+										$totalscore = $totalscore + $xscore;
 									}
-
-									if ($hasAns) {
-										echo "<td style='text-align: center'><b>".$grade."<b></td>";
+									echo "<tr style='text-align: center'>";
+									if ($assignment_count != 0) {
+										for($x = 0; $x < $assignment_count; $x++) {
+											echo "<td style='vertical-align: middle'><a href='assignment.php?assignment_id=$all_ass_id[$x]'><b class='text-success'>".($x+1)."  (".$allscore[$x].")</b></a></td>";
+										}
+										echo "<td style='width: 180px'><b>Total Grades (".$totalscore.")</b></td>";
 									} else {
-										echo "<td style='text-align: center'><b>-</b></td>";
+										echo "<td><i>No assignment/s found.</i></td>";
 									}
-								}
-								echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
-								echo "</tr>";
-							}
-						?>
-					</table>
+
+									if ($quiz_count != 0) {
+										for($x = 0; $x < $quiz_count; $x++) {
+											echo "<td><b>".($x+1)."</b></td>";
+										}
+									} else {
+										echo "<td><i>No quiz/es found.</i></td>";
+									}
+									echo "</tr>";
+
+									foreach ($sorted_ln as $sln) {
+										$get_student = $dbconn->query("SELECT * from student where last_name = '$sln' ");
+										$srow = mysqli_fetch_array($get_student);
+										$fname = $srow['first_name'];
+										$sid = $srow['student_id'];
+
+										echo "<tr>";
+										echo "<th>".$sln.", ".$fname."</th>";
+										$totalgrade = 0;
+										foreach ($all_ass_id as $key) {
+											$get_ans = $dbconn->query("SELECT * from answer_assignment where assignment_id = '$key' and student_id = '$sid' ");
+											$hasAns = false;
+											$grade = 0;
+											if (mysqli_num_rows($get_ans) != 0) {
+												$hasAns = true;
+												$ansrow = mysqli_fetch_array($get_ans);
+												$grade = $ansrow['grade'];
+												$totalgrade = $totalgrade + $grade;
+											}
+
+											if ($hasAns) {
+												echo "<td style='text-align: center'><b>".$grade."<b></td>";
+											} else {
+												echo "<td style='text-align: center'><b>-</b></td>";
+											}
+										}
+										echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
+										echo "</tr>";
+									}
+								?>
+							</table>
 					<?php 
 						} else {
 							echo "<h4>No Student/s Found.</h4>";
@@ -303,9 +297,9 @@
 				</div>
 			</div>
 			<?php 
-				echo "<a href=teacher_course.php?subject_id=",urlencode($id)," class='btn clever-btn pull-right'>Back</a>";
+				echo "<a href=teacher_course.php?subject_id=",urlencode($id)," class='btn clever-btn'>Back</a>";
 			?>
-			<!-- <button type="button" class="btn btn-primary pull-right clever-btn mb-30" data-toggle="modal" data-target="#editClassrecord" style="margin-right: 5px;">Edit</button> -->
+			<br><br>
 		</div>
 	</div>
 

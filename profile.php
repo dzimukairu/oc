@@ -17,6 +17,26 @@
 	$t_username = $trow['username'];
 	$t_firstname = $trow['first_name'];
 	$t_lastname = $trow['last_name'];
+	$image = $trow['image'];
+
+	if(isset($_POST['updateImage'])) {
+		$profileName = $t_username.'-'.$_FILES['profileImage']['name'];
+		$target = 'img/tea-img/' . $profileName;
+
+		if (move_uploaded_file($_FILES["profileImage"]["tmp_name"], $target)) {
+			$updatePhoto = $dbconn->query("UPDATE teacher set image = '$profileName' where username = '$t_username' ");
+
+			if ($updatePhoto) {
+				$message = "Success";
+				echo "<script type='text/javascript'>alert('$message');</script>";
+				header("Refresh:0");
+			} else {
+				$message = "Error";
+				echo "<script type='text/javascript'>alert('$message');</script>";
+				header("Refresh:0");
+			}
+		}
+	}
 ?>
 
 
@@ -40,20 +60,29 @@
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="css/expand.css">
 
-	<!-- <script type="text/javascript">
-		$(document).ready(function() {
-			$("#find_subject").click(function() {
-				$.ajax({
-					type: "GET",
-					url: "s_show_subject.php",
-					dataType: "html",
-					success: function(response){
-						$("#subject-list").html(response);
-					}
-				});
-			});
-		});
-	</script> -->
+	<style>
+		#updateImage {
+			display: none;
+		}
+	</style>
+
+	<script>
+		function triggerClick() {
+			document.querySelector('#profileImage').click();
+		}
+
+		function displayImage(e) {
+			if (e.files[0]) {
+				var reader = new FileReader();
+
+				reader.onload = function(e) {
+					document.querySelector('#profileDisplay').setAttribute('src', e.target.result);
+				}
+				reader.readAsDataURL(e.files[0]);
+				document.querySelector('#updateImage').style.display = "block";
+			}
+		}
+	</script>
 
 </head>
 
@@ -103,7 +132,10 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<!-- <img src="img/bg-img/t1.png" alt=""> -->
+									<?php 
+										echo "<a href=profile.php><img src=img/tea-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>
@@ -121,7 +153,34 @@
 	
 	<div class="announcement-page-area" style="padding-bottom: 20px">
 		<div class="container">
-			<?php echo "hi"; ?>
+			<div class="row justify-content-center">
+				<div class="col-md-8 border rounded" style="padding: 20px 20px">
+					<div class="row justify-content-center" style="padding: 30px 12px">
+						<div class="col-md-6">
+							<div class="container" id="imgContainer">
+								<form method="post" enctype="multipart/form-data">
+									<div class="form-group text-center">
+										<?php 
+											echo "<img id='profileDisplay' style='border-radius: 50%; height: 300px; width: 300px' src=img/tea-img/",urlencode($image)," onclick='triggerClick()'>" 
+										?>
+										<br><br>
+										<label for="profileImage"><h5><b>Profile Image</b></h5></label>
+										<input type="file" name="profileImage" onchange="displayImage(this)" id="profileImage" style="display: none;" accept="image/*">
+									</div>
+									<button type="submit" name="updateImage" id="updateImage" class="btn btn-info btn-block">Update Image</button>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="row justify-content-center" style="padding: 30px 12px" >
+						<div class="col-md-6" id="previewDiv">
+							<h6>Name: <?php echo $t_firstname." ".$t_lastname; ?></h6>
+							<h6>Username: <?php echo $t_username; ?></h6>
+						</div>
+					</div>
+					<!-- <button class="btn btn-info pull-right" onclick="toggleDiv()" id="toggleButton">Update</button> -->
+				</div>		
+			</div>
 			<br>
 			<?php 
 				echo "<a href=teacher_home.php class='btn clever-btn'>Home</a>";

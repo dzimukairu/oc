@@ -47,12 +47,13 @@
 	$xdate = new DateTime($first_time);
 	$combinedtime = date_format($xdate, 'M d, Y - h:i A');
 
-	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$s_id';");
+	$get_student = $dbconn->query("SELECT * from student where student_id = '$s_id';");
 	$srow = mysqli_fetch_array($get_student);
 
 	$s_username = $srow['username'];
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
+	$image = $srow['image'];
 
 	$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$s_id' and assignment_id = '$id'");
 	$haveAnswer = false;
@@ -247,7 +248,9 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<?php 
+										echo "<a href=s_profile.php><img src=img/stu-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>
@@ -294,7 +297,7 @@
 						<h5><?php echo $assignment_title;?></h5>
 						<br>
 						<h6><?php echo $assignment_instruction;?></h6>
-						<h6>Points: <?php echo $score ?></h6>
+						<h6>Total Points: <?php echo $score ?></h6>
 						<br>
 						<h6>File:
 							<?php

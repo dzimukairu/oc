@@ -20,12 +20,13 @@
 	// $course_about = $row['course_about'];
 	$teacher_id = $row['teacher_id'];
 
-	$get_teacher = $dbconn->query("SELECT username, first_name, last_name from teacher where teacher_id = '$teacher_id';");
+	$get_teacher = $dbconn->query("SELECT * from teacher where teacher_id = '$teacher_id';");
 	$trow = mysqli_fetch_array($get_teacher);
 
 	$t_username = $trow['username'];
 	$t_firstname = $trow['first_name'];
 	$t_lastname = $trow['last_name'];
+	$image = $trow['image'];
 ?>
 
 
@@ -112,7 +113,10 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<!-- <img src="img/bg-img/t1.png" alt=""> -->
+									<?php 
+										echo "<a href=profile.php><img src=img/tea-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>
@@ -163,11 +167,10 @@
 								echo "No student/s found named <b>".$search."</b>.";
 							} else {
 					?>
-								<table class="table">
+								<table class="table" style="text-align: center;">
 									<tr>
-										<th>First Name</th>
-										<th>Last Name</th>
-										<th>Username</th>
+										<th>Image</th>
+										<th>Name</th>
 										<th>Action</th>
 									</tr>
 									<?php 
@@ -183,10 +186,13 @@
 											}
 									?>
 									<tr>
-										<td><?php echo $row['first_name']; ?></td>
-										<td><?php echo $row['last_name']; ?></td>
-										<td><?php echo $row['username']; ?></td>
 										<td>
+											<?php 
+												echo "<img id='profilePic' style='border-radius: 50%; height: 50px; width: 50px' src=img/stu-img/",urlencode($row['image']),">" 
+											?>
+										</td>
+										<td style="vertical-align: middle"><b><?php echo $row['last_name'].", ".$row['first_name']; ?></b></td>
+										<td style="vertical-align: middle">
 											<?php 
 												if (in_array($subject_id, $all_enrolled_subjects)) {
 													echo "Enrolled";

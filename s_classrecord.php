@@ -20,12 +20,13 @@
 	$course_about = $row['course_about'];
 	$teacher_id = $row['teacher_id'];
 
-	$get_student = $dbconn->query("SELECT username, first_name, last_name from student where student_id = '$s_id';");
+	$get_student = $dbconn->query("SELECT * from student where student_id = '$s_id';");
 	$srow = mysqli_fetch_array($get_student);
 
 	$s_username = $srow['username'];
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
+	$image = $srow['image'];
 
 ?>
 
@@ -124,7 +125,9 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<?php 
+										echo "<a href=s_profile.php><img src=img/stu-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>
@@ -162,7 +165,7 @@
 		</div>
 	</section> -->
 
-	<div class="student-quiz-content section-padding-100">
+	<div class="student-quiz-content">
 		<div class="container">
 			<div class="row">
 				<div class="col-12 col-lg-12">
@@ -267,10 +270,12 @@
 					</table>
 				</div>
 			</div>
+			<br>
 			<?php 
-				echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($id)," class='btn clever-btn pull-right'>Back</a>";
+				echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($id)," class='btn clever-btn'>Back</a>";
 			?>
 		</div>
+		<br><br>
 	</div>
 
 

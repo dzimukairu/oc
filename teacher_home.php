@@ -15,6 +15,7 @@
 	$t_username = $trow['username'];
 	$t_firstname = $trow['first_name'];
 	$t_lastname = $trow['last_name'];
+	$image = $trow['image'];
 ?>
 
 <!DOCTYPE html>
@@ -90,7 +91,10 @@
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<!-- <img src="img/bg-img/t1.png" alt=""> -->
+									<?php 
+										echo "<a href=profile.php><img src=img/tea-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>

@@ -31,21 +31,17 @@
 				$error2 = 'Username exists, please input another username.';
 			} else {
 				if ($user_type == 1) {
-					$input_teacher = $dbconn->query("INSERT INTO teacher(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
+					$input_teacher = $dbconn->query("INSERT INTO teacher(first_name, last_name, username, email_address, password, image) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd', 'def.png');");
 					if ($input_teacher) {
 						$t_id = $row['teacher_id'];
 						$_SESSION['username'] = $username;
-						// $error3 = "You may now log-in.";
-						// header("Location:teacher_home.php?teacher_id=".$t_id);
 						header("Location:teacher_home.php");
 					}
 				} else if ($user_type == 0) {
-					$input_student = $dbconn->query("INSERT INTO student(first_name, last_name, username, email_address, password) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd');");
+					$input_student = $dbconn->query("INSERT INTO student(first_name, last_name, username, email_address, password, image) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd', 'def.png');");
 					if ($input_student) {
 						$s_id = $row['student_id'];
 						$_SESSION['username'] = $username;
-						// $error3 = "You may now log-in.";
-						// header("Location:student_home.php?student_id=".$s_id);
 						header("Location:student_home.php");
 					}
 				}
@@ -77,7 +73,6 @@
 		   
 			if(mysqli_num_rows($result)) { 
 				$_SESSION['username'] = $username_log;
-				// header("Location:teacher_home.php?teacher_id=".$t_id);
 				header("Location:teacher_home.php");
 			} else {
 				$student_query = "SELECT * FROM student WHERE username = '$username_log' and password = '$password_log'";
@@ -89,7 +84,6 @@
 
 				if(mysqli_num_rows($result)) { 
 					$_SESSION['username'] = $username_log;
-					// header("Location:student_home.php?student_id=".$s_id);
 					header("Location:student_home.php");
 				}
 			}
@@ -167,17 +161,6 @@
 						<div class="classycloseIcon">
 							<div class="cross-wrap"><span class="top"></span><span class="bottom"></span></div>
 						</div>
-
-						<!-- Nav Start -->
-						<div class="classynav">
-							<!-- Register / Login -->
-							<div class="register-login-area">
-								<a href="#forms" class="btn">Register</a>
-								<a href="#forms" class="btn active">Login</a>
-							</div>
-
-						</div>
-						<!-- Nav End -->
 					</div>
 				</nav>
 			</div>
@@ -185,22 +168,7 @@
 	</header>
 	<!-- ##### Header Area End ##### -->
 
-	<!-- ##### Hero Area Start ##### -->
-	<section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
-		<div class="container h-100">
-			<div class="row h-100 align-items-center">
-				<div class="col-12">
-					<!-- Hero Content -->
-					<div class="hero-content text-center">
-						<h2>Let's Study Together</h2>
-						<a href="#forms" class="btn clever-btn">Get Started</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-	<!-- ##### Hero Area End ##### -->
-	<div id="forms" class="single-course-content section-padding-100" style="background-image: url(img/core-img/texture.png);">
+	<div id="forms" class="single-course-content" style="background-image: url(img/core-img/texture.png);">
 		<div class="container">
 			<div class="row">
 				<div class="col-12 col-lg-8"> 
