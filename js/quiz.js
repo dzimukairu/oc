@@ -3,20 +3,25 @@ window.onload = function() {
 	var toggle1 = document.getElementById("toggle1");
 	var toggle2 = document.getElementById("toggle2");
 	var toggle3 = document.getElementById("toggle3");
+	var toggle4 = document.getElementById("toggle4");
 	toggle1.onchange = getIdentification;
 	toggle2.onchange = getMultipleChoice;
 	toggle3.onchange = getMultipleAnswer;
+	toggle4.onchange = getEssay;
 
 	var identification = document.getElementById("identification");
 	var multipleChoice = document.getElementById("multipleChoice");
 	var multipleAnswer = document.getElementById("multipleAnswer");
+	var essay = document.getElementById("essay");
 	identification.style.display = "none";
 	multipleChoice.style.display = "none";
 	multipleAnswer.style.display = "none";
+	essay.style.display = "none";
 
 	var identificationTable = document.getElementById("identificationTable");
 	var multipleChoiceTable = document.getElementById("multipleChoiceTable");
-	var multipleAnswerTable = document.getElementById("multipleAnswerTable");	
+	var multipleAnswerTable = document.getElementById("multipleAnswerTable");
+	var essayTable = document.getElementById("essayTable");
 
 	addRow;
 	deleteRow;
@@ -103,6 +108,18 @@ function getMultipleAnswer() {
 		qLength.setAttribute("value", 1);
 	} else {
 		multipleAnswer.style.display = "none";
+		qLength.setAttribute("value", 0);
+	}
+}
+
+function getEssay() {
+	var toggle4_val = $('#toggle4').prop('checked');
+	var qLength = document.getElementById("essay_length");
+	if (toggle4_val) {
+		essay.style.display = "block";
+		qLength.setAttribute("value", 1);
+	} else {
+		essay.style.display = "none";
 		qLength.setAttribute("value", 0);
 	}
 }

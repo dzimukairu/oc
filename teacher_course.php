@@ -493,7 +493,7 @@
 								<div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="tab--5">
 									<div class="clever-review">
 										<?php
-											echo "<a href='teacher_quiz.php' class='btn clever-btn mb-30'><i class='fa fa-file-text'></i> Add Quiz</a>";
+											echo "<a href=teacher_quiz.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'><i class='fa fa-file-text'></i> Add Quiz</a>";
 										?>
 										<!-- Quiz -->
 										<div class="about-review mb-30">

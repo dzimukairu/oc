@@ -161,10 +161,12 @@
 								<form method="post" enctype="multipart/form-data">
 									<div class="form-group text-center">
 										<?php 
-											echo "<img id='profileDisplay' style='border-radius: 50%; height: 300px; width: 300px' src=img/tea-img/",urlencode($image)," onclick='triggerClick()'>" 
+											echo "<img id='profileDisplay' style='border-radius: 50%; height: 300px; width: 300px; cursor: pointer;' src=img/tea-img/",urlencode($image)," onclick='triggerClick()'>" 
 										?>
 										<br><br>
 										<label for="profileImage"><h5><b>Profile Image</b></h5></label>
+										<br>
+										<i>(Note: Click image to change it.)</i>
 										<input type="file" name="profileImage" onchange="displayImage(this)" id="profileImage" style="display: none;" accept="image/*">
 									</div>
 									<button type="submit" name="updateImage" id="updateImage" class="btn btn-info btn-block">Update Image</button>
@@ -172,7 +174,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="row justify-content-center" style="padding: 30px 12px" >
+					<div class="row justify-content-center" style="padding-bottom: 12px" >
 						<div class="col-md-6" id="previewDiv">
 							<h6>Name: <?php echo $t_firstname." ".$t_lastname; ?></h6>
 							<h6>Username: <?php echo $t_username; ?></h6>

@@ -8,9 +8,9 @@
 
 	$error = "<br>";
 
-	$student_id = $_GET['student_id'];
+	$username = $_SESSION['username'];
 
-	$get_student = $dbconn->query("SELECT * from student where student_id = '$student_id';");
+	$get_student = $dbconn->query("SELECT * from student where username = '$username';");
 	$srow = mysqli_fetch_array($get_student);
 
 	$s_username = $srow['username'];
@@ -231,7 +231,7 @@
 			</div>
 			<br>
 			<?php 
-				echo "<a href=student_home.php?student_id=",urlencode($student_id)," class='btn clever-btn'>Back</a>";
+				echo "<a href=student_home.php class='btn clever-btn'>Back</a>";
 			?> 
 		</div>
 	</div>

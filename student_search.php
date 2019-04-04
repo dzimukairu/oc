@@ -16,6 +16,8 @@
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
 	$image = $srow['image'];
+
+	$search = $_GET['search'];
 ?>
 
 <!DOCTYPE html>
@@ -111,29 +113,25 @@
 	
 	<section>
 		<div class="container">
-			<?php 
-				echo "<a href=add_subject.php?student_id=",urlencode($id)," class='btn btn-primary clever-btn'>Add Subject</a>";
+			<?php
+				echo "<a href=student_home.php class='btn btn-primary clever-btn'>Back</a>";
 			?>
-
-			<div class="free-space">
-				<br/>
-			</div>
+			<br><br>
 			<div class="row">
 
 				<?php 
-					$subject_list_query= "SELECT * FROM `subject` INNER JOIN enrolls on enrolls.student_id = '$id' and enrolls.subject_id = subject.subject_id and enrolls.status = 'enrolled' ";
-					$connect_to_db = mysqli_query($dbconn,$subject_list_query);
-					$affected = mysqli_num_rows($connect_to_db);
+					$find_subject_query = $dbconn->query("SELECT * FROM `subject` INNER JOIN enrolls on enrolls.student_id = '$id' and enrolls.subject_id = subject.subject_id and enrolls.status = 'enrolled' and (subject.course_title like '%$search%' or subject.course_description like '%$search%' ) ");
+					$affected = mysqli_num_rows($find_subject_query);
 							
 					if ($affected != 0) {
-						while ($row = mysqli_fetch_row($connect_to_db)) {?>
+						while ($row = mysqli_fetch_row($find_subject_query)) {?>
 							<div class="col-12 col-md-6 col-lg-4">
 								<div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="250ms">
 									<form method="post">
 									   <img src="img/bg-img/c1.jpg" alt="">
 									<!-- Course Content -->
 										<div class="course-content">
-											<?php echo "<a href='student_course.php?subject_id=".$row[0]."'><h4>$row[2]</h4></a>"; ?>
+											<?php echo "<a href='student_course.php?s_id=".$id."&subject_id=".$row[0]."'><h4>$row[2]</h4></a>"; ?>
 											<div class="meta d-flex align-items-center">
 												<h7><b><?php echo $row[3]?></b></h7>
 											</div>
@@ -145,7 +143,7 @@
 					<?php } else {
 						echo "<h4>No subjects found.</h4>";
 
-					}?>
+				}?>
 			</div>
 		</div>
 	</section>

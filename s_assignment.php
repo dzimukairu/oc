@@ -10,7 +10,8 @@
 	date_default_timezone_set("Asia/Manila");
 
 	$id = $_GET['assignment_id'];
-	$s_id = $_GET['s_id'];
+	$username = $_SESSION['username'];
+
 	$date = date('Y-m-d H:i:s');
 
 	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, subject.teacher_id, assignment.title, assignment.instruction, assignment.date_posted, assignment.deadline_date, assignment.deadline_time, assignment.score, assignment.file_id  from subject INNER JOIN assignment on (assignment.assignment_id = $id and subject.subject_id = assignment.subject_id)";
@@ -47,9 +48,10 @@
 	$xdate = new DateTime($first_time);
 	$combinedtime = date_format($xdate, 'M d, Y - h:i A');
 
-	$get_student = $dbconn->query("SELECT * from student where student_id = '$s_id';");
+	$get_student = $dbconn->query("SELECT * from student where username = '$username';");
 	$srow = mysqli_fetch_array($get_student);
-
+	
+	$s_id = $srow['student_id'];
 	$s_username = $srow['username'];
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
@@ -416,7 +418,7 @@
 
 			<div class="row" style="margin-top:20px">
 				<?php 
-					echo "<a href=student_course.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
+					echo "<a href=student_course.php?subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
 				?>
 			</div>
 		</div>

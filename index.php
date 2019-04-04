@@ -2,6 +2,17 @@
 	require "db_connection.php";
 
 	session_start();
+	if (isset($_SESSION['username'])) {
+		$username = $_SESSION['username'];
+		$check_un = $dbconn->query("SELECT * from student where username = '$username' ");
+		$check_stu = mysqli_num_rows($check_un);
+
+		if ($check_stu == 1) {
+			header("Location:student_home.php");
+		} else {
+			header("Location:teacher_home.php");
+		}
+	}
 
 	$error = '';
 	$error2 = '';

@@ -10,7 +10,7 @@
 	date_default_timezone_set("Asia/Manila");
 
 	$id = $_GET['subject_id'];
-	$s_id = $_GET['s_id'];
+	$username = $_SESSION['username'];
 
 	$sql = "SELECT subject_code, course_title, course_description, course_about from subject where subject_id = $id";
 	$result = mysqli_query($dbconn, $sql);
@@ -21,9 +21,10 @@
 	$course_description = $row['course_description'];
 	$course_about = $row['course_about'];
 
-	$get_student = $dbconn->query("SELECT * from student where student_id = '$s_id';");
+	$get_student = $dbconn->query("SELECT * from student where username = '$username';");
 	$srow = mysqli_fetch_array($get_student);
-
+	
+	$s_id = $srow['student_id'];
 	$s_username = $srow['username'];
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
@@ -251,7 +252,7 @@
 												while ($row = mysqli_fetch_row($connect_to_db)) {
 
 												$a_id = $row[0];
-												echo "<a href=s_announcement.php?s_id=",urlencode($s_id),"&announcement_id=",urlencode($a_id),">";
+												echo "<a href=s_announcement.php?announcement_id=",urlencode($a_id),">";
 													
 										?>
 														<div class="about-curriculum mb-30">
@@ -287,7 +288,7 @@
 												while ($row = mysqli_fetch_row($connect_to_db)) {
 
 												$a_id = $row[0];
-												echo "<a href=s_assignment.php?s_id=",urlencode($s_id),"&assignment_id=",urlencode($a_id),">";
+												echo "<a href=s_assignment.php?assignment_id=",urlencode($a_id),">";
 													
 										?>
 														<div class="about-curriculum mb-30">
@@ -448,7 +449,7 @@
 					<div class="course-sidebar">
 						<!-- Class Record -->
 						<?php 
-							echo "<a href=s_classrecord.php?s_id=",urlencode($s_id),"&subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'><i class='fa fa-table'></i> Your Grades</a>";
+							echo "<a href=s_classrecord.php?subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'><i class='fa fa-table'></i> Your Grades</a>";
 						?>
 
 						<!-- <?php

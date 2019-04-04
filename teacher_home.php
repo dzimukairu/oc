@@ -72,9 +72,9 @@
 
 						<div class="classynav">
 							<div class="search-area">
-								<form action="#" method="post">
+								<form action="teacher_search.php" method="get">
 									<input type="search" name="search" id="search" placeholder="Search">
-									<button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+									<button type="submit" name="find_subject"><i class="fa fa-search" aria-hidden="true"></i></button>
 								</form>
 							</div>
 							<div class="login-state d-flex align-items-center">

@@ -1,3 +1,37 @@
+<?php
+	require "db_connection.php";
+	
+	session_start();
+	if (!isset($_SESSION['username'])) {
+		header("Location:index.php");
+	}
+	
+	$id = $_GET['subject_id'];
+	$username = $_SESSION['username'];
+
+	date_default_timezone_set("Asia/Manila");
+
+	$sql = "SELECT subject_code, course_title, course_description, course_about, teacher_id from subject where subject_id = $id";
+
+	$result = mysqli_query($dbconn, $sql);
+	$row = mysqli_fetch_array($result);
+							
+	$subject_code = $row['subject_code']; 
+	$course_title = $row['course_title'];
+	$course_description = $row['course_description'];
+	$course_about = $row['course_about'];
+	$teacher_id = $row['teacher_id'];
+
+
+	$get_teacher = $dbconn->query("SELECT * from teacher where username = '$username';");
+	$trow = mysqli_fetch_array($get_teacher);
+
+	$t_username = $trow['username'];
+	$t_firstname = $trow['first_name'];
+	$t_lastname = $trow['last_name'];
+	$image = $trow['image'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -68,16 +102,21 @@
 							<div class="login-state d-flex align-items-center">
 								<div class="user-name mr-30">
 									<div class="dropdown">
-										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Username</a>
+										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
-											<a class="dropdown-item" href="teacher_home.php">Home</a>
-											<a class="dropdown-item" href="#">Profile</a>
-											<a class="dropdown-item" href="index.php">Logout</a>
+											<?php 
+												echo "<a href=teacher_home.php class='dropdown-item'>Home</a>"; 
+												echo "<a href=profile.php class='dropdown-item'>Profile</a>";
+												echo "<a href=logout.php class='dropdown-item'>Logout</a>";
+											?>
 										</div>
 									</div>
 								</div>
 								<div class="userthumb">
-									<img src="img/bg-img/t1.png" alt="">
+									<!-- <img src="img/bg-img/t1.png" alt=""> -->
+									<?php 
+										echo "<a href=profile.php><img src=img/tea-img/",urlencode($image)," style='border-radius: 50%; height: 40px; width: 40px'></a>" 
+									?>
 								</div>
 							</div>
 						</div>
@@ -89,17 +128,6 @@
 	</header>
 	<!-- ##### Header Area End ##### -->
 
-	<!-- ##### Breadcumb Area Start ##### -->
-	<!-- <div class="breadcumb-area">
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="teacher_home.php">Home</a></li>
-				<li class="breadcrumb-item"><a href="teacher_course.php">Courses</a></li>
-			</ol>
-		</nav>
-	</div> -->
-	<!-- ##### Breadcumb Area End ##### -->
-
 	<!-- ##### Single Course Intro Start ##### -->
    <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
 		<div class="container h-100">
@@ -107,10 +135,8 @@
 				<div class="col-12">
 					<!-- Hero Content -->
 					<div class="hero-content text-center">
-						<!-- ##### Example: Management System ##### -->
-						<h2>Course Description</h2>
-						<!-- ##### Example: CMSC 152 ##### -->
-						<h3>Course Title</h3>
+						<h2><?php echo $course_description;?></h2>
+						<h3><?php echo $course_title;?></h3>
 					</div>
 				</div>
 			</div>
@@ -221,6 +247,28 @@
 									<input type="hidden" id="multipleAnswerTable_length" name="multipleAnswerTable_length" value=0/>
 								</div>
 							</div>
+							<div id="quiz_essay" class="form-group">
+								<label style="font-weight: bold">
+									<input id="toggle4" class="on_off" data-toggle="toggle" data-style="ios" data-on="Enable" data-off="Disable" type="checkbox">
+									Essay
+								</label>
+								<div id="essay">
+									<input type="button" value="Add Row" onclick="addRow('essayTable')"  class="btn btn-success"/>
+									<input type="button" value="Delete Row" onclick="deleteRow('essayTable')"  class="btn btn-danger"/>
+									<br>
+									<br>
+
+									<table id="essayTable" class="table table-hover">
+										<tr>
+											<td style="width: 10px"><input type="checkbox" class="form-check-input" name="chk"/></td>
+											<td style="width: 20px"><p>1</p></td>
+
+											<td><textarea data-autoresize rows="2" class="form-control expand_this" id="essay_question[]" name="essay_question[]" value="" placeholder="Enter question here." ></textarea></td>
+										</tr>
+									</table>
+									<input type="hidden" id="essay_length" name="essay_length" value=0/>
+								</div>
+							</div>
 
 							<input type="submit" class="btn btn-success pull-right" name="add_quiz" value="ADD QUIZ"/>
 						</form>
@@ -228,7 +276,9 @@
 				</div>
 
 				<div style="margin-top:12px;">
-					<a href="teacher_course.php" class="btn btn-primary clever-btn mb-30">Back</a>
+					<?php 
+						echo "<a href=teacher_course.php?subject_id=",urlencode($id)," class='btn clever-btn'>Back</a>";
+					?>
 				</div>
 			</div>
 		</div>
