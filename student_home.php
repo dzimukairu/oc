@@ -112,7 +112,7 @@
 	<section>
 		<div class="container">
 			<?php 
-				echo "<a href=add_subject.php?student_id=",urlencode($id)," class='btn btn-primary clever-btn'>Add Subject</a>";
+				echo "<a href=add_subject.php class='btn btn-primary clever-btn'>Add Subject</a>";
 			?>
 
 			<div class="free-space">
@@ -128,18 +128,20 @@
 					if ($affected != 0) {
 						while ($row = mysqli_fetch_row($connect_to_db)) {?>
 							<div class="col-12 col-md-6 col-lg-4">
-								<div class="single-student-subject mb-100 wow fadeInUp" data-wow-delay="250ms">
+								<?php echo "<a href='student_course.php?subject_id=".$row[0]."'>"; ?>
+								<div class="single-student-subject mb-50 wow fadeInUp" data-wow-delay="250ms">
 									<form method="post">
 									   <img src="img/bg-img/c1.jpg" alt="">
 									<!-- Course Content -->
 										<div class="course-content">
-											<?php echo "<a href='student_course.php?subject_id=".$row[0]."'><h4>$row[2]</h4></a>"; ?>
+											<?php echo "<h4>$row[2]</h4>"; ?>
 											<div class="meta d-flex align-items-center">
 												<h7><b><?php echo $row[3]?></b></h7>
 											</div>
 										</div> 
 									</form>
 								</div>
+								<?php echo "</a>"; ?>
 							</div>
 						<?php } ?>
 					<?php } else {
@@ -150,27 +152,7 @@
 		</div>
 	</section>
 
-	<!-- ##### Footer Area Start ##### -->
-	<footer class="footer-area">
-		<!-- Top Footer Area -->
-		<div class="top-footer-area">
-			<div class="container">
-				<div class="row">
-					<div class="col-12">
-						<!-- Footer Logo -->
-						<div class="footer-logo">
-							<a href="index.php"><img src="img/core-img/logo2.png" alt=""></a>
-						</div>
-						<!-- Copywrite -->
-						<p><a href="#"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</footer>
-	<!-- ##### Footer Area End ##### -->
+	<?php include "footer.php"; ?>
 
 	<!-- ##### All Javascript Script ##### -->
 	<!-- jQuery-2.2.4 js -->

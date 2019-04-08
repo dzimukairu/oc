@@ -53,8 +53,6 @@
 	$t_lastname = $trow['last_name'];
 	$image = $trow['image'];
 
-	$graded = 0;
-
 	if(isset($_POST['update_assignment'])){
 		$new_title = ($_POST['new_title']);
 		$new_instruction = ($_POST['new_instruction']);
@@ -67,13 +65,6 @@
 		if ($update_connect = mysqli_query($dbconn, $update_query)) {
 			header("Location: assignment.php?assignment_id=".$id);
 		}
-	}
-
-	if(isset($_POST['pass_grade'])) {
-		$answer_id = $_POST['answer_id'];
-		$grade = $_POST['grade'];
-
-		$submit_grade = $dbconn->query("UPDATE answer_assignment set grade = '$grade' where id = '$answer_id' ");
 	}
 ?>
 
@@ -101,14 +92,11 @@
 
 	<style type="text/css">
 		#wrapper {
-			position: absolute;
+			position: relative;
 			float: right;
 			display: table;
 			text-align: center;
 			width: 25%;
-			z-index: 1;
-			top: 640px;
-			right: 100px;
 		}
 
 		#wrapper div {
@@ -118,26 +106,10 @@
 		#wrapper div b {
 			font-size: 50px;
 		}
-
-		#all_answer_div {
-			display: none;
-		}
 	</style>
-
-	<script type="text/javascript">
-		function show_hide() {
-			var x = document.getElementById("all_answer_div");
-			if (x.style.display === "block") {
-				x.style.display = "none";
-			} else {
-				x.style.display = "block";
-				x.scrollIntoView();
-			} 
-		}
-	</script>
 </head>
 
-<body onload="show_status()">
+<body>
 	<!-- Preloader -->
 	<div id="preloader">
 		<div class="spinner"></div>
@@ -241,7 +213,22 @@
 					?>
 				</div>
 				<div class="col-12 col-lg-12 border rounded">
-					<div id="clonedDiv">
+					<div id="wrapper">
+						<div style="border-right: 2pt dashed;">
+							<b>0</b>
+							<br>
+							<i>Turned in</i>
+						</div>
+						<div style="border-right: 2pt dashed;">
+							<b>0</b>
+							<br>
+							<i>Done Late</i>
+						</div>
+						<div>
+							<b>0</b>
+							<br>
+							<i>Graded</i>
+						</div>
 					</div>
 					<div style="padding: 20px 12px 50px 12px;">
 					<!-- <?php echo $id; ?> -->
@@ -273,7 +260,11 @@
 							echo $y;
 						?></p>
 											
-						<button class="btn btn-success" onclick="show_hide()">View All Answers</button>
+						<?php 
+							echo "<a href=all_assignments.php?assignment_id=",urlencode($id),">
+								<button class='btn btn-success'>View All Answers</button>
+							</a>";
+						?>
 						<button class="btn btn-info" data-toggle="modal" data-target="#update-assignment-modal">Update</button>
 						<button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
 
@@ -287,133 +278,6 @@
 							}
 						</script>
 					</div>
-				</div>
-			</div>
-		</div>
-
-		<div id="all_answer_div" class="container" style="margin-top: 20px">
-			<div class="row">
-				<br><br>
-				<div class="col-12 col-lg-12">
-					<?php
-					$get_student_id = $dbconn->query("SELECT * from enrolls INNER JOIN answer_assignment where enrolls.subject_id = '$subject_id' and answer_assignment.assignment_id = '$id' and enrolls.student_id = answer_assignment.student_id ");
-					
-					if (mysqli_num_rows($get_student_id) != 0) {
-							$all_enrolled = array();
-							while ($irow = mysqli_fetch_array($get_student_id)) {
-								$all_enrolled[] = $irow['student_id'];
-							}
-
-							$all_lastname = array();
-							foreach ($all_enrolled as $sid) {
-								$get_lastname = $dbconn->query("SELECT * from student where student_id = '$sid' ");
-								$ln = mysqli_fetch_array($get_lastname);
-								$lastname = $ln['last_name'];
-								$all_lastname[] = $lastname;
-							}
-							
-							$sorted_ln = $all_lastname;
-							sort($sorted_ln);
-							
-							echo "<div>";
-							echo "<h4>Student Answers:</h4>";
-							echo "<br>";
-							echo "<div class='row'>";
-
-							foreach ($sorted_ln as $sln) {
-								$get_student = $dbconn->query("SELECT * from student where last_name = '$sln' ");
-								$srow = mysqli_fetch_array($get_student);
-								$fname = $srow['first_name'];
-								$student_id = $srow['student_id'];
-
-								$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$student_id' and assignment_id = '$id' ");
-
-								$hasFile = false;
-								$grade = 0;
-							
-								if (mysqli_num_rows($get_answer_query) != 0 ) {
-									$arow = mysqli_fetch_array($get_answer_query);
-									$answer_id = $arow['id'];
-									$answer_content = $arow['content'];
-									$answer_posted = $arow['date_posted'];
-									$answer_file_id = $arow['file_id'];
-									$grade = $arow['grade'];
-
-									if ($answer_file_id != NULL) {
-										$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$answer_file_id' ");
-										$frow = mysqli_fetch_array($get_file);
-										$fileName = $frow['filename'];
-										$hasFile = true;
-									}
-
-									if ($grade != NULL) {
-										$graded = $graded + 1;
-									}
-								}
-
-					?>		
-								<div class="col-lg-4 border rounded">
-									<div style="padding: 20px 5px 10px">
-										<?php
-											echo "<h5>".$sln.", ".$fname."</h5>";
-											echo "<br>";
-											echo "<h7>".$answer_content."</h7>";
-											echo "<br><br>";
-											echo "<h7>File: </h7>";
-											if ($hasFile) {
-												echo $fileName; ?>
-												<a href='uploads/<?php echo $fileName ?>'>(<i class='fa fa-download'></i> Download)</a>
-											<?php } else {
-												echo "No uploaded file";
-											}
-											echo "<br><br>";
-											echo "<b>Grade: ".$grade."</b>";
-										?>
-											<br><br><br><br>
-											<i>Maximum Score: <?php echo "<b>".$score."</b>"; ?></i>
-											<form method="post">
-												<input name="answer_id" value="<?php echo $answer_id; ?>" hidden>
-												<div class="input-group mb-3">
-				  									<input type="number" class="form-control" name="grade" placeholder="Input Grade"value="<?php echo $grade; ?>" max="<?php echo $score;?>">
-				  									<div class="input-group-append">
-				  										<span>&nbsp;</span>
-				    									<button class="btn btn-success" name="pass_grade"><i class='fa fa-check'></i></button>
-				  									</div>
-												</div>
-											</form>
-											<i class="text-danger"><?php echo $error; ?></i>
-									</div>
-								</div>
-					<?php
-							}
-							echo "</div>";
-						echo "</div>";
-					} else {
-						echo "<h4>No Answers found.</h4";
-					}
-				?>
-				</div>
-			</div>
-			<div id="wrapper">
-				<div style="border-right: 2pt dashed;">
-					<b><?php echo mysqli_num_rows($get_student_id); ?></b>
-					<br>
-					<i>Turned In</i>
-				</div>
-				<div style="border-right: 2pt dashed;">
-					<b>
-					<?php
-						$num_student = $dbconn->query("SELECT * from enrolls where subject_id = '$subject_id' ");
-						echo (mysqli_num_rows($num_student) - mysqli_num_rows($get_student_id));
-					?>
-					</b>
-					<br>
-					<i>Assigned</i>
-				</div>
-				<div>
-					<b><?php echo $graded; ?></b>
-					<br>
-					<i>Graded</i>
 				</div>
 			</div>
 		</div>
@@ -476,7 +340,30 @@
 		</div>
 	</div>
 
-	<?php include "footer.php"; ?>
+
+	<!-- ##### Footer Area Start ##### -->
+	<footer class="footer-area">
+		<!-- Top Footer Area -->
+		<div class="top-footer-area">
+			<div class="container">
+				<div class="row">
+					<div class="col-12">
+						<!-- Footer Logo -->
+						<div class="footer-logo">
+							<a href="index.php"><img src="img/core-img/logo2.png" alt=""></a>
+						</div>
+						<!-- Copywrite -->
+						<p><a href="#"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Bottom Footer Area -->
+	</footer>
+	<!-- ##### Footer Area End ##### -->
 
 	<!-- ##### All Javascript Script ##### -->
 	<!-- jQuery-2.2.4 js -->

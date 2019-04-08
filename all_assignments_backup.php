@@ -57,7 +57,11 @@
 		$answer_id = $_POST['answer_id'];
 		$grade = $_POST['grade'];
 
-		$submit_grade = $dbconn->query("UPDATE answer_assignment set grade = '$grade' where id = '$answer_id' ");
+		if ($grade > $score) {
+			$error = "Grade cannot be submitted. It's higher than the score.";
+		} else {
+			$submit_grade = $dbconn->query("UPDATE answer_assignment set grade = '$grade' where id = '$answer_id' ");
+		}
 	}
 ?>
 
@@ -85,13 +89,11 @@
 
 	<style type="text/css">
 		#wrapper {
-			position: absolute;
+			position: relative;
+			float: right;
 			display: table;
 			text-align: center;
 			width: 25%;
-			z-index: 1;
-			top: 70px;
-			right: 100px;
 		}
 
 		#wrapper div {
@@ -99,7 +101,7 @@
 		}
 
 		#wrapper div b {
-			font-size: 40px;
+			font-size: 50px;
 		}
 	</style>
 
@@ -179,69 +181,93 @@
 		<div class="container">
 			<div style='margin-left: 1px'>
 			<?php
-				$get_student_id = $dbconn->query("SELECT * from enrolls INNER JOIN answer_assignment where enrolls.subject_id = '$subject_id' and answer_assignment.assignment_id = '$id' and enrolls.student_id = answer_assignment.student_id ");
+				$get_student_id = $dbconn->query("SELECT * from enrolls where subject_id = '$subject_id' ");
 				
 				if (mysqli_num_rows($get_student_id) != 0) {
-						$all_enrolled = array();
-						while ($irow = mysqli_fetch_array($get_student_id)) {
-							$all_enrolled[] = $irow['student_id'];
-						}
+			?>
+					<div class="row" style="width: 100%; padding-bottom: 10px">
+							<h4 style="padding-right: 600px">Student Answers:</h4>
+							<div id="wrapper">
+								<div style="border-right: 2pt dashed;">
+									<b><?php echo sizeof($haveAnsArray); ?></b>
+									<br>
+									<i>Turned in</i>
+								</div>
+								<div style="border-right: 2pt dashed;">
+									<b>0</b>
+									<br>
+									<i>Done Late</i>
+								</div>
+								<div>
+									<b>0</b>
+									<br>
+									<i>Graded</i>
+								</div>
+							</div>
+					</div>
+			<?php
+					$all_enrolled = array();
+					while ($irow = mysqli_fetch_array($get_student_id)) {
+						$all_enrolled[] = $irow['student_id'];
+					}
 
-						$all_lastname = array();
-						foreach ($all_enrolled as $sid) {
-							$get_lastname = $dbconn->query("SELECT * from student where student_id = '$sid' ");
-							$ln = mysqli_fetch_array($get_lastname);
-							$lastname = $ln['last_name'];
-							$all_lastname[] = $lastname;
-						}
-						
-						$sorted_ln = $all_lastname;
-						sort($sorted_ln);
-						
-						echo "<div>";
-						echo "<h4>Student Answers:</h4>";
-						echo "<br><br><br>";
-						echo "<div class='row'>";
+					$all_lastname = array();
+					foreach ($all_enrolled as $sid) {
+						$get_lastname = $dbconn->query("SELECT * from student where student_id = '$sid' ");
+						$ln = mysqli_fetch_array($get_lastname);
+						$lastname = $ln['last_name'];
+						$all_lastname[] = $lastname;
+					}
+					
+					$sorted_ln = $all_lastname;
+					sort($sorted_ln);
+					
+					echo "<div class='row'>";
+					foreach ($sorted_ln as $sln) {
+						$get_student = $dbconn->query("SELECT * from student where last_name = '$sln' ");
+						$srow = mysqli_fetch_array($get_student);
+						$fname = $srow['first_name'];
+						$student_id = $srow['student_id'];
 
-						$wasGraded = array();
-						foreach ($sorted_ln as $sln) {
-							$get_student = $dbconn->query("SELECT * from student where last_name = '$sln' ");
-							$srow = mysqli_fetch_array($get_student);
-							$fname = $srow['first_name'];
-							$student_id = $srow['student_id'];
+						$get_student_query = $dbconn->query("SELECT * from student where student_id = '$student_id' ");
+						$srow = mysqli_fetch_array($get_student_query);
+						$student_first_name = $srow['first_name'];
+						$student_last_name = $srow['last_name'];
 
-							$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$student_id' and assignment_id = '$id' ");
+						$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$student_id' and assignment_id = '$id' ");
 
-							$hasFile = false;
-							$grade = 0;
-						
-							if (mysqli_num_rows($get_answer_query) != 0 ) {
-								$arow = mysqli_fetch_array($get_answer_query);
-								$answer_id = $arow['id'];
-								$answer_content = $arow['content'];
-								$answer_posted = $arow['date_posted'];
-								$answer_file_id = $arow['file_id'];
-								$grade = $arow['grade'];
+						$haveAns = false;
+						$hasFile = false;
+						$grade = 0;
+					
+						if (mysqli_num_rows($get_answer_query) != 0 ) {
+							$arow = mysqli_fetch_array($get_answer_query);
+							$answer_id = $arow['id'];
+							$answer_content = $arow['content'];
+							$answer_posted = $arow['date_posted'];
+							$answer_file_id = $arow['file_id'];
+							$grade = $arow['grade'];
+							$haveAns = true;
 
-								if ($answer_file_id != NULL) {
-									$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$answer_file_id' ");
-									$frow = mysqli_fetch_array($get_file);
-									$fileName = $frow['filename'];
-									$hasFile = true;
-								}
-
-								if ($grade != NULL) {
-									$wasGraded[] = $grade;
-								}
+							if ($answer_file_id != NULL) {
+								$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$answer_file_id' ");
+								$frow = mysqli_fetch_array($get_file);
+								$fileName = $frow['filename'];
+								$hasFile = true;
 							}
+						} else {
+							$answer_id = NULL;
+						}
 
-				?>		
-						
-							<div class="col-lg-4 border rounded">
-								<div style="padding: 20px 5px 10px">
-									<?php
-										echo "<h5>".$sln.", ".$fname."</h5>";
-										echo "<br>";
+			?>		
+					
+						<div class="col-lg-4 border rounded">
+							<div style="padding: 20px 5px 10px">
+								<?php
+									echo "<h5>".$student_last_name.", ".$student_first_name."</h5>";
+									echo "<br>";
+									
+									if ($haveAns) {
 										echo "<h7>".$answer_content."</h7>";
 										echo "<br><br>";
 										echo "<h7>File: </h7>";
@@ -259,44 +285,40 @@
 										<form method="post">
 											<input name="answer_id" value="<?php echo $answer_id; ?>" hidden>
 											<div class="input-group mb-3">
-			  									<input type="number" class="form-control" name="grade" placeholder="Input Grade"value="<?php echo $grade; ?>" max="<?php echo $score;?>">
-			  									<div class="input-group-append">
-			  										<span>&nbsp;</span>
-			    									<button class="btn btn-success" name="pass_grade"><i class='fa fa-check'></i></button>
-			  									</div>
+		  										<input type="text" class="form-control" name="grade" placeholder="Input Grade"value="<?php echo $grade; ?>">
+		  										<div class="input-group-append">
+		  											<span>&nbsp;</span>
+		    										<button class="btn btn-success" name="pass_grade"><i class='fa fa-check'></i></button>
+		  										</div>
 											</div>
 										</form>
 										<i class="text-danger"><?php echo $error; ?></i>
-								</div>
-							</div>
-				<?php
-						}
-					echo "</div>";
-				?>
-				<div id="wrapper">
-					<div style="border-right: 2pt dashed;">
-						<b><?php echo mysqli_num_rows($get_student_id); ?></b>
-						<br>
-						<i>Turned In</i>
-					</div>
-					<div style="border-right: 2pt dashed;">
-						<b>
-							<?php
-								$num_student = $dbconn->query("SELECT * from enrolls where subject_id = '$subject_id' ");
-								echo (mysqli_num_rows($num_student) - mysqli_num_rows($get_student_id));
-							?>
-						</b>
-						<br>
-						<i>Assigned</i>
-					</div>
-					<div>
-						<b><?php echo sizeof($wasGraded); ?></b>
-						<br>
-						<i>Graded</i>
-					</div>
-				</div>
+									<?php
+									} else {
+										echo "<h7><i>(No answer submitted.)</i></h7>";
+										echo "<br><br>";
+										echo "<b>Grade: ".$grade."</b>";
+									}
+								?>
 
-				<?php
+								<!-- <br><br><br><br>
+								<i>Maximum Score: <?php echo $score; ?></i>
+								<form method="post">
+									<input name="answer_id" value="<?php echo $answer_id; ?>" hidden>
+									<div class="input-group mb-3">
+		  								<input type="text" class="form-control" name="grade" placeholder="Input Grade"value="<?php echo $grade; ?>">
+		  								<div class="input-group-append">
+		  									<span>&nbsp;</span>
+		    								<button class="btn btn-success" name="pass_grade"><i class='fa fa-check'></i></button>
+		  								</div>
+									</div>
+								</form>
+								<i class="text-danger"><?php echo $error; ?></i> -->
+								
+							</div>
+						</div>
+			<?php
+					}
 				echo "</div>";
 				} else {
 					echo "<h4>No Student/s found.</h4";

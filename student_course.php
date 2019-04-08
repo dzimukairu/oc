@@ -50,20 +50,131 @@
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style.css">
 
-	<style>
+	<style type="text/css">
 		#chatDiv {
 			display: none;
+			box-shadow: 0 3px #ccc;
+			position: fixed; 
+			z-index: 3; 
+			bottom: 0; 
+			height: 350px; 
+			width: 350px; 
+			background-color: #E0E0E0;
+			border-top-left-radius: 5%;  
+			border-top-right-radius: 5%;
+		}
+
+		#chatBody {
+			background: #eee;
+			padding: 10px;
+			width: 100%;
+			overflow-x: hidden;
+			overflow-y: scroll;
+		}
+
+		.chat {
+			display: flex;
+			flex-flow: row wrap;
+			align-items: flex-start;
+			width: 80%;
+			padding: 5px 15px;
+			margin-bottom: 15px;
+			border-radius: 10px;
+		}
+
+		.chat p {
+			color: #fff;
+			display: block;
+			width: 100%;
+		}
+
+		.chat .chat-message {
+			margin-bottom: 5px;
+		}
+
+		.chat .date-posted {
+			font-size: 12px;
+			padding-left: 38%;
+			margin-bottom: 0;
+		}
+
+		.friend {
+			background: #1adda4;
+		}
+
+		.self {
+			background: #1ddced;
+			margin-left: 20%;
+		}
+
+		#chatEnd textarea {
+			resize: none;
+			color: #333;
+			border-radius: 3px;
 		}
 	</style>
 
 	<script>
-		function showChatDiv() {
-			var x = document.getElementById("chatDiv");
-			if (x.style.display === "block") {
-				x.style.display = "none";
-			} else {
-				x.style.display = "block";
-			}
+
+		function closeDiv() {
+			document.getElementById("chatFriend").value = "null";
+			var chatDiv = document.getElementById("chatDiv");
+			chatDiv.style.display = "none";
+		}
+
+		function postChat() {
+			var postChat = document.getElementById("postChat");
+			var sender = document.getElementById("sender").value;
+			var receiver = document.getElementById("receiver").value;
+			var message = document.getElementById("message").value;
+			var dataString = 'sender='+ sender + '&receiver=' + receiver + '&message=' + message;
+			$.ajax({
+				type: "POST",
+				url: "post_chat.php",
+				data: dataString,
+				success: function() {
+					getChat(receiver);
+					updateScroll();
+					document.getElementById("chatForm").reset();
+				}
+			});
+
+			return false;
+		}
+
+		function chat(uname, name) {
+			var chatDiv = document.getElementById("chatDiv");
+			chatDiv.style.display = "block";
+
+			var chatReceiver = document.getElementById("chatReceiver");
+			chatFriend.setAttribute("value", uname);
+			chatReceiver.innerHTML = name;
+			document.getElementById("receiver").value = uname;
+
+			getChat(uname);
+			scrollToBottom();
+		}
+
+		function scrollToBottom() {
+			var chatBody = document.getElementById("chatBody");
+			chatBody.scrollTop = chatBody.scrollHeight;
+		}
+
+		function updateScroll() {
+			$("#chatBody").stop().animate({ scrollTop: $("#chatBody")[0].scrollHeight}, 50);
+		}
+
+		function getChat(uname) {
+			var t_uname = '<?php echo $t_username; ?>';
+			xmlhttp = new XMLHttpRequest();
+			xmlhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					document.getElementById("chatBody").innerHTML = this.responseText;
+				}
+			};
+			xmlhttp.open("GET", "chatlogs.php?uname1=" + uname + "&uname2=" + t_uname, true);
+			xmlhttp.send();
+			updateScroll();
 		}
 	</script>
 
@@ -339,6 +450,9 @@
 
 												$get_teacher_query = $dbconn->query("SELECT * from teacher where teacher_id = '$teacher_id' ");
 												$teacher = mysqli_fetch_array($get_teacher_query);
+												$username = $teacher['username'];
+												$fn = $teacher['first_name'];
+												$ln = $teacher['last_name']
 											?>
 
 											<div class='row'>
@@ -351,11 +465,12 @@
 														</div>
 														<div class="instructor-info">
 															<?php 
-																echo "<h6>".$teacher['first_name']." ".$teacher['last_name']."</h6>";
+																echo "<h6>".$fn." ".$ln."</h6>";
 															
 															?>
-															<button class="btn btn-info" onclick="showChatDiv()">
-																<a><i class="fa fa-comments-o"></i> Chat</a>
+															
+															<button class="btn btn-info btn-xs">
+																<a onclick="chat('<?php echo $username?>', '<?php echo $fn." ".$ln?>')"><i class="fa fa-comments-o"></i> Chat</a>
 															</button>
 
 														</div>
@@ -395,6 +510,9 @@
 
 														$student = mysqli_fetch_array($get_student_query);
 														$student_id = $student['student_id'];
+														$username = $student['username'];
+														$fn = $student['first_name'];
+														$ln = $student['last_name'];
 											?>
 														<div class="col-lg-6">
 															<div class="single-instructor d-flex align-items-center mb-30">
@@ -405,25 +523,21 @@
 																</div>
 																<div class="instructor-info">
 																	<?php 
-																		echo "<h6>".$student['last_name'].", ".$student['first_name']."</h6>";
-																
-																		echo "<a href=del_student.php?subject_id=",urlencode($id),"&student_id=",urlencode($student_id)," class='btn text-danger' hidden><i class='fa fa-user-times'></i> Remove</a>";
+																		echo "<h6>".$ln.", ".$fn."</h6>";
 
 																		if ($student_id == $s_id) {
 																			echo "<h7><i>(You)</i></h7>";
 																		} else { ?>
-																			<button class="btn btn-info"  onclick="showChatDiv()">
-																				<a><i class="fa fa-comments-o"></i> Chat</a>
+																			<button class="btn btn-info btn-xs">
+																				<a onclick="chat('<?php echo $username?>', '<?php echo $fn." ".$ln?>')"><i class="fa fa-comments-o"></i> Chat</a>
 																			</button>
 																		<?php }
 																	?>
 																</div>
 															</div>
 														</div>
-												<?php } ?>
-											<?php } else {
-												echo "<h4>No students found.</h4>";
-											} ?>
+												<?php }
+												} ?>
 											</div>
 										</div>
 									</div>
@@ -447,15 +561,9 @@
 
 				<div class="col-12 col-lg-4">
 					<div class="course-sidebar">
-						<!-- Class Record -->
 						<?php 
 							echo "<a href=s_classrecord.php?subject_id=",urlencode($id)," class='btn clever-btn w-100 mb-30'><i class='fa fa-table'></i> Your Grades</a>";
 						?>
-
-						<!-- <?php
-							echo "<h4>Subject Code: ".$subject_code."</h4>";
-							echo "<br>";
-						?> -->
 
 						<!-- Widget -->
 						<div class="sidebar-widget">
@@ -470,43 +578,42 @@
 							</ul>
 						</div>
 
+						<div id="chatDiv">
+							<div id="chatHead" style="height: 10%;">
+								<div class="pull-left" style="margin-left: 20px; margin-top: 8px">
+									<b><span id="chatReceiver"></span></b>
+									<input hidden id="chatFriend">
+								</div>
+								<div class="pull-right" style="margin-right: 15px; overflow: auto; margin-top: 2px">
+									<a href="#" onclick="closeDiv()"><i class="fa fa-times fa-2x "></i></a>
+								</div>
+							</div>
+
+							<div id="chatBody" style="height: 73%;">
+							</div>
+
+							<div id="chatEnd" style="height: 17%; margin: 2px;">
+								<form id="chatForm">
+									<div class="input-group">
+											<input hidden id="sender" name="sender" value="<?php echo $t_username; ?>">
+											<input hidden id="receiver" name="receiver" >
+	  									<textarea rows="1" class="form-control" name="message" id="message"></textarea>
+	  									<div class="input-group-append">
+	    									<button  class="btn btn-success" type="submit" onclick="return postChat()"><i class="fa fa-send"></i></button>
+	  									</div>
+									</div>
+								</form>
+							</div>
+						</div>
+
 						
 					</div>
 				</div>
 			</div>
 		</div>
-		
-		<div class="fixed-bottom position-relative" id="chatDiv">
-			<p>HI</p>
-		</div>
 	</div>
 
-	
-
-   
-	<!-- ##### Courses Content End ##### -->
-
-	<!-- ##### Footer Area Start ##### -->
-	<footer class="footer-area">
-		<!-- Top Footer Area -->
-		<div class="top-footer-area">
-			<div class="container">
-				<div class="row">
-					<div class="col-12">
-						<!-- Footer Logo -->
-						<div class="footer-logo">
-							<a href="index.html"><img src="img/core-img/logo2.png" alt=""></a>
-						</div>
-						<!-- Copywrite -->
-						<p><a href="#"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</footer>
-	<!-- ##### Footer Area End ##### -->
+	<?php include "footer.php"; ?>
 
 	<!-- ##### All Javascript Script ##### -->
 	<!-- jQuery-2.2.4 js -->

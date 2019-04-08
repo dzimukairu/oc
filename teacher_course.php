@@ -61,7 +61,6 @@
 			}
 		}
 	}
-
 ?>
 
 <!DOCTYPE html>
@@ -103,6 +102,144 @@
 	<?php
 		}
 	?>
+
+	<!-- https://www.youtube.com/watch?v=Hrz3DzZDIt0 -->
+
+	<style type="text/css">
+		#chatDiv {
+			display: none;
+			box-shadow: 0 3px #ccc;
+			position: fixed; 
+			z-index: 3; 
+			bottom: 0; 
+			height: 350px; 
+			width: 350px; 
+			background-color: #E0E0E0;
+			border-top-left-radius: 5%;  
+			border-top-right-radius: 5%;
+		}
+
+		#chatBody {
+			background: #eee;
+			padding: 10px;
+			width: 100%;
+			overflow-x: hidden;
+			overflow-y: scroll;
+		}
+
+		.chat {
+			display: flex;
+			flex-flow: row wrap;
+			align-items: flex-start;
+			width: 80%;
+			padding: 5px 15px;
+			margin-bottom: 15px;
+			border-radius: 10px;
+		}
+
+		.chat p {
+			color: #fff;
+			display: block;
+			width: 100%;
+		}
+
+		.chat .chat-message {
+			margin-bottom: 5px;
+		}
+
+		.chat .date-posted {
+			font-size: 12px;
+			padding-left: 38%;
+			margin-bottom: 0;
+		}
+
+		.friend {
+			background: #1adda4;
+		}
+
+		.self {
+			background: #1ddced;
+			margin-left: 20%;
+		}
+
+		#chatEnd textarea {
+			resize: none;
+			color: #333;
+			border-radius: 3px;
+		}
+	</style>
+
+	<script>
+
+		function closeDiv() {
+			document.getElementById("chatFriend").value = "null";
+			var chatDiv = document.getElementById("chatDiv");
+			chatDiv.style.display = "none";
+		}
+
+		function postChat() {
+			var postChat = document.getElementById("postChat");
+			var sender = document.getElementById("sender").value;
+			var receiver = document.getElementById("receiver").value;
+			var message = document.getElementById("message").value;
+			var dataString = 'sender='+ sender + '&receiver=' + receiver + '&message=' + message;
+			$.ajax({
+				type: "POST",
+				url: "post_chat.php",
+				data: dataString,
+				success: function() {
+					getChat(receiver);
+					updateScroll();
+					document.getElementById("chatForm").reset();
+				}
+			});
+
+			return false;
+		}
+
+		function chat(uname, name) {
+			var chatDiv = document.getElementById("chatDiv");
+			chatDiv.style.display = "block";
+
+			var chatReceiver = document.getElementById("chatReceiver");
+			chatFriend.setAttribute("value", uname);
+			chatReceiver.innerHTML = name;
+			document.getElementById("receiver").value = uname;
+
+			getChat(uname);
+			scrollToBottom();
+		}
+
+		function scrollToBottom() {
+			var chatBody = document.getElementById("chatBody");
+			chatBody.scrollTop = chatBody.scrollHeight;
+		}
+
+		function updateScroll() {
+			$("#chatBody").stop().animate({ scrollTop: $("#chatBody")[0].scrollHeight}, 50);
+		}
+
+		function getChat(uname) {
+			var t_uname = '<?php echo $t_username; ?>';
+			xmlhttp = new XMLHttpRequest();
+			xmlhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					document.getElementById("chatBody").innerHTML = this.responseText;
+				}
+			};
+			xmlhttp.open("GET", "chatlogs.php?uname1=" + uname + "&uname2=" + t_uname, true);
+			xmlhttp.send();
+			updateScroll();
+		}
+
+		function delStudent(subject_id, student_id, name) {
+			var del = confirm("Do you want to remove "+ name + "?");
+
+			if (del == true) {
+				document.location.href = 'del_student.php?subject_id='+subject_id+'&student_id='+student_id;
+			}
+		}
+	</script>
 
 </head>
 
@@ -173,17 +310,6 @@
 		</div>
 	</header>
 	<!-- ##### Header Area End ##### -->
-
-	<!-- ##### Breadcumb Area Start ##### -->
-	<!-- <div class="breadcumb-area">
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="teacher_home.php">Home</a></li>
-				<li class="breadcrumb-item"><a href="teacher_course.php">Courses</a></li>
-			</ol>
-		</nav>
-	</div> -->
-	<!-- ##### Breadcumb Area End ##### -->
 
    <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
 		<div class="container h-100">
@@ -444,6 +570,9 @@
 
 														$student = mysqli_fetch_array($get_student_query);
 														$student_id = $student['student_id'];
+														$username = $student['username'];
+														$ln = $student['last_name'];
+														$fn =  $student['first_name']
 														
 											?>
 														<div class="col-lg-6">
@@ -455,27 +584,14 @@
 																</div>
 																<div class="instructor-info">
 																	<?php 
-																		echo "<h6>".$student['last_name'].", ".$student['first_name']."</h6>";
+																		echo "<h6>".$ln.", ".$fn."</h6>";
 																	?>
-																	<!-- <?php
-																		echo "<a href=del_student.php?subject_id=",urlencode($id),"&student_id=",urlencode($student_id)," class='btn text-danger'><i class='fa fa-user-times'></i> Remove</a>";
-																	?> -->
 																	<button class="btn btn-info btn-xs">
-																		<a><i class="fa fa-comments-o"></i> Chat</a>
+																		<a onclick="chat('<?php echo $username?>', '<?php echo $fn." ".$ln?>')"><i class="fa fa-comments-o"></i> Chat</a>
 																	</button>
 																	<button class="btn btn-danger btn-xs" onclick='delStudent("<?php echo $id; ?>", "<?php echo $student_id; ?>", "<?php echo $student['first_name']." ".$student['last_name']?>")'>
 																		<a><i class='fa fa-user-times'></i> Remove</a>
 																	</button>
-
-																	<script>
-																		function delStudent(subject_id, student_id, name) {
-																			var del = confirm("Do you want to remove "+ name + "?");
-
-																			if (del == true) {
-																				document.location.href = 'del_student.php?subject_id='+subject_id+'&student_id='+student_id;
-																			}
-																		}
-																	</script>
 																</div>
 															</div>
 														</div>
@@ -526,97 +642,95 @@
 								</li>
 							</ul>
 						</div>
+					</div>
 
-						<!-- Add Learning Matrials modal -->
-						<div id="upload-modal" class="modal fade" role="dialog">
-							<div class="modal-dialog" style="max-width: 50% !important;">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h4 class="modal-title pull-left">Upload Learning Material</h4>
-									</div>
-									<div class="modal-body">
-										<form method="POST" action="teacher_course.php?subject_id=<?php echo $id ?>" enctype="multipart/form-data">
-											<div class="form-group">
-												<div class="col-auto">
-													<div class="input-group">
-														<div class="input-group-prepend">
-															<div class="input-group-text">Lecture Title</div>
-														</div>
-														<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="lecture_title" name="lecture_title"></textarea>
-													</div>
-													<br>
-													<input type="file" name="fileToUpload">
-												</div>
-											</div>
-											
-										
-												<!-- <button type="button" class="btn btn-primary" name="add_lecture">Submit</button> -->
-											 &nbsp;
-											<!-- <button type="button" class="btn btn-danger pull-right" data-dismiss="modal">Close</button> -->
-											<div class="pull-right">
-												<input type="submit" class="btn btn-success" name="add_lecture" value="SUBMIT"/>
-												<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
-											</div>
-										</form>
-									</div>
-								</div>
+					<div id="chatDiv">
+						<div id="chatHead" style="height: 10%;">
+							<div class="pull-left" style="margin-left: 20px; margin-top: 8px">
+								<b><span id="chatReceiver"></span></b>
+								<input hidden id="chatFriend">
+							</div>
+							<div class="pull-right" style="margin-right: 15px; overflow: auto; margin-top: 2px">
+								<a href="#" onclick="closeDiv()"><i class="fa fa-times fa-2x "></i></a>
 							</div>
 						</div>
 
-						<!-- Update About Modal -->
-						<div id="update-about-modal" class="modal fade" role="dialog">
-							<div class="modal-dialog">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h4 class="modal-title pull-left">Update About</h4>
-									</div>
-									<div class="modal-body">
-										<form method="POST">
-											<div class="input-group">
-												<textarea data-autoresize rows="2" class="form-control expand_this" id="new_about" name="new_about"><?php echo $course_about?></textarea>
-											</div> 
-											<br/>  
-											<div class="pull-right">
-												<button  class="btn btn-primary" name="update_about">Update</button>
-												<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
-											</div>
-										</form>
-									</div>
-								</div>
-							</div>
+						<div id="chatBody" style="height: 73%;">
 						</div>
 
+						<div id="chatEnd" style="height: 17%; margin: 2px;">
+							<form id="chatForm">
+								<div class="input-group">
+										<input hidden id="sender" name="sender" value="<?php echo $t_username; ?>">
+										<input hidden id="receiver" name="receiver" >
+  									<textarea rows="1" class="form-control" name="message" id="message"></textarea>
+  									<div class="input-group-append">
+    									<button  class="btn btn-success" type="submit" onclick="return postChat()"><i class="fa fa-send"></i></button>
+  									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
 
+			<!-- Add Learning Matrials modal -->
+			<div id="upload-modal" class="modal fade" role="dialog">
+				<div class="modal-dialog" style="max-width: 50% !important;">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title pull-left">Upload Learning Material</h4>
+						</div>
+						<div class="modal-body">
+							<form method="POST" action="teacher_course.php?subject_id=<?php echo $id ?>" enctype="multipart/form-data">
+								<div class="form-group">
+									<div class="col-auto">
+										<div class="input-group">
+											<div class="input-group-prepend">
+												<div class="input-group-text">Lecture Title</div>
+											</div>
+											<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="lecture_title" name="lecture_title"></textarea>
+										</div>
+										<br>
+										<input type="file" name="fileToUpload">
+									</div>
+								</div>
+								<div class="pull-right">
+									<input type="submit" class="btn btn-success" name="add_lecture" value="SUBMIT"/>
+									<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Update About Modal -->
+			<div id="update-about-modal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h4 class="modal-title pull-left">Update About</h4>
+						</div>
+						<div class="modal-body">
+							<form method="POST">
+								<div class="input-group">
+									<textarea data-autoresize rows="2" class="form-control expand_this" id="new_about" name="new_about"><?php echo $course_about?></textarea>
+								</div> 
+								<br/>  
+								<div class="pull-right">
+									<button  class="btn btn-primary" name="update_about">Update</button>
+									<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
+								</div>
+							</form>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-   
-	<!-- ##### Courses Content End ##### -->
-
-	<!-- ##### Footer Area Start ##### -->
-	<footer class="footer-area">
-		<!-- Top Footer Area -->
-		<div class="top-footer-area">
-			<div class="container">
-				<div class="row">
-					<div class="col-12">
-						<!-- Footer Logo -->
-						<div class="footer-logo">
-							<a href="index.html"><img src="img/core-img/logo2.png" alt=""></a>
-						</div>
-						<!-- Copywrite -->
-						<p><a href="#"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</footer>
-	<!-- ##### Footer Area End ##### -->
+	<?php include "footer.php"; ?>
 
 	<!-- ##### All Javascript Script ##### -->
 	<!-- jQuery-2.2.4 js -->

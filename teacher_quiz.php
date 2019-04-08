@@ -321,7 +321,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="js/active.js"></script>
 	<!-- Toggle -->
 	<script src="js/bootstrap-toggle.min.js"></script>
-	<script src="js/quiz.js"></script>
+	<script src="js/quiz2.js"></script>
 	<script src="js/expand.js"></script>
 </body>
 

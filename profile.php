@@ -17,6 +17,7 @@
 	$t_username = $trow['username'];
 	$t_firstname = $trow['first_name'];
 	$t_lastname = $trow['last_name'];
+	$t_password = $trow['password'];
 	$image = $trow['image'];
 
 	if(isset($_POST['updateImage'])) {
@@ -27,14 +28,42 @@
 			$updatePhoto = $dbconn->query("UPDATE teacher set image = '$profileName' where username = '$t_username' ");
 
 			if ($updatePhoto) {
-				$message = "Success";
+				$message = "Image updated!";
 				echo "<script type='text/javascript'>alert('$message');</script>";
 				header("Refresh:0");
 			} else {
-				$message = "Error";
+				$message = "Error!";
 				echo "<script type='text/javascript'>alert('$message');</script>";
 				header("Refresh:0");
 			}
+		}
+	}
+
+	if(isset($_POST['updatePassword'])) {
+		$oldPass = $_POST['oldPass'];
+		$newPass = $_POST['newPass'];
+
+		if ($oldPass == $t_password) {
+			$updatePass_query = $dbconn->query("UPDATE teacher set password = '$newPass' where teacher_id = '$id' ");
+			
+			if ($updatePass_query) {
+				echo "<script type='text/javascript'>alert('Password updated!.');</script>";
+				header("Refresh:0");
+			}
+		} else {
+			echo "<script type='text/javascript'>alert('Old password is incorrect.');</script>";
+		}
+	}
+
+	if(isset($_POST['updateName'])) {
+		$fname = $_POST['fname'];
+		$lname = $_POST['lname'];
+
+		$updateName_query = $dbconn->query("UPDATE teacher set first_name = '$fname', last_name = '$lname' where teacher_id = '$id' ");
+
+		if($updateName_query) {
+			echo "<script type='text/javascript'>alert('Name updated!.');</script>";
+			header("Refresh:0");
 		}
 	}
 ?>
@@ -64,6 +93,14 @@
 		#updateImage {
 			display: none;
 		}
+
+		#passwordDiv {
+			display: none;
+		}
+
+		#nameDiv {
+			display: none;
+		}
 	</style>
 
 	<script>
@@ -81,6 +118,36 @@
 				reader.readAsDataURL(e.files[0]);
 				document.querySelector('#updateImage').style.display = "block";
 			}
+		}
+
+		function togglePassDiv() {
+			var x = document.getElementById("passwordDiv");
+			if (x.style.display === "block") {
+				x.style.display = "none";
+			} else {
+				x.style.display = "block";
+			} 
+		}
+
+		function toggleNameDiv() {
+			var x = document.getElementById("nameDiv");
+			if (x.style.display === "block") {
+				x.style.display = "none";
+			} else {
+				x.style.display = "block";
+			} 
+		}
+
+		function showPass() {
+  		var x = document.getElementById("oldPass");
+  		var y = document.getElementById("newPass");
+  		if (x.type === "password") {
+				x.type = "text";
+				y.type = "text";
+  		} else {
+				x.type = "password";
+				y.type = "password";
+  		}
 		}
 	</script>
 
@@ -153,6 +220,13 @@
 	
 	<div class="announcement-page-area" style="padding-bottom: 20px">
 		<div class="container">
+			<br>
+			<div style="margin-left: 15%">
+					<?php 
+					echo "<a href=teacher_home.php class='btn clever-btn'>Go To Home</a>";
+				?>
+			</div>
+			<br>
 			<div class="row justify-content-center">
 				<div class="col-md-8 border rounded" style="padding: 20px 20px">
 					<div class="row justify-content-center" style="padding: 30px 12px">
@@ -176,17 +250,61 @@
 					</div>
 					<div class="row justify-content-center" style="padding-bottom: 12px" >
 						<div class="col-md-6" id="previewDiv">
-							<h6>Name: <?php echo $t_firstname." ".$t_lastname; ?></h6>
+							<div style="display: block; vertical-align: middle">
+								<h6 style="display: inline-block; margin-top: .5rem;">Name: <?php echo $t_firstname." ".$t_lastname; ?></h6> 
+								<button class="btn btn-sm btn-outline-info pull-right" style="display: inline-block;" onclick="toggleNameDiv()">Edit</button>
+							</div>
+
+							<div style="margin-top: 10px" id="nameDiv">
+								<i>Note: Names must start with capital letter.</i>
+								<form method="POST">
+									<div class="input-group" style="margin-bottom: 5px;">
+										<div class="input-group-prepend">
+											<div class="input-group-text">First Name: </div>
+										</div>
+										<input id="fname" required name="fname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$">
+									</div>
+									<div class="input-group" style="margin-bottom: 5px;">
+										<div class="input-group-prepend">
+											<div class="input-group-text">Last Name: </div>
+										</div>
+										<input id="lname" required name="lname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$">
+									</div>
+									<button class="btn btn-success" type="submit" name="updateName" style="display: block; margin: 0 auto; margin-top: 15px">Update Name</button>
+								</form>
+							</div>
+
+							<hr>
 							<h6>Username: <?php echo $t_username; ?></h6>
 						</div>
 					</div>
-					<!-- <button class="btn btn-info pull-right" onclick="toggleDiv()" id="toggleButton">Update</button> -->
+
+					<button class="btn clever-btn" style="display: block; margin: 0 auto" onclick="togglePassDiv()">Change Password</button>
+
+					<div id="passwordDiv" style="width: 50%; margin-left: 25%; margin-top: 25px">
+						<i>Note: Password must be atleast 8 of length with 1 number.</i>
+						<form method="POST">
+							<div class="input-group" style="margin-bottom: 5px;">
+								<div class="input-group-prepend">
+									<div class="input-group-text">Old Password: </div>
+								</div>
+								<input type="password" id="oldPass" required name="oldPass" class="form-control" onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false">
+							</div>
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<div class="input-group-text">New Password: </div>
+								</div>
+								<input type="password" id="newPass" required name="newPass" class="form-control" onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false" pattern="(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]*).{8,}$">
+							</div>
+
+							<div>
+								<label><input type="checkbox" onclick="showPass()"> Show Password</label>
+							</div>
+							<button class="btn btn-success" type="submit" name="updatePassword" style="display: block; margin: 0 auto">Update Password</button>
+						</form>
+					</div>
 				</div>		
 			</div>
-			<br>
-			<?php 
-				echo "<a href=teacher_home.php class='btn clever-btn'>Home</a>";
-			?> 
 		</div>
 	</div>
 

@@ -32,7 +32,7 @@
 		//checks if the input fields are empty
 		if (empty($first_name)||empty($last_name)||empty($username)||
 			empty($email)||empty($pwd)||empty($retype_pwd)||empty($user_type)) {
-			$error2= 'Please fillup all the fields below';
+			$error2= 'Please fillup all the fields below.';
 		} else if ($_POST['pwd']!=$_POST['retype_pwd']) {
 			$error2= 'Password does not match';
 		} else {
@@ -41,14 +41,14 @@
 			if ($checknum >= 1) {
 				$error2 = 'Username exists, please input another username.';
 			} else {
-				if ($user_type == 1) {
+				if ($user_type === "teacher") {
 					$input_teacher = $dbconn->query("INSERT INTO teacher(first_name, last_name, username, email_address, password, image) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd', 'def.png');");
 					if ($input_teacher) {
 						$t_id = $row['teacher_id'];
 						$_SESSION['username'] = $username;
 						header("Location:teacher_home.php");
 					}
-				} else if ($user_type == 0) {
+				} else if ($user_type === "student") {
 					$input_student = $dbconn->query("INSERT INTO student(first_name, last_name, username, email_address, password, image) VALUES('$first_name', '$last_name', '$username', '$email', '$pwd', 'def.png');");
 					if ($input_student) {
 						$s_id = $row['student_id'];
@@ -130,20 +130,20 @@
   			var x = document.getElementById("pwd");
   			var y = document.getElementById("retype_pwd")
   			if (x.type === "password" && y.type === "password") {
-				x.type = "text";
-				y.type = "text";
+					x.type = "text";
+					y.type = "text";
   			} else {
-				x.type = "password";
-				y.type = "password";
+					x.type = "password";
+					y.type = "password";
   			}
 		}
 
 		function showPass2() {
   			var x = document.getElementById("password_log");
   			if (x.type === "password") {
-				x.type = "text";
+					x.type = "text";
   			} else {
-				x.type = "password";
+					x.type = "password";
   			}
 		}
 	</script>
@@ -240,7 +240,7 @@
 													<div class="col-12 col-lg-6">
 														<div class="form-group">
 															<label for="retype_pwd">Confirm Password:</label>
-															<input type="password" class="form-control" name="retype_pwd" id="retype_pwd">
+															<input type="password" class="form-control" name="retype_pwd" id="retype_pwd"  onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false">
 														</div>
 														<span id="retype_pwdMsg" name="retype_pwdMsg">Status Message here</span>
 													</div>
@@ -249,13 +249,13 @@
 													<div class="col-12 col-lg-6">
 														<label for="user_type">Register As:</label>
 														<select name="user_type" id="user_type" class="form-control">
-															<option value="1">Teacher</option>
-															<option value="0">Student</option>
+															<option value="teacher">Teacher</option>
+															<option value="student">Student</option>
 														</select>
 													</div>
 												</div>
 												<div>
-													<input type="checkbox" onclick="showPass1()"> Show Password
+													<label><input type="checkbox" onclick="showPass1()"> Show Password</label>
 												</div> 
 												<br>
 												<div class="col-12">
@@ -284,11 +284,11 @@
 								</div>
 								<div class="col-12 col-lg-12">
 									<div class="form-group">
-										<input type="password" class="form-control" id="password_log" placeholder="password" name="password_log">
+										<input type="password" class="form-control" id="password_log" placeholder="password" name="password_log" onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false">
 									</div>
 								</div>
 								<div class="col-12 col-lg-12">
-									<input type="checkbox" onclick="showPass2()"> Show Password
+									<label><input type="checkbox" onclick="showPass2()"> Show Password</label>
 								</div> 
 								<br>
 								<div class="col-12">
