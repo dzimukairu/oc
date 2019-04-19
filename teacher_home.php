@@ -16,6 +16,8 @@
 	$t_firstname = $trow['first_name'];
 	$t_lastname = $trow['last_name'];
 	$image = $trow['image'];
+
+	echo("<script>console.log('PHP: ".$username."');</script>");
 ?>
 
 <!DOCTYPE html>
@@ -36,10 +38,11 @@
 
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="css/notification.css">
 
 </head>
-
-<body>
+<!-- ; setTimeout('location.reload(true);', 5000) -->
+<body onload="getSeenChat('<?php echo $username; ?>')">
 	<!-- Preloader -->
 	<div id="preloader">
 		<div class="spinner"></div>
@@ -78,6 +81,16 @@
 								</form>
 							</div>
 							<div class="login-state d-flex align-items-center">
+								<div id="notificationIcons" style="margin-right: 20px">
+									<div id="messageIcon" class="notification">
+										<a data-toggle="dropdown" href="#">
+											<i class="fa fa-envelope fa-2x" aria-hidden="true"></i>
+											<span class="badge" id="checkMes"></span>
+										</a>
+											<div class="dropdown-menu dropdown-menu-right" id="newMessages" style="width: max-content; padding: 10px;">
+											</div>
+									</div>
+								</div>
 								<div class="user-name mr-30">
 									<div class="dropdown">
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
@@ -122,26 +135,25 @@
 			<div class="row">
 
 				<?php 
-					$subject_list_query= "SELECT * FROM `subject` WHERE teacher_id = '$id'";
-					$connect_to_db = mysqli_query($dbconn,$subject_list_query);
-					$affected = mysqli_num_rows($connect_to_db);
+					$subject_list_query= $dbconn->query("SELECT * FROM `subject` WHERE teacher_id = '$id'");
+					$affected = mysqli_num_rows($subject_list_query);
 							
 					if ($affected != 0) {
 						// $_SESSION['subject'] = array();
-						while ($row = mysqli_fetch_row($connect_to_db)) {
+						while ($row = mysqli_fetch_array($subject_list_query)) {
 					?>
 							<div class="col-12 col-md-6 col-lg-4">
-								<?php echo "<a href='teacher_course.php?subject_id=".$row[0]."'>"; ?>
+								<?php echo "<a href='teacher_course.php?subject_id=".$row['subject_id']."'>"; ?>
 								<div class="single-student-subject mb-50 wow fadeInUp" data-wow-delay="250ms">
 									<!-- <form method="post"> -->
 									   <img src="img/bg-img/c1.jpg" alt="">
 									<!-- Course Content -->
 										<div class="course-content">
 											<?php
-												echo "<h4>$row[2]</h4>";
+												echo "<h4>".$row['course_title']."</h4>";
 											?>
 											<div class="meta d-flex align-items-center">
-												<h7><b><?php echo $row[3]?></b></h7>
+												<h7><b><?php echo $row['course_description']; ?></b></h7>
 											</div>
 										</div> 
 									<!-- </form> -->
@@ -170,6 +182,8 @@
 	<script src="js/plugins/plugins.js"></script>
 	<!-- Active js -->
 	<script src="js/active.js"></script>
+	<!-- <script src="js/custom.js"></script> -->
+	<script src="js/notif.js"></script>
 </body>
 
 </html>

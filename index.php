@@ -196,7 +196,7 @@
 										<!-- About Course -->
 										<div class="about-course mb-30">
 											<h4>Create Account</h4>
-											<form method="post" id="createAccountForm">
+											<form method="post" id="createAccountForm" name="createAccountForm">
 												<div class="row">
 													<div class="col-12 col-lg-6">
 														<div class="form-group">
@@ -217,9 +217,9 @@
 													<div class="col-12 col-lg-6">
 														<div class="form-group">
 															<label for="username">Username:</label>
-															<input type="text" class="form-control" name="username" id="username">
+															<input type="text" class="form-control" name="username" id="username" pattern="[a-zA-Z0-9]{6,}" title="Username must be 6 in length with no special characters.">
 														</div>
-														<span id="usernameMsg" name="usernameMsg">Status Message here</span>
+														<span id="usernameMsg" name="usernameMsg"></span>
 													</div>
 													<div class="col-12 col-lg-6">
 														<div class="form-group">
@@ -337,7 +337,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<!-- Active js -->
 	<script src="js/active.js"></script>
 	<!-- Form validation -->
-	<script src="js/index.js"></script>
+	<script src="js/index2.js"></script>
 </body>
 
 </html>

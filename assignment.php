@@ -320,6 +320,8 @@
 							echo "<br>";
 							echo "<div class='row'>";
 
+							$doneLate = 0;
+
 							foreach ($sorted_ln as $sln) {
 								$get_student = $dbconn->query("SELECT * from student where last_name = '$sln' ");
 								$srow = mysqli_fetch_array($get_student);
@@ -368,6 +370,12 @@
 											}
 											echo "<br><br>";
 											echo "<b>Grade: ".$grade."</b>";
+
+											echo "<br><br>";
+											if (strtotime($answer_posted) > strtotime("$deadline_date $deadline_time")) {
+												$doneLate++;
+												echo "<strong class='text-danger'>Done Late.</strong>";
+											}
 										?>
 											<br><br><br><br>
 											<i>Maximum Score: <?php echo "<b>".$score."</b>"; ?></i>
@@ -396,11 +404,6 @@
 			</div>
 			<div id="wrapper">
 				<div style="border-right: 2pt dashed;">
-					<b><?php echo mysqli_num_rows($get_student_id); ?></b>
-					<br>
-					<i>Turned In</i>
-				</div>
-				<div style="border-right: 2pt dashed;">
 					<b>
 					<?php
 						$num_student = $dbconn->query("SELECT * from enrolls where subject_id = '$subject_id' ");
@@ -409,6 +412,32 @@
 					</b>
 					<br>
 					<i>Assigned</i>
+				</div>
+				<div style="border-right: 2pt dashed;">
+					<b>
+						<?php 
+							if (mysqli_num_rows($get_student_id) != 0) {
+								echo (mysqli_num_rows($get_student_id) - $doneLate); 
+							} else {
+								echo 0;
+							}
+						?>
+					</b>
+					<br>
+					<i>On Time</i>
+				</div>
+				<div style="border-right: 2pt dashed;">
+					<b>
+					<?php
+						if (mysqli_num_rows($get_student_id) != 0) {
+							echo $doneLate;
+						} else {
+							echo 0;
+						}
+					?>
+					</b>
+					<br>
+					<i>Done Late</i>
 				</div>
 				<div>
 					<b><?php echo $graded; ?></b>

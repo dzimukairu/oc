@@ -49,6 +49,7 @@
 
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="css/notification.css">
 
 	<style type="text/css">
 		#chatDiv {
@@ -114,73 +115,9 @@
 		}
 	</style>
 
-	<script>
-
-		function closeDiv() {
-			document.getElementById("chatFriend").value = "null";
-			var chatDiv = document.getElementById("chatDiv");
-			chatDiv.style.display = "none";
-		}
-
-		function postChat() {
-			var postChat = document.getElementById("postChat");
-			var sender = document.getElementById("sender").value;
-			var receiver = document.getElementById("receiver").value;
-			var message = document.getElementById("message").value;
-			var dataString = 'sender='+ sender + '&receiver=' + receiver + '&message=' + message;
-			$.ajax({
-				type: "POST",
-				url: "post_chat.php",
-				data: dataString,
-				success: function() {
-					getChat(receiver);
-					updateScroll();
-					document.getElementById("chatForm").reset();
-				}
-			});
-
-			return false;
-		}
-
-		function chat(uname, name) {
-			var chatDiv = document.getElementById("chatDiv");
-			chatDiv.style.display = "block";
-
-			var chatReceiver = document.getElementById("chatReceiver");
-			chatFriend.setAttribute("value", uname);
-			chatReceiver.innerHTML = name;
-			document.getElementById("receiver").value = uname;
-
-			getChat(uname);
-			scrollToBottom();
-		}
-
-		function scrollToBottom() {
-			var chatBody = document.getElementById("chatBody");
-			chatBody.scrollTop = chatBody.scrollHeight;
-		}
-
-		function updateScroll() {
-			$("#chatBody").stop().animate({ scrollTop: $("#chatBody")[0].scrollHeight}, 50);
-		}
-
-		function getChat(uname) {
-			var t_uname = '<?php echo $t_username; ?>';
-			xmlhttp = new XMLHttpRequest();
-			xmlhttp.onreadystatechange = function() {
-				if (this.readyState == 4 && this.status == 200) {
-					document.getElementById("chatBody").innerHTML = this.responseText;
-				}
-			};
-			xmlhttp.open("GET", "chatlogs.php?uname1=" + uname + "&uname2=" + t_uname, true);
-			xmlhttp.send();
-			updateScroll();
-		}
-	</script>
-
 </head>
 
-<body>
+<body onload="updateChat('<?php echo $s_username; ?>', '<?php echo $id; ?>')">
 	<!-- Preloader -->
 	<div id="preloader">
 		<div class="spinner"></div>
@@ -220,6 +157,27 @@
 
 							<!-- Register / Login -->
 							<div class="login-state d-flex align-items-center">
+								<div class="notificationIcons" style="margin-right: 20px">
+									<div id="bellIcon" class="notification">
+										<a data-toggle="dropdown" href="#">
+											<i class="fa fa-bell fa-2x" aria-hidden="true"></i>
+											<span class="badge" id="checkTask"></span>
+										</a>
+											<div class="dropdown-menu dropdown-menu-right" id="newTask" style="width: max-content; padding: 10px;">
+											</div>
+									</div>
+								</div>
+								<div id="notificationIcons" style="margin-right: 20px">
+									<div id="messageIcon" class="notification">
+										<a data-toggle="dropdown" href="#">
+											<i class="fa fa-envelope fa-2x" aria-hidden="true"></i>
+											<span class="badge" id="checkMes"></span>
+										</a>
+											<div class="dropdown-menu dropdown-menu-right" id="newMessages" style="width: max-content; padding: 10px;">
+												
+											</div>
+									</div>
+								</div>
 								<div class="user-name mr-30">
 									<div class="dropdown">
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
@@ -470,7 +428,7 @@
 															?>
 															
 															<button class="btn btn-info btn-xs">
-																<a onclick="chat('<?php echo $username?>', '<?php echo $fn." ".$ln?>')"><i class="fa fa-comments-o"></i> Chat</a>
+																<a onclick="chat('<?php echo $username; ?>', '<?php echo $fn." ".$ln; ?>', '<?php echo $s_username; ?>', '<?php echo $id; ?>')"><i class="fa fa-comments-o"></i> Chat</a>
 															</button>
 
 														</div>
@@ -529,7 +487,7 @@
 																			echo "<h7><i>(You)</i></h7>";
 																		} else { ?>
 																			<button class="btn btn-info btn-xs">
-																				<a onclick="chat('<?php echo $username?>', '<?php echo $fn." ".$ln?>')"><i class="fa fa-comments-o"></i> Chat</a>
+																				<a onclick="chat('<?php echo $username; ?>', '<?php echo $fn." ".$ln; ?>', '<?php echo $s_username; ?>', '<?php echo $id; ?>')"><i class="fa fa-comments-o"></i> Chat</a>
 																			</button>
 																		<?php }
 																	?>
@@ -582,7 +540,9 @@
 							<div id="chatHead" style="height: 10%;">
 								<div class="pull-left" style="margin-left: 20px; margin-top: 8px">
 									<b><span id="chatReceiver"></span></b>
-									<input hidden id="chatFriend">
+									<input hidden id="chatUname">
+									<input hidden id="chatName">
+									<input hidden id="subId" value="<?php echo $id; ?>">
 								</div>
 								<div class="pull-right" style="margin-right: 15px; overflow: auto; margin-top: 2px">
 									<a href="#" onclick="closeDiv()"><i class="fa fa-times fa-2x "></i></a>
@@ -595,9 +555,10 @@
 							<div id="chatEnd" style="height: 17%; margin: 2px;">
 								<form id="chatForm">
 									<div class="input-group">
-											<input hidden id="sender" name="sender" value="<?php echo $t_username; ?>">
+											<input hidden id="sender" name="sender" value="<?php echo $s_username; ?>">
 											<input hidden id="receiver" name="receiver" >
-	  									<textarea rows="1" class="form-control" name="message" id="message"></textarea>
+											<input hidden id="subject_id" name="subject_id" value="<?php echo $id; ?>" >
+	  									<textarea rows="1" class="form-control" name="message" id="message" onfocus="stillChatting()" onclick="stillChatting()"></textarea>
 	  									<div class="input-group-append">
 	    									<button  class="btn btn-success" type="submit" onclick="return postChat()"><i class="fa fa-send"></i></button>
 	  									</div>
@@ -626,6 +587,9 @@
 	<script src="js/plugins/plugins.js"></script>
 	<!-- Active js -->
 	<script src="js/active.js"></script>
+
+	<script src="js/s_chat.js"></script>
+	<!-- <script src="js/custom.js"></script> -->
 </body>
 
 </html>

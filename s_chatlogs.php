@@ -7,7 +7,7 @@
 
 	$updateSeenChat = $dbconn->query("UPDATE chat set opened = 'true' where (receiver = '$self') and subject_id = '$subject_id' ");
 
-	if ($updateSeenChat) {
+	if($updateSeenChat) {
 		$getchat = $dbconn->query("SELECT * from chat where (receiver = '$friend' or sender = '$friend') and (receiver = '$self' or sender = '$self') and subject_id = '$subject_id' order by date_posted asc");
 	
 		if (mysqli_num_rows($getchat) != 0) {

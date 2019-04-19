@@ -253,6 +253,11 @@
 										}
 										echo "<br><br>";
 										echo "<b>Grade: ".$grade."</b>";
+
+										echo "<br><br>";
+										if (strtotime($answer_posted) > strtotime($xdate)) {
+											echo "<strong class='text-danger'>Done Late.</strong>"
+										}
 									?>
 										<br><br><br><br>
 										<i>Maximum Score: <?php echo $score; ?></i>

@@ -234,7 +234,7 @@
 								<form method="post" enctype="multipart/form-data">
 									<div class="form-group text-center">
 										<?php 
-											echo "<img id='profileDisplay' style='border-radius: 50%; height: 300px; width: 300px; cursor: pointer;' src=img/stu-img/",urlencode($image)," onclick='triggerClick()'>" 
+											echo "<img id='profileDisplay' style='border-radius: 50%; height: 300px; width: 300px; cursor: pointer;' src=img/stu-img/",urlencode($image)," onclick='triggerClick()' rel='tooltip' title='Click to change photo.'>" 
 										?>
 										<br><br>
 										<label for="profileImage"><h5><b>Profile Image</b></h5></label>
@@ -261,13 +261,13 @@
 										<div class="input-group-prepend">
 											<div class="input-group-text">First Name: </div>
 										</div>
-										<input id="fname" required name="fname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$">
+										<input id="fname" required name="fname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$" value="<?php echo $s_firstname; ?>" placeholder="<?php echo $s_firstname; ?>">
 									</div>
 									<div class="input-group" style="margin-bottom: 5px;">
 										<div class="input-group-prepend">
 											<div class="input-group-text">Last Name: </div>
 										</div>
-										<input id="lname" required name="lname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$">
+										<input id="lname" required name="lname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$" value="<?php echo $s_lastname; ?>" placeholder="<?php echo $s_lastname; ?>">
 									</div>
 									<button class="btn btn-success" type="submit" name="updateName" style="display: block; margin: 0 auto; margin-top: 15px">Update Name</button>
 								</form>

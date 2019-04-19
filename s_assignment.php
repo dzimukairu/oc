@@ -326,15 +326,7 @@
 						</p>
 						<p style="font-style: italic;">Note: Button will be disabled once past deadline.</p>
 
-						<?php 
-							if (strtotime($date) > strtotime($first_time)) { ?>
-								<button class='btn btn-primary clever-btn pull-right' onclick='show_hide()' disabled>Answer</button>
-							<?php
-							} else { ?>
-								<button class='btn btn-primary clever-btn pull-right' onclick='show_hide()'>Answer</button>
-							<?php
-							}
-						?>
+						<button class='btn btn-primary clever-btn pull-right' onclick='show_hide()'>Answer</button>
 					</div>
 				</div>
 
@@ -367,10 +359,7 @@
 							</h7>
 						</div>
 						<?php 
-							if (strtotime($date) > strtotime($first_time)) { ?>
-								<button class='btn btn-info pull-right' onclick='show_hide_update()' disabled>Update</button>
-							<?php
-							} else { ?>
+							if ($haveAnswer) { ?>
 								<button class='btn btn-info pull-right' onclick='show_hide_update()'>Update</button>
 							<?php
 							}

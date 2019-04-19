@@ -235,7 +235,7 @@
 								<form method="post" enctype="multipart/form-data">
 									<div class="form-group text-center">
 										<?php 
-											echo "<img id='profileDisplay' style='border-radius: 50%; height: 300px; width: 300px; cursor: pointer;' src=img/tea-img/",urlencode($image)," onclick='triggerClick()'>" 
+											echo "<img id='profileDisplay' style='border-radius: 50%; height: 300px; width: 300px; cursor: pointer;' src=img/tea-img/",urlencode($image)," onclick='triggerClick()' rel='tooltip' title='Click to change photo.'>" 
 										?>
 										<br><br>
 										<label for="profileImage"><h5><b>Profile Image</b></h5></label>
@@ -262,13 +262,13 @@
 										<div class="input-group-prepend">
 											<div class="input-group-text">First Name: </div>
 										</div>
-										<input id="fname" required name="fname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$">
+										<input id="fname" required name="fname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$" value="<?php echo $t_firstname; ?>" placeholder="<?php echo $t_firstname; ?>">
 									</div>
 									<div class="input-group" style="margin-bottom: 5px;">
 										<div class="input-group-prepend">
 											<div class="input-group-text">Last Name: </div>
 										</div>
-										<input id="lname" required name="lname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$">
+										<input id="lname" required name="lname" class="form-control" pattern="([A-Z]{1}[a-z]*(\s)?)+$" value="<?php echo $t_lastname; ?>" placeholder="<?php echo $t_lastname; ?>">
 									</div>
 									<button class="btn btn-success" type="submit" name="updateName" style="display: block; margin: 0 auto; margin-top: 15px">Update Name</button>
 								</form>
@@ -294,7 +294,7 @@
 								<div class="input-group-prepend">
 									<div class="input-group-text">New Password: </div>
 								</div>
-								<input type="password" id="newPass" required name="newPass" class="form-control" onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false" pattern="(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]*).{8,}$">
+								<input type="password" id="newPass" required name="newPass" class="form-control" onCopy="return false" onDrag="return false" onDrop="return false" onPaste="return false" pattern="([A-Za-z]0-9)*{8,}$">
 							</div>
 
 							<div>

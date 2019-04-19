@@ -1,15 +1,19 @@
 <?php
-	include('db_connection.php');
+	require "db_connection.php";
 
-	if(isset($_POST['user_name'])) {
-		$username = $_POST['user_name'];
+	$username = $_GET['uname'];
 
-		$checkUname = $dbconn->query("SELECT * from teacher, student where username = '$username' ");
+	$checkUname = $dbconn->query("SELECT username from teacher where username = '$username' ");
+	$count1 = mysqli_num_rows($checkUname);
 
-		if (mysqli_num_rows($checkUname) > 0) {
-			echo '<span class="text-danger">Username not available.</span>';
-		} else {
-			echo '<span class="text-success">Username is available.</span>';
-		}
+	$checkUname2 = $dbconn->query("SELECT username from student where username = '$username' ");
+	$count2 = mysqli_num_rows($checkUname2);
+
+	$count = $count1 + $count2;
+
+	if ($count > 0) {
+		echo '<span style="color: red;">Username not available.</span>';
+	} else {
+		echo '<span style="color: green;">Username is available.</span>';
 	}
 ?>

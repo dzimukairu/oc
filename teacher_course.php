@@ -82,6 +82,7 @@
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="css/expand.css">
+	<link rel="stylesheet" href="css/notification.css">
 	
 	<?php
 		if (mysqli_num_rows($get_pending) != 0) {
@@ -170,9 +171,7 @@
 	</style>
 
 	<script>
-
 		function closeDiv() {
-			document.getElementById("chatFriend").value = "null";
 			var chatDiv = document.getElementById("chatDiv");
 			chatDiv.style.display = "none";
 		}
@@ -182,31 +181,48 @@
 			var sender = document.getElementById("sender").value;
 			var receiver = document.getElementById("receiver").value;
 			var message = document.getElementById("message").value;
-			var dataString = 'sender='+ sender + '&receiver=' + receiver + '&message=' + message;
+			var subject_id = document.getElementById("subject_id").value;
+			var dataString = 'sender='+ sender + '&receiver=' + receiver + '&message=' + message + '&subject_id=' + subject_id;
 			$.ajax({
 				type: "POST",
 				url: "post_chat.php",
 				data: dataString,
 				success: function() {
-					getChat(receiver);
+					getChat(receiver, subject_id);
 					updateScroll();
 					document.getElementById("chatForm").reset();
 				}
 			});
-
 			return false;
 		}
 
-		function chat(uname, name) {
+		function stillChatting() {
+			updateScroll();
+			var friendName = document.getElementById("chatName").value;
+			var friendUname = document.getElementById("chatUname").value;
+			var subject_id = document.getElementById("subId").value;
+			console.log("chatUname", friendName);
+			console.log("chatName", friendUname);
+			console.log("subject_id", subject_id);
+
+			chat(friendUname, friendName, subject_id);
+		}
+
+		function chat(uname, name, subject_id) {
 			var chatDiv = document.getElementById("chatDiv");
 			chatDiv.style.display = "block";
-
 			var chatReceiver = document.getElementById("chatReceiver");
-			chatFriend.setAttribute("value", uname);
 			chatReceiver.innerHTML = name;
+			var chatUname = document.getElementById("chatUname");
+			chatUname.setAttribute("value", uname);
+			var chatName = document.getElementById("chatName");
+			chatName.setAttribute("value", name);
+			console.log("chatUname", chatUname.value);
+			console.log("chatName", chatName.value);
+			console.log(document.getElementById("subject_id").value);
 			document.getElementById("receiver").value = uname;
 
-			getChat(uname);
+			getChat(uname, subject_id);
 			scrollToBottom();
 		}
 
@@ -219,7 +235,7 @@
 			$("#chatBody").stop().animate({ scrollTop: $("#chatBody")[0].scrollHeight}, 50);
 		}
 
-		function getChat(uname) {
+		function getChat(uname, subject_id) {
 			var t_uname = '<?php echo $t_username; ?>';
 			xmlhttp = new XMLHttpRequest();
 			xmlhttp.onreadystatechange = function() {
@@ -227,7 +243,7 @@
 					document.getElementById("chatBody").innerHTML = this.responseText;
 				}
 			};
-			xmlhttp.open("GET", "chatlogs.php?uname1=" + uname + "&uname2=" + t_uname, true);
+			xmlhttp.open("GET", "chatlogs.php?uname1=" + uname + "&uname2=" + t_uname + "&subject_id=" + subject_id, true);
 			xmlhttp.send();
 			updateScroll();
 		}
@@ -239,11 +255,29 @@
 				document.location.href = 'del_student.php?subject_id='+subject_id+'&student_id='+student_id;
 			}
 		}
+
+		function updateChat(subject_id) {
+			var t_uname = '<?php echo $t_username; ?>';
+			setInterval(function() {
+				xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						// document.getElementById("newMessages").innerHTML = this.responseText;
+						var responseArray = xmlhttp.responseText.split("||");
+						document.getElementById("newMessages").innerHTML = responseArray[0];
+						console.log(responseArray[1]);
+						document.getElementById("checkMes").innerHTML = responseArray[1];
+					}
+				};
+				xmlhttp.open("GET", "show_chat.php?t_username=" + t_uname + "&s_id=" + subject_id, true);
+				xmlhttp.send();
+			}, 1000);
+		}
 	</script>
 
 </head>
 
-<body>
+<body onload="updateChat(<?php echo $id; ?>)">
 	<!-- Preloader -->
 	<div id="preloader">
 		<div class="spinner"></div>
@@ -283,9 +317,22 @@
 
 							<!-- Register / Login -->
 							<div class="login-state d-flex align-items-center">
+								<div id="notificationIcons" style="margin-right: 20px">
+									<div id="messageIcon" class="notification">
+										<a data-toggle="dropdown" href="#">
+											<i class="fa fa-envelope fa-2x" aria-hidden="true"></i>
+											<span class="badge" id="checkMes"></span>
+										</a>
+											<div class="dropdown-menu dropdown-menu-right" id="newMessages" style="width: max-content; padding: 10px;">
+												
+											</div>
+									</div>
+								</div>
 								<div class="user-name mr-30">
 									<div class="dropdown">
-										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $t_firstname." ".$t_lastname; ?></a>
+										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											<?php echo $t_firstname." ".$t_lastname; ?>
+										</a>
 										<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userName">
 											<?php 
 												echo "<a href=teacher_home.php class='dropdown-item'>Home</a>"; 
@@ -572,7 +619,7 @@
 														$student_id = $student['student_id'];
 														$username = $student['username'];
 														$ln = $student['last_name'];
-														$fn =  $student['first_name']
+														$fn =  $student['first_name'];
 														
 											?>
 														<div class="col-lg-6">
@@ -586,10 +633,14 @@
 																	<?php 
 																		echo "<h6>".$ln.", ".$fn."</h6>";
 																	?>
-																	<button class="btn btn-info btn-xs">
-																		<a onclick="chat('<?php echo $username?>', '<?php echo $fn." ".$ln?>')"><i class="fa fa-comments-o"></i> Chat</a>
+																	<button class="btn btn-info btn-lg">
+																		<a onclick="chat('<?php echo $username; ?>', '<?php echo $fn." ".$ln; ?>', '<?php echo $id; ?>')">
+																			<div>
+																				<i class="fa fa-comments-o"></i> Chat
+																			</div>
+																		</a>
 																	</button>
-																	<button class="btn btn-danger btn-xs" onclick='delStudent("<?php echo $id; ?>", "<?php echo $student_id; ?>", "<?php echo $student['first_name']." ".$student['last_name']?>")'>
+																	<button class="btn btn-danger btn-xs" onclick='delStudent("<?php echo $id; ?>", "<?php echo $student_id; ?>", "<?php echo $student['first_name']." ".$student['last_name']; ?>")'>
 																		<a><i class='fa fa-user-times'></i> Remove</a>
 																	</button>
 																</div>
@@ -648,7 +699,9 @@
 						<div id="chatHead" style="height: 10%;">
 							<div class="pull-left" style="margin-left: 20px; margin-top: 8px">
 								<b><span id="chatReceiver"></span></b>
-								<input hidden id="chatFriend">
+									<input hidden id="chatUname">
+									<input hidden id="chatName">
+									<input hidden id="subId" value="<?php echo $id; ?>">
 							</div>
 							<div class="pull-right" style="margin-right: 15px; overflow: auto; margin-top: 2px">
 								<a href="#" onclick="closeDiv()"><i class="fa fa-times fa-2x "></i></a>
@@ -663,7 +716,8 @@
 								<div class="input-group">
 										<input hidden id="sender" name="sender" value="<?php echo $t_username; ?>">
 										<input hidden id="receiver" name="receiver" >
-  									<textarea rows="1" class="form-control" name="message" id="message"></textarea>
+										<input hidden id="subject_id" name="subject_id" value="<?php echo $id; ?>" >
+  									<textarea rows="1" class="form-control" name="message" id="message" onfocus="stillChatting()"></textarea>
   									<div class="input-group-append">
     									<button  class="btn btn-success" type="submit" onclick="return postChat()"><i class="fa fa-send"></i></button>
   									</div>
@@ -744,6 +798,7 @@
 	<!-- Active js -->
 	<script src="js/active.js"></script>
 	<script src="js/expand.js"></script>
+	<!-- <script src="js/custom.js"></script> -->
 </body>
 
 </html>

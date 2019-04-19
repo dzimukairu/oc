@@ -49,7 +49,11 @@ create table chat(
 	sender varchar(100) not null,
 	receiver varchar(100) not null,
 	message varchar(1000) not null,
-	date_posted timestamp not null
+	date_posted timestamp not null,
+	subject_id int(100) not null,
+	seen varchar(100) not null,
+	opened varchar(100) not null,
+	foreign key(subject_id) references subject(subject_id)
 );
 
 create table classrecord(

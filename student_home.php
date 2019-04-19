@@ -36,10 +36,11 @@
 
 	<!-- Stylesheet -->
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="css/notification.css">
 
 </head>
 
-<body>
+<body onload="s_getSeenChat('<?php echo $username; ?>'); s_getTask('<?php echo $username; ?>');">
 	<!-- Preloader -->
 	<div id="preloader">
 		<div class="spinner"></div>
@@ -78,6 +79,26 @@
 								</form>
 							</div>
 							<div class="login-state d-flex align-items-center">
+								<div class="notificationIcons" style="margin-right: 20px">
+									<div id="bellIcon" class="notification">
+										<a data-toggle="dropdown" href="#">
+											<i class="fa fa-bell fa-2x" aria-hidden="true"></i>
+											<span class="badge" id="checkTask"></span>
+										</a>
+											<div class="dropdown-menu dropdown-menu-right" id="newTask" style="width: max-content; padding: 10px;">
+											</div>
+									</div>
+								</div>
+								<div class="notificationIcons" style="margin-right: 20px">
+									<div id="messageIcon" class="notification">
+										<a data-toggle="dropdown" href="#">
+											<i class="fa fa-envelope fa-2x" aria-hidden="true"></i>
+											<span class="badge" id="checkMes"></span>
+										</a>
+											<div class="dropdown-menu dropdown-menu-right" id="newMessages" style="width: max-content; padding: 10px;">
+											</div>
+									</div>
+								</div>
 								<div class="user-name mr-30">
 									<div class="dropdown">
 										<a class="dropdown-toggle" href="#" role="button" id="userName" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $s_firstname." ".$s_lastname; ?></a>
@@ -165,6 +186,8 @@
 	<script src="js/plugins/plugins.js"></script>
 	<!-- Active js -->
 	<script src="js/active.js"></script>
+	<!-- <script src="js/custom.js"></script> -->
+	<script src="js/notif.js"></script>
 </body>
 
 </html>
