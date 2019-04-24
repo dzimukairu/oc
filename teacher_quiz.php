@@ -34,7 +34,6 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 	<meta charset="UTF-8">
 	<meta name="description" content="">
@@ -156,7 +155,7 @@
 			<div class="row">
 				<div class="col-12 col-lg-12 border rounded">
 					<div style="padding: 20px 12px 50px 12px;">
-						<form>
+						<form method="POST" action="/createQuiz.php">
 							<div class="offset-md-2 col-8 input-group">
 								<div class="input-group-prepend">
 									<div class="input-group-text">Quiz Title:</div>
@@ -266,7 +265,7 @@
 											<td><textarea data-autoresize rows="2" class="form-control expand_this" id="essay_question[]" name="essay_question[]" value="" placeholder="Enter question here." ></textarea></td>
 										</tr>
 									</table>
-									<input type="hidden" id="essay_length" name="essay_length" value=0/>
+									<input type="hidden" id="essayTable_length" name="essayTable_length" value=0/>
 								</div>
 							</div>
 
@@ -323,6 +322,7 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 	<script src="js/bootstrap-toggle.min.js"></script>
 	<script src="js/quiz2.js"></script>
 	<script src="js/expand.js"></script>
+	<script src="js/createQuiz.js"></script>
 </body>
 
 </html>

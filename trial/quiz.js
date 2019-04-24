@@ -1,27 +1,27 @@
 window.onload = function() {
-	$(".on_off").bootstrapToggle('off');
-	var toggle1 = document.getElementById("toggle1");
-	var toggle2 = document.getElementById("toggle2");
-	var toggle3 = document.getElementById("toggle3");
-	var toggle4 = document.getElementById("toggle4");
-	toggle1.onchange = getIdentification;
-	toggle2.onchange = getMultipleChoice;
+	// $(".on_off").bootstrapToggle('off');
+	// var toggle1 = document.getElementById("toggle1");
+	// var toggle2 = document.getElementById("toggle2");
+	// var toggle3 = document.getElementById("toggle3");
+	// var toggle4 = document.getElementById("toggle4");
+	// toggle1.onchange = getIdentification;
+	// toggle2.onchange = getMultipleChoice;
 	toggle3.onchange = getMultipleAnswer;
-	toggle4.onchange = getEssay;
+	// toggle4.onchange = getEssay;
 
-	var identification = document.getElementById("identification");
-	var multipleChoice = document.getElementById("multipleChoice");
+	// var identification = document.getElementById("identification");
+	// var multipleChoice = document.getElementById("multipleChoice");
 	var multipleAnswer = document.getElementById("multipleAnswer");
-	var essay = document.getElementById("essay");
-	identification.style.display = "none";
-	multipleChoice.style.display = "none";
+	// var essay = document.getElementById("essay");
+	// identification.style.display = "none";
+	// multipleChoice.style.display = "none";
 	multipleAnswer.style.display = "none";
-	essay.style.display = "none";
+	// essay.style.display = "none";
 
-	var identificationTable = document.getElementById("identificationTable");
-	var multipleChoiceTable = document.getElementById("multipleChoiceTable");
+	// var identificationTable = document.getElementById("identificationTable");
+	// var multipleChoiceTable = document.getElementById("multipleChoiceTable");
 	var multipleAnswerTable = document.getElementById("multipleAnswerTable");
-	var essayTable = document.getElementById("essayTable");
+	// var essayTable = document.getElementById("essayTable");
 
 	addRow;
 	deleteRow;
@@ -88,17 +88,17 @@ function getIdentification() {
 	}
 }
 
-function getMultipleChoice() {
-	var toggle2_val = $('#toggle2').prop('checked');
-	var qLength = document.getElementById("multipleChoiceTable_length");
-	if (toggle2_val) {
-		multipleChoice.style.display = "block";
-		qLength.setAttribute("value", 1);
-	} else {
-		multipleChoice.style.display = "none";
-		qLength.setAttribute("value", 0);
-	}
-}
+// function getMultipleChoice() {
+// 	var toggle2_val = $('#toggle2').prop('checked');
+// 	var qLength = document.getElementById("multipleChoiceTable_length");
+// 	if (toggle2_val) {
+// 		multipleChoice.style.display = "block";
+// 		qLength.setAttribute("value", 1);
+// 	} else {
+// 		multipleChoice.style.display = "none";
+// 		qLength.setAttribute("value", 0);
+// 	}
+// }
 
 function getMultipleAnswer() {
 	var toggle3_val = $('#toggle3').prop('checked');
@@ -112,17 +112,17 @@ function getMultipleAnswer() {
 	}
 }
 
-function getEssay() {
-	var toggle4_val = $('#toggle4').prop('checked');
-	var qLength = document.getElementById("essayTable_length");
-	if (toggle4_val) {
-		essay.style.display = "block";
-		qLength.setAttribute("value", 1);
-	} else {
-		essay.style.display = "none";
-		qLength.setAttribute("value", 0);
-	}
-}
+// function getEssay() {
+// 	var toggle4_val = $('#toggle4').prop('checked');
+// 	var qLength = document.getElementById("essayTable_length");
+// 	if (toggle4_val) {
+// 		essay.style.display = "block";
+// 		qLength.setAttribute("value", 1);
+// 	} else {
+// 		essay.style.display = "none";
+// 		qLength.setAttribute("value", 0);
+// 	}
+// }
 
 function quizTableRow(tableID) {
 	var table = document.getElementById(tableID);
@@ -130,7 +130,7 @@ function quizTableRow(tableID) {
 
 	var qLength = document.getElementById(tableID + "_length");
 	qLength.setAttribute("value", rowCount);
-	// console.log(qLength.getAttribute("id") + " has " + qLength.getAttribute("value"));
+	console.log(qLength.getAttribute("id") + " has " + qLength.getAttribute("value"));
 
 	for(var i=0; i<rowCount; i++) {
 		var row = table.rows[i];
@@ -144,11 +144,10 @@ function quizTableRow(tableID) {
 		row.setAttribute("name", tableID + "_" + rowNumber);
 		quizNum.setAttribute("value", rowNumber);
 
-		console.log(quizNum.getAttribute("value"));
+		// console.log(quizNum.getAttribute("value"));
 		// console.log(row.getAttribute("name"));
 
 		chk.style.width = "10px";
 		quizNum.parentNode.style.width = "10px";
 	}
-
 }
