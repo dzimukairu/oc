@@ -78,6 +78,21 @@
 	<link rel="stylesheet" href="css/bootstrap-toggle.min.css">
 	<script src="js/getdate.js"></script>
 
+	<script>
+		function getComment(announcement_id) {
+			setInterval(function() {
+				xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						document.getElementById("commentDiv").innerHTML = this.responseText;
+					}
+				};
+				xmlhttp.open("GET", "getComment.php?a_id=" + announcement_id, true);
+				xmlhttp.send();
+			}, 1000);
+		}
+	</script>
+
 
 	<!-- https://stephanwagner.me/auto-resizing-textarea -->
 	<style>
@@ -91,7 +106,7 @@
 	</style>
 </head>
 
-<body>
+<body onload="getComment('<?php echo $id;?>')">
 	<!-- Preloader -->
 	<div id="preloader">
 		<div class="spinner"></div>
@@ -159,17 +174,6 @@
 	</header>
 	<!-- ##### Header Area End ##### -->
 
-	<!-- ##### Breadcumb Area Start ##### -->
-	<!-- <div class="breadcumb-area">
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="teacher_home.php">Home</a></li>
-				<li class="breadcrumb-item"><a href="teacher_course.php">Courses</a></li>
-			</ol>
-		</nav>
-	</div> -->
-	<!-- ##### Breadcumb Area End ##### -->
-
 	<!-- ##### Single Course Intro Start ##### -->
    <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
 		<div class="container h-100">
@@ -222,58 +226,15 @@
 				</div>
 
 				<div class="col-12 col-lg-12 border rounded" style="padding-top: 20px; padding-bottom: 20px;" id="announcement_comment" name="announcement_comment">
-					<?php
-						$comment_query= "SELECT * FROM `announcement_comment` WHERE announcement_id = $id  order by date_posted asc";
-						$connect_to_db = mysqli_query($dbconn,$comment_query);
-						$affected = mysqli_num_rows($connect_to_db);
-																									
-						if ($affected != 0) {
-							while ($row = mysqli_fetch_row($connect_to_db)) {
-								$get_uname = $row[2];
-								$content = $row[3];
-								$d_post = $row[4];
-
-								$xdate = new DateTime($d_post);
-								$show_post = date_format($xdate, 'M d, Y - h:i A');
-
-								$student_query = $dbconn->query("SELECT * FROM student WHERE username = '$get_uname'");
-
-								if (mysqli_num_rows($student_query) == 1) {
-									$srow = mysqli_fetch_row($student_query);
-									$first_name = $srow[1];
-									$last_name = $srow[2];
-								} else {
-									$teacher_query = $dbconn->query("SELECT * FROM teacher WHERE username = '$get_uname'");
-
-									$trow = mysqli_fetch_row($teacher_query);
-									$first_name = $trow[1];
-									$last_name = $trow[2];
-								}
-							
-					?>
 						<div>
-							<table class="table table-borderless table-condensed">
-								<tr>
-									<?php
-										echo "<th style='width: 15%;' rowspan='2'>".$first_name." ".$last_name."</th>";
-										echo "<td style='width: 85%;' colspan='3'>".$content."</td>";
-									?>
-								</tr>
-								<tr>
-									<?php
-										echo "<td style='width: 85%;' colspan='3'><h7>".$show_post."</h7></td>";
-									?>
-								</tr>
-							<?php 
-								}}
-							?>
+							<table class="table table-borderless table-condensed" id="commentDiv" name="commentDiv">
+
 							</table>
-							<br>
 							<table class="table table-borderless">
 								<tr>
 									<th style='width: 15%;'><?php echo $t_firstname." ".$t_lastname?></th>
 									<form method="POST" action="announcement.php?announcement_id=<?php echo $id?>">
-										<input name="t_uname" value="<?php echo $t_username; ?>" hidden>
+										<input name="t_uname" id="t_uname" value="<?php echo $t_username; ?>" hidden>
 										<td>
 											<div class="input-group mb-3">
   												<textarea data-autoresize rows="1" class="form-control expand_this" name="tcomment" id="tcomment"></textarea>
@@ -281,7 +242,7 @@
   													<span>&nbsp;</span>
   													<input type="reset" class="btn" value="X">
   													<span>&nbsp;</span>
-    												<button  class="btn btn-success" name="add_comment">Post</button>
+    												<button  class="btn btn-success" id="add_comment" name="add_comment">Post</button>
   												</div>
 											</div>
 										</td>

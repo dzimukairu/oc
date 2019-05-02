@@ -266,38 +266,58 @@
 												echo "<h5>Subject Code: ".$subject_code."</h5>";
 												echo "<br>";
 											?>
-											<h6>About this course</h6>
-											<p><?php echo $course_about; ?></p>
+											<h6>Course About:</h6>
+											<p style="margin-left: 30px;"><?php echo $course_about; ?></p>
 										</div>
 
 										<!-- All Learning Materials -->
 										<button type="button" class="btn clever-btn mb-30" data-toggle="modal" data-target="#upload-modal" hidden>Add Learning Materials</button>
-										<div class="all-instructors mb-30">
-											<h4>Learning Materials</h4>
-											<div class="row">
-												<div class="col-lg-6">
-													<?php
-														$get_lecture_id = $dbconn->query("SELECT * from learning_materials where subject_id = '$id'");
 
-														if (mysqli_num_rows($get_lecture_id) == 0) {
+										<div class="all-instructors mb-30">
+											<div style="margin-bottom: 25px;">
+												<h4 class="d-inline">Learning Materials</h4>
+
+												<?php
+													$get_lecture_query = $dbconn->query("SELECT * from learning_materials where subject_id = '$id' group by title order by date_posted");
+													$hasLM = false;
+
+													if (mysqli_num_rows($get_lecture_query) == 0) {
+														$hasLM = true;
+													}
+												?>
+											</div>
+
+											<div class="row">
+												<div class="col-lg-12">
+													<?php
+														if ($hasLM) {
 															echo "<h5>No Uploaded File/s.</h5>";
 														} else {
-															while ($row = mysqli_fetch_array($get_lecture_id)) {
-																$f_id = $row['file_id'];
+															while ($row = mysqli_fetch_array($get_lecture_query)) {
 																$f_title = $row['title'];
 
-																$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$f_id'");
-																$frow = mysqli_fetch_array($get_file);
-																$f_name = $frow['filename']
+																echo "<div>";
+																echo "<h6 style='margin-bottom: 0px; width: 100%' class='d-inline'>".$f_title."</h6>";
 
-																?>
-																<h6>
-																	<?php echo $f_title?>
-																	<a href='uploads/<?php echo $f_name ?>'>(<i class='fa fa-download'></i> Download)</a>
-																<h6>
+																$get_file_id = $dbconn->query("SELECT * from learning_materials where title = '$f_title' and subject_id = '$id' ");
+																echo "<div style='margin-bottom: 5px;'>";
+																while ($fileX = mysqli_fetch_array($get_file_id)) {
+																	$f_id = $fileX['file_id'];
+																	// echo $f_id;
 
-																<?php
+																	$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$f_id'");
+																	$frow = mysqli_fetch_array($get_file);
+																	$f_name = $frow['filename'];
+													?>
 
+																	<p style="margin: 0; margin-left: 15px;">
+																		<?php echo $f_name; ?>
+																		<a href='uploads/<?php echo $f_name ?>' target="_blank">(<i class='fa fa-download'></i> Download)</a>
+																	</p>
+													<?php
+																} 
+																echo "</div>";
+																echo "</div>";
 															}
 														}
 													?>
@@ -410,7 +430,7 @@
 												$teacher = mysqli_fetch_array($get_teacher_query);
 												$username = $teacher['username'];
 												$fn = $teacher['first_name'];
-												$ln = $teacher['last_name']
+												$ln = $teacher['last_name'];
 											?>
 
 											<div class='row'>
@@ -503,15 +523,48 @@
 
 								<!-- Tab Text Quizzes -->
 								<div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="tab--5">
-									<div class="clever-review">
-										<a href="teacher_quiz.php" class="btn clever-btn mb-30" hidden>Add Quiz</a>
-										<!-- Quiz -->
-										<div class="about-review mb-30">
-											<h4>Quizzes Given</h4>
-											<p>Sed elementum lacus a risus luctus suscipit. Aenean sollicitudin sapien neque, in fermentum lorem dignissim a. Nullam eu mattis quam. Donec porttitor nunc a diam molestie blandit. Maecenas quis ultrices</p>
-										</div>
+									<div class="clever-curriculum">
+										<?php
+											echo "<a href=teacher_quiz.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'><i class='fa fa-file-text'></i> Add Quiz</a>";
+
+											$subject_quiz_query = $dbconn->query("SELECT * FROM `quiz` WHERE subject_id = $id order by date_posted desc");
+											$affected = mysqli_num_rows($subject_quiz_query);
+																									
+											if ($affected != 0) {
+												while ($quiz = mysqli_fetch_array($subject_quiz_query)) {
+
+												$q_id = $quiz['quiz_id'];
+												echo "<a href=s_quiz.php?quiz_id=",urlencode($q_id),">";
+													
+										?>
+														<div class="about-curriculum mb-30">
+															<?php 
+																echo "<h5>".$quiz['quiz_title']."</h5>";
+																echo "<br>";
+																echo "<h7>Score: ".$quiz['total_grade']."</h7>";
+																echo "<br>";
+																echo "<br>";
+
+																$combinedtime = date('Y-m-d H:i:s', strtotime("$quiz[deadline_date] $quiz[deadline_time]"));
+																$xdate = new DateTime($combinedtime);
+																$combinedtime = date_format($xdate, 'M d, Y - h:i A');
+																echo "<h7>Deadline: ".$combinedtime."</h7>";
+
+																$xdate = new DateTime($row[2]);
+																$y = date_format($xdate, 'M d, Y - h:i A');
+																echo "<br><br><br>";
+																echo "<p>".$y."</p>";
+																
+															?>
+														</div>
+												<?php  echo "</a>"; }  ?>
+											<?php } else {
+												echo "<h4>No quizzes found.</h4>";
+											} ?>
 									</div>
 								</div>
+
+
 							</div>
 						</div>
 					</div>

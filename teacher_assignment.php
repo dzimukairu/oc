@@ -41,34 +41,16 @@
 		$deadline_time = $_POST['deadline_time'];
 		$score = $_POST['score'];
 
-		$xdate = date('m/d/Y');
-		$xtime = date('H:i');
+		$deadline = date('Y-m-d H:i:s', strtotime("$deadline_date $deadline_time"));
+		$todayTime = date('Y-m-d H:i:s');
 
-		// $combinedtime = date('Y-m-d H:i:s', strtotime("$deadline_date $deadline_time"));
-		// echo $combinedtime;
+		$to_time = strtotime($deadline);
+		$from_time = strtotime($todayTime);
+		$timediff = ($to_time - $from_time)/3600;
 
-
-		$to_time = strtotime(date('H:i:s'));
-		$from_time = strtotime($deadline_time);
-		// echo "<br><br>".(($to_time - $from_time) / -60). " minute";
-		$timediff = (($to_time - $from_time) / -60);
-
-		//check date if yesterday/past
-		$current = strtotime(date('m/d/Y'));
-		$ydate = strtotime($deadline_date);
-		$datediff = $ydate - $current;
-		$difference = floor($datediff/(60*60*24));
-
-		if ($difference  < 0) {
-			$error1 = 'Invalid date.';
+		if ($timediff  < 0) {
+			$error1 = 'Invalid date/time.';
 			$errorcount = false;
-		} else {
-			if ($timediff < 0) {
-				$error1 = 'Invalid time (Must set after the current time).<br>';
-				$errorcount = false;
-			} else {
-				$error = '';
-			}
 		}
 
 		if (empty($assignment_title) && empty($assignment_instruction)) {
@@ -239,8 +221,9 @@
 			   </div>
 			</div>
 			<div class="row">
-				<h7 class="text-danger"><?php echo $error1 ?></h7>
-				<h7 class="text-danger"><?php echo $error2 ?></h7>
+				<h7 class="text-danger"><?php echo $error1; ?></h7>
+				&nbsp;
+				<h7 class="text-danger"><?php echo $error2; ?></h7>
 				
 				<div class="col-12 col-lg-12 border rounded">
 					<div style="padding: 20px 12px 60px 12px;">
@@ -259,14 +242,11 @@
 									<div class="input-group-text">Deadline:</div>
 								</div>
 								<?php
-									$month = date('m');
-									$day = date('d');
-									$year = date('Y');
-
-									$today_date = $year . '-' . $month . '-' . $day;
+									$startTime = date("Y-m-d H:i:s");
+									$cenvertedTime = date('Y-m-d',strtotime('+1 hour',strtotime($startTime)));
 
 								?>
-								<input type="date" name="deadline_date" id="deadline_date" value="<?php echo $today_date; ?>" min="2019-01-01" class="form-control">
+								<input type="date" name="deadline_date" id="deadline_date" value="<?php echo $cenvertedTime; ?>" min="<?php echo $cenvertedTime; ?>" class="form-control">
 								<input type="time" name="deadline_time" id="deadline_time" value="<?php echo date('H:i', time()+3600);?>" class="form-control">
 							</div>
 							<div class="offset-md-3 col-6">

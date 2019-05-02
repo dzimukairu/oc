@@ -12,11 +12,6 @@ create table teacher(
 	primary key(teacher_id)
 );
 
--- create table teaches(
--- 	teacher_id int(100) not null,
--- 	student_id int(100) not null
--- );
-
 create table student(
 	student_id int(100) not null auto_increment,
 	first_name varchar(100) not null,
@@ -51,21 +46,21 @@ create table chat(
 	message varchar(1000) not null,
 	date_posted timestamp not null,
 	subject_id int(100) not null,
-	seen varchar(100) not null,
+	-- seen varchar(100) not null,
 	opened varchar(100) not null,
 	foreign key(subject_id) references subject(subject_id)
 );
 
-create table classrecord(
-	subject_id int(100) not null,
-	student_id int(100) not null,
-	assignment_assignment int(100) not null,
-	quiz_number int(100) not null,
-	score int(100) not null,
-	total int(100) not null,
-	foreign key(subject_id) references subject(subject_id),
-	foreign key(student_id) references student(student_id)
-);
+-- create table classrecord(
+-- 	subject_id int(100) not null,
+-- 	student_id int(100) not null,
+-- 	assignment_assignment int(100) not null,
+-- 	quiz_number int(100) not null,
+-- 	score int(100) not null,
+-- 	total int(100) not null,
+-- 	foreign key(subject_id) references subject(subject_id),
+-- 	foreign key(student_id) references student(student_id)
+-- );
 
 create table uploaded_files(
 	file_id int(100) not null auto_increment,
@@ -124,7 +119,7 @@ create table answer_assignment(
 	id int(100) not null auto_increment,
 	content varchar(1000) not null,
 	date_posted timestamp not null,
-	grade int(100) null,
+	grade int(100) not null,
 	student_id int(100) not null,
 	file_id int(100) null,
 	assignment_id int(100) not null,
@@ -137,92 +132,120 @@ create table answer_assignment(
 create table quiz(
 	quiz_id int(100) not null auto_increment,
 	subject_id int(100) not null,
+	quiz_title varchar(1000) not null,
+	date_posted timestamp not null,
+	deadline_date date not null,
+	deadline_time time not null,
+	total_grade int(100) not null,
 	primary key(quiz_id),
 	foreign key(subject_id) references subject(subject_id)
 );
 
 create table identification_quiz(
-	identification_id int(100) not null auto_increment,
-	subject_id int(100) not null,
 	quiz_id int(100) not null,
-	date_posted datetime not null default CURRENT_TIMESTAMP,
-	deadline_date date not null,
-	deadline_time time not null,
 	question_number int(100) not null,
 	question varchar(100) not null,
-	answer int(100) not null,
-	primary key(identification_id),
-	foreign key(subject_id) references subject(subject_id),
+	answer varchar(100) not null,
+	grade int(100) not null,
 	foreign key(quiz_id) references quiz(quiz_id)
 );
 
 create table multiplechoice_quiz(
-	multiplechoice_id int(100) not null auto_increment,
-	subject_id int(100) not null,
 	quiz_id int(100) not null,
-	date_posted datetime not null default CURRENT_TIMESTAMP,
-	deadline_date date not null,
-	deadline_time time not null,
 	question_number int(100) not null,
 	question varchar(100) not null,
 	answer varchar(100) not null,
-	primary key(multiplechoice_id),
-	foreign key(subject_id) references subject(subject_id),
+	grade int(100) not null,
 	foreign key(quiz_id) references quiz(quiz_id)
 );
 
 create table multiplechoice_choices(
-	multiplechoice_id int(100) not null,
-	subject_id int(100) not null,
 	quiz_id int(100) not null,
+	question_number int(100) not null,
 	option varchar(1000) not null,
-	foreign key(multiplechoice_id) references multiplechoice_quiz(multiplechoice_id),
 	foreign key(quiz_id) references quiz(quiz_id)
 );
 
 create table multipleanswer_quiz(
-	multipleanswer_id int(100) not null auto_increment,
-	subject_id int(100) not null,
 	quiz_id int(100) not null,
-	date_posted datetime not null default CURRENT_TIMESTAMP,
-	deadline_date date not null,
-	deadline_time time not null,
 	question_number int(100) not null,
 	question varchar(1000) not null,
-	primary key(multipleanswer_id),
-	foreign key(subject_id) references subject(subject_id),
+	grade int(100) not null,
 	foreign key(quiz_id) references quiz(quiz_id)
 );
 
 create table multipleanswer_choices(
-	multipleanswer_id int(100) not null,
-	subject_id int(100) not null,
 	quiz_id int(100) not null,
+	question_number int(100) not null,
 	option varchar(1000) not null,
-	foreign key(multipleanswer_id) references multipleanswer_quiz(multipleanswer_id),
 	foreign key(quiz_id) references quiz(quiz_id)
 );
 
 create table multipleanswer_answers(
-	multipleanswer_id int(100) not null,
-	subject_id int(100) not null,
 	quiz_id int(100) not null,
+	question_number int(100) not null,
 	answer varchar(1000) not null,
-	foreign key(multipleanswer_id) references multipleanswer_quiz(multipleanswer_id),
 	foreign key(quiz_id) references quiz(quiz_id)
 );
 
-INSERT INTO teacher(first_name, last_name, username, email_address, password, image) 
-	VALUES("teacher", "1", "teacher1", "teacher1@gmail.com", "teacher1", "def.png");
+create table essay_quiz(
+	quiz_id int(100) not null,
+	question_number int(100) not null,
+	question varchar(100) not null,
+	grade int(100) not null,
+	foreign key(quiz_id) references quiz(quiz_id)
+);
+
+create table answer_quiz(
+	answer_id int(100) not null auto_increment,
+	date_posted timestamp not null,
+	total_grade int(100) not null,
+	student_id int(100) not null,
+	quiz_id int(100) not null,
+	primary key(answer_id),
+	foreign key(student_id) references student(student_id),
+	foreign key(quiz_id) references quiz(quiz_id)
+);
+
+create table answer_iden_quiz(
+	answer_id int(100) not null,
+	question_number int(100) not null,
+	answer varchar(100) not null,
+	grade int(100) not null
+);
+
+create table answer_mc_quiz(
+	answer_id int(100) not null,
+	question_number int(100) not null,
+	answer varchar(100) not null,
+	grade int(100) not null
+);
+
+create table answer_ma_quiz(
+	answer_id int(100) not null,
+	question_number int(100) not null,
+	answer varchar(100) not null,
+	grade int(100) not null
+);
+
+create table answer_essay_quiz(
+	answer_id int(100) not null,
+	question_number int(100) not null,
+	answer varchar(100) not null,
+	grade int(100) not null
+);
 
 INSERT INTO teacher(first_name, last_name, username, email_address, password, image) 
-	VALUES("teacher", "2", "teacher2", "teacher2@gmail.com", "teacher2", "def.png");
+	VALUES("teacher", "one", "teacher1", "teacher1@gmail.com", "teacher1", "teacher1-lisa.png");
+
+INSERT INTO teacher(first_name, last_name, username, email_address, password, image) 
+	VALUES("teacher", "two", "teacher2", "teacher2@gmail.com", "teacher2", "def.png");
 
 INSERT INTO student(first_name, last_name, username, email_address, password, image) 
-	VALUES("student", "1", "student1", "student1@gmail.com", "student1", "def.png");
+	VALUES("student", "one", "student1", "student1@gmail.com", "student1", "def.png");
 
 INSERT INTO student(first_name, last_name, username, email_address, password, image) 
-	VALUES("student", "2", "student2", "student2@gmail.com", "student2", "def.png");
+	VALUES("student", "two", "student2", "student2@gmail.com", "student2", "def.png");
 
 INSERT INTO subject(subject_code, course_title, course_description, course_about, teacher_id)
 	VALUES("MXBsYzRv", "CMSC 56", "Discrete Mathematics 1", "Discrete Mathematics 1 About", 1);

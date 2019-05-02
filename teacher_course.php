@@ -43,21 +43,53 @@
 	if(isset($_POST['add_lecture'])){
 		$lecture_title = $_POST['lecture_title'];
 		$target_dir = "uploads/";
-		$fileName = basename($_FILES["fileToUpload"]["name"]);
-		$target_files = $target_dir . $fileName;
-		$fileType = pathinfo($target_files,PATHINFO_EXTENSION);
+		$myFile = $_FILES["fileToUpload"];
+		$fileCount = count($myFile["name"]);
+		
+		for ($i = 0; $i < $fileCount; $i++) {
+			$fileName = basename($myFile["name"][$i]);
+			$target_files = $target_dir . $fileName;
+			$fileType = pathinfo($target_files,PATHINFO_EXTENSION);
 
-		if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_files)) {
-			$insert_file_query = $dbconn->query("INSERT into uploaded_files(filename, date_posted) values ('".$fileName."', NOW())");
+			if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"][$i], $target_files)) {
+				$insert_file_query = $dbconn->query("INSERT into uploaded_files(filename, date_posted) values ('".$fileName."', NOW())");
+			}
+
+			if ($insert_file_query) {
+				$file_id = $dbconn->insert_id;
+
+				$query = $dbconn->query("INSERT into learning_materials(title, date_posted, subject_id, file_id) VALUES('$lecture_title', NOW(), '$id', '$file_id')");
+				
+				// if ($query) {
+				// 	header("Location: teacher_course.php?subject_id=".$id);
+				// }
+			}
 		}
+	}
 
-		if ($insert_file_query) {
-			$file_id = $dbconn->insert_id;
+	if(isset($_POST['addLM'])) {
+		$lecture_title = $_POST['f_title'];
+		$target_dir = "uploads/";
+		$myFile = $_FILES["addNewLM"];
+		$fileCount = count($myFile["name"]);
+		
+		for ($i = 0; $i < $fileCount; $i++) {
+			$fileName = basename($myFile["name"][$i]);
+			$target_files = $target_dir . $fileName;
+			$fileType = pathinfo($target_files,PATHINFO_EXTENSION);
 
-			$query = $dbconn->query("INSERT into learning_materials(title, date_posted, subject_id, file_id) VALUES('$lecture_title', NOW(), '$id', '$file_id')");
-			
-			if ($query) {
-				header("Location: teacher_course.php?subject_id=".$id);
+			if (move_uploaded_file($_FILES["addNewLM"]["tmp_name"][$i], $target_files)) {
+				$insert_file_query = $dbconn->query("INSERT into uploaded_files(filename, date_posted) values ('".$fileName."', NOW())");
+			}
+
+			if ($insert_file_query) {
+				$file_id = $dbconn->insert_id;
+
+				$query = $dbconn->query("INSERT into learning_materials(title, date_posted, subject_id, file_id) VALUES('$lecture_title', NOW(), '$id', '$file_id')");
+				
+				// if ($query) {
+				// 	header("Location: teacher_course.php?subject_id=".$id);
+				// }
 			}
 		}
 	}
@@ -168,9 +200,91 @@
 			color: #333;
 			border-radius: 3px;
 		}
+
+		.addBut {
+			display: none;
+		}
+
+		.delBut {
+			display: none;
+		}
+
+		.postNewLM {
+			display: none;
+		}
+
+		.origLM input[type='checkbox'] {
+			visibility: hidden;
+		}
 	</style>
 
 	<script>
+		function getDivId(divId) {
+			document.getElementById(divId).innerHTML = divId;
+		}
+
+		function showAddBut() {
+			var x = document.getElementsByClassName("addBut");
+			for(var i = 0; i < x.length; i++){
+				if (x[i].style.display === "inline") {
+					x[i].style.display = "none";
+				} else {
+					x[i].style.display = "inline";
+				} 
+			}
+		}
+
+		function showDelBut() {
+			var x = document.getElementsByClassName("delBut");
+			for(var i = 0; i < x.length; i++){
+				if (x[i].style.display === "inline") {
+					x[i].style.display = "none";
+				} else {
+					x[i].style.display = "inline";
+				} 
+			}
+		}
+
+		function addLM(divId) {
+			var x = document.getElementById(divId);
+			if (x.style.display === "block") {
+				x.style.display = "none";
+			} else {
+				x.style.display = "block";
+			}
+		}
+
+		function delLM(orig) {
+			var collection = document.getElementById(orig).getElementsByTagName('INPUT');
+
+			for (var x=0; x<collection.length; x++) {
+				collection[x].style.display = "show";
+			}
+		}
+					
+		function getNotif(username, subject_id, divId) {
+			var t_uname = '<?php echo $t_username; ?>';
+			var x = document.getElementById(divId);
+			// xmlhttp = new XMLHttpRequest();
+			// xmlhttp.onreadystatechange = function() {
+			// 	if (this.readyState == 4 && this.status == 200) {
+			// 		x.innerHTML = this.responseText;
+			// 	}
+			// };
+			// xmlhttp.open("GET", "getNotif.php?sender=" + username + "&s_id=" + subject_id + "&receiver=" + t_uname, true);
+			// xmlhttp.send();
+			var dataString = "sender=" + username + "&s_id=" + subject_id + "&receiver=" + t_uname;
+			$.ajax({
+				type: "GET",
+				url: "getNotif.php",
+				data: dataString,
+				success: function(result) {
+    			$("#divId").html(result);
+				}
+			});
+			return false;
+		}
+
 		function closeDiv() {
 			var chatDiv = document.getElementById("chatDiv");
 			chatDiv.style.display = "none";
@@ -317,6 +431,16 @@
 
 							<!-- Register / Login -->
 							<div class="login-state d-flex align-items-center">
+								<div class="notificationIcons" style="margin-right: 20px">
+									<div id="bellIcon" class="notification">
+										<a data-toggle="dropdown" href="#">
+											<i class="fa fa-bell fa-2x" aria-hidden="true"></i>
+											<span class="badge" id="checkTask"></span>
+										</a>
+											<div class="dropdown-menu dropdown-menu-right" id="newTask" style="width: max-content; padding: 10px;">
+											</div>
+									</div>
+								</div>
 								<div id="notificationIcons" style="margin-right: 20px">
 									<div id="messageIcon" class="notification">
 										<a data-toggle="dropdown" href="#">
@@ -408,39 +532,98 @@
 												echo "<h5>Subject Code: ".$subject_code."</h5>";
 												echo "<br>";
 											?>
-											<h6>About this course</h6>
-											<p><?php echo $course_about; ?></p>
+											<h6>Course About:</h6>
+											<p style="margin-left: 30px;"><?php echo $course_about; ?></p>
 											<button class="btn btn-info" data-toggle="modal" data-target="#update-about-modal"><i class="fa fa-info-circle"></i> Update About</button>
 										</div>
 
 										<!-- All Learning Materials -->
 										<button type="button" class="btn clever-btn mb-30" data-toggle="modal" data-target="#upload-modal"><i class="fa fa-file"></i> Add Learning Materials</button>
-										<div class="all-instructors mb-30">
-											<h4>Learning Materials</h4>
-											<div class="row">
-												<div class="col-lg-6">
-													<?php
-														$get_lecture_id = $dbconn->query("SELECT * from learning_materials where subject_id = '$id'");
 
-														if (mysqli_num_rows($get_lecture_id) == 0) {
+										<div class="all-instructors mb-30">
+											<div style="margin-bottom: 25px;">
+												<h4 class="d-inline">Learning Materials</h4>
+
+												<?php
+													$get_lecture_query = $dbconn->query("SELECT * from learning_materials where subject_id = '$id' group by title order by date_posted");
+													$hasLM = false;
+
+													if (mysqli_num_rows($get_lecture_query) == 0) {
+														$hasLM = true;
+													}
+												?>
+
+													<div id="buttonDiv" class="d-inline">
+														<button class="btn btn-outline-danger btn-sm pull-right" onclick="showDelBut()">Delete</button>
+														<span class="pull-right">&nbsp;</span>
+														<button class="btn btn-outline-primary btn-sm pull-right" onclick="showAddBut()">Add</button>
+													</div>
+											</div>
+
+											<div class="row">
+												<div class="col-lg-12">
+													<?php
+														if ($hasLM) {
 															echo "<h5>No Uploaded File/s.</h5>";
 														} else {
-															while ($row = mysqli_fetch_array($get_lecture_id)) {
-																$f_id = $row['file_id'];
+															while ($row = mysqli_fetch_array($get_lecture_query)) {
 																$f_title = $row['title'];
 
-																$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$f_id'");
-																$frow = mysqli_fetch_array($get_file);
-																$f_name = $frow['filename']
+																echo "<div>";
+																echo "<h6 style='margin-bottom: 0px; width: 100%' class='d-inline'>".$f_title."</h6>";
 
-																?>
-																<h6>
-																	<?php echo $f_title?>
-																	<a href='uploads/<?php echo $f_name ?>'>(<i class='fa fa-download'></i> Download)</a>
-																<h6>
+																$divId = "add_to_".$f_title;
+																$origLM = "orig_of_".$f_title;
+																$delLM = "del_from_".$f_title;
+													?>	
+																<div class="d-inline">
+																	<button class="btn btn-outline-primary btn-sm addBut" onclick="addLM('<?php echo $divId; ?>')"><i class="fa fa-plus"></i></button>
+																	<span class="pull-right d-inline">&nbsp;</span>
+																	<button class="btn btn-outline-danger btn-sm delBut" onclick="delLM('<?php echo $origLM; ?>')"><i class="fa fa-times"></i></button>
+																</div>
+																
+													<?php
+																$get_file_id = $dbconn->query("SELECT * from learning_materials where title = '$f_title' and subject_id = '$id' ");
+																echo "<div style='margin-bottom: 15px;'>";
+																while ($fileX = mysqli_fetch_array($get_file_id)) {
+																	$f_id = $fileX['file_id'];
+																	// echo $f_id;
 
-																<?php
+																	$get_file = $dbconn->query("SELECT * from uploaded_files where file_id = '$f_id'");
+																	$frow = mysqli_fetch_array($get_file);
+																	$f_name = $frow['filename'];
+													?>
 
+																	<div id="<?php echo $origLM; ?>" class="origLMDiv">
+																		<!-- <input value="<?php echo $origLM; ?>" > -->
+																		<!-- <input type="checkbox" class="d-inline"> -->
+																		<p style="margin: 0; margin-left: 15px;">
+																			<?php echo $f_name; ?>
+																			<a href='uploads/<?php echo $f_name ?>' target="_blank">(<i class='fa fa-download'></i> Download)</a>
+																		</p>
+																	</div>
+
+																	<!-- <div id="<?php echo $delLM; ?>" class="delLMDiv" style="margin-left: 15px;">
+																		<input value="<?php echo $delLM; ?>">
+																		<input type="checkbox" class="d-inline">
+																		<p style="margin: 0;" class="d-inline">
+																			<?php echo $f_name; ?>
+																		</p>
+																	</div> -->
+													<?php
+																}
+													?>		
+																<div id="<?php echo $divId; ?>" class="postNewLM" style="margin-left: 15px;">
+																	<br>
+																	<form method="POST" enctype="multipart/form-data">
+																		<input name="f_title" value="<?php echo $f_title; ?>" hidden>
+																		<input type="file" name="addNewLM[]" multiple >
+																		<input type="submit" class="btn btn-outline-success btn-sm" name="addLM" value="Add New"/>
+																	</form>
+																</div>
+													<?php
+																echo "</div>";
+																echo "</div>";
 															}
 														}
 													?>
@@ -570,7 +753,10 @@
 																		echo "<h6>".$student['first_name']." ".$student['last_name']."</h6>";
 																	?>
 																	<button class="btn btn-primary btn-xs" onclick='addStudent("<?php echo $id; ?>", "<?php echo $student_id; ?>", "<?php echo $student['first_name']." ".$student['last_name']?>")'>
-																		<a><i class='fa fa-user-plus'></i> Add Student</a>
+																		<a><i class='fa fa-user-plus'></i> Confirm</a>
+																	</button>
+																	<button class="btn btn-danger btn-xs" onclick='cancelStudent("<?php echo $id; ?>", "<?php echo $student_id; ?>", "<?php echo $student['first_name']." ".$student['last_name']?>")'>
+																		<a><i class='fa fa-user-times'></i> Cancel</a>
 																	</button>
 
 																	<script>
@@ -579,6 +765,13 @@
 
 																			if (add == true) {
 																				document.location.href = 'add_s.php?subject_id='+subject_id+'&student_id='+student_id;
+																			}
+																		}
+																		function cancelStudent(subject_id, student_id, name) {
+																			var cancel = confirm("Do you want to cancel "+ name + "?");
+
+																			if (cancel == true) {
+																				document.location.href = 'cancel_s.php?subject_id='+subject_id+'&student_id='+student_id;
 																			}
 																		}
 																	</script>
@@ -632,7 +825,15 @@
 																<div class="instructor-info">
 																	<?php 
 																		echo "<h6>".$ln.", ".$fn."</h6>";
+																		$divId = "chatNotif_".$username;
 																	?>
+
+																	<div onload="getNotif('<?php echo $username; ?>', '<?php echo $id; ?>', '<?php echo $divId; ?>')"> 
+																		<p style="margin-bottom: 0; text-align: center; font-style: italic" id="<?php echo $divId; ?>"  onclick="getDivId('<?php echo $divId; ?>')">
+																			1
+																		</p>
+																	</div>
+
 																	<button class="btn btn-info btn-lg">
 																		<a onclick="chat('<?php echo $username; ?>', '<?php echo $fn." ".$ln; ?>', '<?php echo $id; ?>')">
 																			<div>
@@ -658,17 +859,47 @@
 
 								<!-- Tab Text Quizzes -->
 								<div class="tab-pane fade" id="tab5" role="tabpanel" aria-labelledby="tab--5">
-									<div class="clever-review">
+									<div class="clever-curriculum">
 										<?php
 											echo "<a href=teacher_quiz.php?subject_id=",urlencode($id)," class='btn clever-btn mb-30'><i class='fa fa-file-text'></i> Add Quiz</a>";
+
+											$subject_quiz_query = $dbconn->query("SELECT * FROM `quiz` WHERE subject_id = $id order by date_posted desc");
+											$affected = mysqli_num_rows($subject_quiz_query);
+																									
+											if ($affected != 0) {
+												while ($quiz = mysqli_fetch_array($subject_quiz_query)) {
+
+												$q_id = $quiz['quiz_id'];
+												echo "<a href=quiz.php?quiz_id=",urlencode($q_id),">";
+													
 										?>
-										<!-- Quiz -->
-										<div class="about-review mb-30">
-											<h4>Quizzes Given</h4>
-											<p>Sed elementum lacus a risus luctus suscipit. Aenean sollicitudin sapien neque, in fermentum lorem dignissim a. Nullam eu mattis quam. Donec porttitor nunc a diam molestie blandit. Maecenas quis ultrices</p>
-										</div>
+														<div class="about-curriculum mb-30">
+															<?php 
+																echo "<h5>".$quiz['quiz_title']."</h5>";
+																echo "<br>";
+																echo "<h7>Score: ".$quiz['total_grade']."</h7>";
+																echo "<br>";
+																echo "<br>";
+
+																$combinedtime = date('Y-m-d H:i:s', strtotime("$quiz[deadline_date] $quiz[deadline_time]"));
+																$xdate = new DateTime($combinedtime);
+																$combinedtime = date_format($xdate, 'M d, Y - h:i A');
+																echo "<h7>Deadline: ".$combinedtime."</h7>";
+
+																$xdate = new DateTime($row[2]);
+																$y = date_format($xdate, 'M d, Y - h:i A');
+																echo "<br><br><br>";
+																echo "<p>".$y."</p>";
+																
+															?>
+														</div>
+												<?php  echo "</a>"; }  ?>
+											<?php } else {
+												echo "<h4>No quizzes found.</h4>";
+											} ?>
 									</div>
 								</div>
+
 							</div>
 						</div>
 					</div>
@@ -686,10 +917,10 @@
 							<h4>Submitted Works</h4>
 							<ul class="features-list">
 								<li>
-									<a href="#"><h6><i class="fa" aria-hidden="true"></i>Assignment</h6></a>
+									<a href="#"><h6>Assignment</h6></a>
 								</li>
 								<li>
-									<a href="#"><h6><i class="fa" aria-hidden="true"></i>Quizzes</h6></a>
+									<a href="#"><h6>Quizzes</h6></a>
 								</li>
 							</ul>
 						</div>
@@ -746,7 +977,7 @@
 											<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="lecture_title" name="lecture_title"></textarea>
 										</div>
 										<br>
-										<input type="file" name="fileToUpload">
+										<input type="file" name="fileToUpload[]" multiple>
 									</div>
 								</div>
 								<div class="pull-right">

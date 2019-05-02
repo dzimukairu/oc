@@ -60,6 +60,7 @@
 	$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$s_id' and assignment_id = '$id'");
 	$haveAnswer = false;
 	$grade = 0;
+
 	if (mysqli_num_rows($get_answer_query) != 0) {
 		$a_row = mysqli_fetch_array($get_answer_query);
 		$answer_id = $a_row['id'];
@@ -83,7 +84,7 @@
 		$answer_content = $_POST['answer_content'];
 
 		if($_FILES['fileToUpload']['size'] == 0) {
-			$query = $dbconn->query("INSERT into answer_assignment(content, date_posted, student_id, assignment_id) VALUES('$answer_content', NOW(), '$s_id', '$id')");
+			$query = $dbconn->query("INSERT into answer_assignment(content, date_posted, student_id, assignment_id, grade) VALUES('$answer_content', NOW(), '$s_id', '$id', -1)");
 			
 			if ($query) {
 				header("Location: s_assignment.php?s_id=".$s_id."&assignment_id=".$id);
@@ -183,6 +184,7 @@
 				x.style.display = "none";
 			} else {
 				x.style.display = "block";
+				x.scrollIntoView();
 			} 
 		}
 
@@ -264,17 +266,6 @@
 	</header>
 	<!-- ##### Header Area End ##### -->
 
-	<!-- ##### Breadcumb Area Start ##### -->
-	<!-- <div class="breadcumb-area">
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="teacher_home.php">Home</a></li>
-				<li class="breadcrumb-item"><a href="teacher_course.php">Courses</a></li>
-			</ol>
-		</nav>
-	</div> -->
-	<!-- ##### Breadcumb Area End ##### -->
-
 	<!-- ##### Single Course Intro Start ##### -->
    <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
 		<div class="container h-100">
@@ -291,11 +282,16 @@
 	</section>
 	<!-- ##### Single Course Intro End ##### -->
 
-	<div class="student-quiz-content section-padding-100">
+	<div class="student-quiz-content" style="margin-top: 50px">
 		<div class="container">
 			<div class="row">
+				<div style="margin-bottom: 12px">
+					<?php 
+						echo "<a href=student_course.php?subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
+					?>
+				</div>
 				<div class="col-12 col-lg-12 border rounded">
-					<div style="padding: 20px 12px 60px 12px;">
+					<div style="padding: 20px 12px 50px 12px;">
 						<h5><?php echo $assignment_title;?></h5>
 						<br>
 						<h6><?php echo $assignment_instruction;?></h6>
@@ -324,7 +320,6 @@
 								echo $y;
 							?>
 						</p>
-						<p style="font-style: italic;">Note: Button will be disabled once past deadline.</p>
 
 						<button class='btn btn-primary clever-btn pull-right' onclick='show_hide()'>Answer</button>
 					</div>
@@ -352,11 +347,17 @@
 							?>
 
 							<br><br>
-							<h7>Your Grade:
-								<?php
-									echo "<b>".$grade."/".$score."</b>";
-								?>
-							</h7>
+							<?php
+								if ($haveAnswer) {
+									echo "<h7>Your Grade:";
+									if ($grade == -1) {
+										echo "<b> No Grade Yet</b>";
+									} else {
+										echo "<b> ".$grade."/".$score."</b>";
+									}
+									echo "</h7>";
+								}
+							?>
 						</div>
 						<?php 
 							if ($haveAnswer) { ?>
@@ -405,38 +406,11 @@
 				</div>
 			</div>
 
-			<div class="row" style="margin-top:20px">
-				<?php 
-					echo "<a href=student_course.php?subject_id=",urlencode($subject_id)," class='btn clever-btn'>Back</a>";
-				?>
-			</div>
+			
 		</div>
 	</div>
 
-
-	<!-- ##### Footer Area Start ##### -->
-	<footer class="footer-area">
-		<!-- Top Footer Area -->
-		<div class="top-footer-area">
-			<div class="container">
-				<div class="row">
-					<div class="col-12">
-						<!-- Footer Logo -->
-						<div class="footer-logo">
-							<a href="index.php"><img src="img/core-img/logo2.png" alt=""></a>
-						</div>
-						<!-- Copywrite -->
-						<p><a href="#"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
-<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Bottom Footer Area -->
-	</footer>
-	<!-- ##### Footer Area End ##### -->
+	<?php include "footer.php"; ?>
 
 	<!-- ##### All Javascript Script ##### -->
 	<!-- jQuery-2.2.4 js -->

@@ -9,9 +9,9 @@
 	$error = "";
 	date_default_timezone_set("Asia/Manila");
 
-	$id = $_GET['assignment_id'];
+	$id = $_GET['quiz_id'];
 
-	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, subject.teacher_id, assignment.title, assignment.instruction, assignment.date_posted, assignment.deadline_date, assignment.deadline_time, assignment.score, assignment.file_id  from subject INNER JOIN assignment on (assignment.assignment_id = $id and subject.subject_id = assignment.subject_id)";
+	$sql = "SELECT subject.subject_id, subject.subject_code, subject.course_title, subject.course_description, subject.course_about, subject.teacher_id, quiz.quiz_title, quiz.date_posted, quiz.deadline_date, quiz.deadline_time, quiz.total_grade  from subject INNER JOIN quiz on (quiz.quiz_id = $id and subject.subject_id = quiz.subject_id)";
 
 	$result = mysqli_query($dbconn, $sql);
 	$row = mysqli_fetch_array($result);
@@ -23,23 +23,11 @@
 	$course_about = $row['course_about'];
 	$teacher_id = $row['teacher_id'];
 
-	$assignment_title = $row['title'];
-	$assignment_instruction = $row['instruction'];
+	$quiz_title = $row['quiz_title'];
 	$deadline_date = $row['deadline_date'];
 	$deadline_time = $row['deadline_time'];
 	$date_posted = $row['date_posted'];
-	$score = $row['score'];
-	$file_id = $row['file_id'];
-
-	$isFileEmpty = true;
-	$fileName = "";
-	if ($file_id != NULL) {
-		$get_file_query = $dbconn->query("SELECT * from uploaded_files where file_id = '$file_id'");
-		$frow = mysqli_fetch_array($get_file_query);
-
-		$fileName = $frow['filename'];
-		$isFileEmpty = false;
-	}
+	$score = $row['total_grade'];
 
 	$combinedtime = date('Y-m-d H:i:s', strtotime("$deadline_date $deadline_time"));
 	$xdate = new DateTime($combinedtime);
@@ -53,28 +41,28 @@
 	$t_lastname = $trow['last_name'];
 	$image = $trow['image'];
 
-	$graded = 0;
+	// $graded = 0;
 
-	if(isset($_POST['update_assignment'])){
-		$new_title = ($_POST['new_title']);
-		$new_instruction = ($_POST['new_instruction']);
-		$new_ddate = $_POST['new_ddate'];
-		$new_dtime = $_POST['new_dtime'];
+	// if(isset($_POST['update_quiz'])){
+	// 	$new_title = ($_POST['new_title']);
+	// 	$new_instruction = ($_POST['new_instruction']);
+	// 	$new_ddate = $_POST['new_ddate'];
+	// 	$new_dtime = $_POST['new_dtime'];
 
-		$update_query = "UPDATE assignment SET title = '$new_title', instruction = '$new_instruction', deadline_date = '$new_ddate', deadline_time = '$new_dtime' WHERE assignment_id = '$id'";
-		// $update_query = "UPDATE assignment SET instruction = '$new_instruction' WHERE assignment_id = '$id'";
+	// 	$update_query = "UPDATE quiz SET title = '$new_title', instruction = '$new_instruction', deadline_date = '$new_ddate', deadline_time = '$new_dtime' WHERE quiz_id = '$id'";
+	// 	// $update_query = "UPDATE quiz SET instruction = '$new_instruction' WHERE quiz_id = '$id'";
 
-		if ($update_connect = mysqli_query($dbconn, $update_query)) {
-			header("Location: assignment.php?assignment_id=".$id);
-		}
-	}
+	// 	if ($update_connect = mysqli_query($dbconn, $update_query)) {
+	// 		header("Location: quiz.php?quiz_id=".$id);
+	// 	}
+	// }
 
-	if(isset($_POST['pass_grade'])) {
-		$answer_id = $_POST['answer_id'];
-		$grade = $_POST['grade'];
+	// if(isset($_POST['pass_grade'])) {
+	// 	$answer_id = $_POST['answer_id'];
+	// 	$grade = $_POST['grade'];
 
-		$submit_grade = $dbconn->query("UPDATE answer_assignment set grade = '$grade' where id = '$answer_id' ");
-	}
+	// 	$submit_grade = $dbconn->query("UPDATE answer_quiz set grade = '$grade' where id = '$answer_id' ");
+	// }
 ?>
 
 <!DOCTYPE html>
@@ -88,7 +76,7 @@
 	<!-- The above 4 meta tags *Must* come first in the head; any other head content must come *after* these tags -->
 
 	<!-- Title -->
-	<title>Online Classroom | Assignment</title>
+	<title>Online Classroom | Quiz</title>
 
 	<!-- Favicon -->
 	<link rel="icon" href="img/core-img/favicon.ico">
@@ -122,11 +110,25 @@
 		#all_answer_div {
 			display: none;
 		}
+
+		#quizDiv {
+			display: none;
+		}
 	</style>
 
 	<script type="text/javascript">
 		function show_hide() {
 			var x = document.getElementById("all_answer_div");
+			if (x.style.display === "block") {
+				x.style.display = "none";
+			} else {
+				x.style.display = "block";
+				x.scrollIntoView();
+			} 
+		}
+
+		function show_hide_quiz() {
+			var x = document.getElementById("quizDiv");
 			if (x.style.display === "block") {
 				x.style.display = "none";
 			} else {
@@ -205,17 +207,6 @@
 	</header>
 	<!-- ##### Header Area End ##### -->
 
-	<!-- ##### Breadcumb Area Start ##### -->
-	<!-- <div class="breadcumb-area">
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="teacher_home.php">Home</a></li>
-				<li class="breadcrumb-item"><a href="teacher_course.php">Courses</a></li>
-			</ol>
-		</nav>
-	</div> -->
-	<!-- ##### Breadcumb Area End ##### -->
-
 	<!-- ##### Single Course Intro Start ##### -->
    <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
 		<div class="container h-100">
@@ -241,48 +232,106 @@
 					?>
 				</div>
 				<div class="col-12 col-lg-12 border rounded">
-					<div id="clonedDiv">
-					</div>
+					<!-- <div id="clonedDiv">
+					</div> -->
 					<div style="padding: 20px 12px 50px 12px;">
-					<!-- <?php echo $id; ?> -->
-						<h5><?php echo $assignment_title;?></h5>
+						<h5><?php echo $quiz_title;?></h5>
 						<br>
-						<h6><?php echo $assignment_instruction;?></h6>
 						<h6>Total Points: <?php echo $score ?></h6>
-						<br>
-						<h6>File:
-							<?php
-								if ($isFileEmpty == false) {
-									echo $fileName;
-									echo "&nbsp&nbsp";
-									?> 
-									<a href='uploads/<?php echo $fileName ?>'>(<i class='fa fa-download'></i> Download)</a>
-									<?php
-								} else {
-									echo "No Uploaded File";
-								}
-							?>
-						</h6>
-						<br>
 						<h6>Deadline: <?php echo $combinedtime ?></h6>
 						<br>
-						<p><?php 
-							$xdate = new DateTime($date_posted);
-							// $x = DateTime::createFromFromat('M d, Y', $xdate);
-							$y = date_format($xdate, 'M d, Y - h:i A');
-							echo $y;
-						?></p>
-											
+						<p>
+							<?php 
+								$xdate = new DateTime($date_posted);
+								// $x = DateTime::createFromFromat('M d, Y', $xdate);
+								$y = date_format($xdate, 'M d, Y - h:i A');
+								echo $y;
+							?>
+						</p>
+
+						<div id="quizDiv" style="margin-top: 20px; margin-bottom: 30px">
+							<?php
+								$getIdentification = $dbconn->query("SELECT * from identification_quiz where quiz_id = '$id' ");
+								$getIdenSize = mysqli_num_rows($getIdentification);
+								$getMultipleChoice = $dbconn->query("SELECT * from multiplechoice_quiz where quiz_id = '$id' ");
+								$getMulChoSize = mysqli_num_rows($getMultipleChoice);
+								$getMultipleAnswer = $dbconn->query("SELECT * from multipleanswer_quiz where quiz_id = '$id' ");
+								$getMulAnsSize = mysqli_num_rows($getMultipleAnswer);
+								$getEssay = $dbconn->query("SELECT * from essay_quiz where quiz_id = '$id' ");
+								$getEssaySize = mysqli_num_rows($getEssay);
+
+								if ($getIdenSize != 0) {
+									echo "<h5>Identification</h5>";
+									for ($i=1; $i<=$getIdenSize; $i++) {
+										$getIden = $dbconn->query("SELECT * from identification_quiz where quiz_id = '$id' and question_number = '$i' ");
+										$iden = mysqli_fetch_array($getIden);
+										echo "<h6 style='font-weight: bold; margin-bottom: 0; margin-left: 20px;'>".$i.". ".$iden['question']." (".$iden['grade']."pts)</h6>";
+										echo "<p style='font-style: italic; margin-left: 40px; margin-bottom: 2px'>Answer: ".$iden['answer']."</p>";
+									} 
+								}
+
+								if ($getMulChoSize != 0) {
+									echo "<h5>Multiple Choice</h5>";
+									for ($i=1; $i<=$getMulChoSize; $i++) {
+										$getMC = $dbconn->query("SELECT * from multiplechoice_quiz where quiz_id = '$id' and question_number = '$i' ");
+										$mc = mysqli_fetch_array($getMC);
+										echo "<h6 style='font-weight: bold; margin-bottom: 0; margin-left: 20px;'>".$i.". ".$mc['question']." (".$mc['grade']."pts)</h6>";
+
+										$getMCchoices = $dbconn->query("SELECT * from multiplechoice_choices where quiz_id = '$id' and question_number = '$i' ");
+										echo "<div style='margin-left: 20px'>";
+										while ($choice = mysqli_fetch_array($getMCchoices)) {
+											echo "<input style='margin-left: 30px;' type='radio' name=".$i." value=".$choice['option'].">&nbsp;".$choice['option'];
+										}
+										echo "</div>";
+										echo "<p style='font-style: italic; margin-left: 40px; margin-bottom: 2px'>Answer: ".$mc['answer']."</p>";
+									} 	
+								}
+
+								if ($getMulAnsSize != 0) {
+									echo "<h5>Multiple Answers</h5>";
+									for ($i=1; $i<=$getMulAnsSize; $i++) {
+										$getMA = $dbconn->query("SELECT * from multipleanswer_quiz where quiz_id = '$id' and question_number = '$i' ");
+										$ma = mysqli_fetch_array($getMA);
+										echo "<h6 style='font-weight: bold; margin-bottom: 0; margin-left: 20px;'>".$i.". ".$ma['question']." (".$ma['grade']."pts)</h6>";
+
+										$getMAchoices = $dbconn->query("SELECT * from multipleanswer_choices where quiz_id = '$id' and question_number = '$i' ");
+										echo "<div style='margin-left: 20px'>";
+										while ($choice = mysqli_fetch_array($getMAchoices)) {
+											echo "<input style='margin-left: 30px;' type='checkbox' name=".$i." value=".$choice['option'].">&nbsp;".$choice['option'];
+										}
+										echo "</div>";
+										
+										$getMAanswers = $dbconn->query("SELECT * from multipleanswer_answers where quiz_id = '$id' and question_number = '$i' ");
+										echo "<div style='margin-left: 20px'>";
+										echo "<p style='font-style: italic; margin-left: 20px; margin-bottom: 2px; display: inline'>Answer/s: </p>";
+										while ($answer = mysqli_fetch_array($getMAanswers)) {
+											echo "<p style='font-style: italic; display: inline'>".$answer['answer'].",&nbsp&nbsp;</p>";
+										}
+										echo "</div>";
+									} 	
+								}
+
+								if ($getEssaySize != 0) {
+									echo "<h5>Essay</h5>";
+									for ($i=1; $i<=$getEssaySize; $i++) {
+										$getEssay = $dbconn->query("SELECT * from essay_quiz where quiz_id = '$id' and question_number = '$i' ");
+										$essay = mysqli_fetch_array($getEssay);
+										echo "<h6 style='font-weight: bold; margin-bottom: 0; margin-left: 20px;'>".$i.". ".$essay['question']." (".$essay['grade']."pts)</h6>";
+									} 
+								}
+							?>
+						</div>
+
+						<button class="btn btn-primary" onclick="show_hide_quiz()">Preview Quiz</button>
 						<button class="btn btn-success" onclick="show_hide()">View All Answers</button>
-						<button class="btn btn-info" data-toggle="modal" data-target="#update-assignment-modal">Update</button>
 						<button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
 
 						<script>
 							function deleteFunction(id) {
-								var del = confirm("Do you really want to delete this assignment?");
+								var del = confirm("Do you really want to delete this quiz?");
 
 								if (del == true) {
-									document.location.href = 'assignment_delete.php?id='+id;
+									document.location.href = 'quiz_delete.php?id='+id;
 								}
 							}
 						</script>
@@ -296,7 +345,7 @@
 				<br><br>
 				<div class="col-12 col-lg-12">
 					<?php
-					$get_student_id = $dbconn->query("SELECT * from enrolls INNER JOIN answer_assignment where enrolls.subject_id = '$subject_id' and answer_assignment.assignment_id = '$id' and enrolls.student_id = answer_assignment.student_id ");
+					$get_student_id = $dbconn->query("SELECT * from enrolls INNER JOIN answer_quiz where enrolls.subject_id = '$subject_id' and answer_quiz.quiz_id = '$id' and enrolls.student_id = answer_quiz.student_id ");
 					
 					if (mysqli_num_rows($get_student_id) != 0) {
 							$all_enrolled = array();
@@ -328,7 +377,7 @@
 								$fname = $srow['first_name'];
 								$student_id = $srow['student_id'];
 
-								$get_answer_query = $dbconn->query("SELECT * from answer_assignment where student_id = '$student_id' and assignment_id = '$id' ");
+								$get_answer_query = $dbconn->query("SELECT * from answer_quiz where student_id = '$student_id' and quiz_id = '$id' ");
 
 								$hasFile = false;
 								$grade = 0;
@@ -348,7 +397,7 @@
 										$hasFile = true;
 									}
 
-									if ($grade != -1) {
+									if ($grade != NULL) {
 										$graded = $graded + 1;
 									}
 								}
@@ -369,12 +418,9 @@
 												echo "No uploaded file";
 											}
 											echo "<br><br>";
-											if ($grade == -1) {
-												$grade = "No Grade Yet";
-											}
 											echo "<b>Grade: ".$grade."</b>";
 
-											echo "<br>";
+											echo "<br><br>";
 											if (strtotime($answer_posted) > strtotime("$deadline_date $deadline_time")) {
 												$doneLate++;
 												echo "<strong class='text-danger'>Done Late.</strong>";
@@ -385,7 +431,7 @@
 											<form method="post">
 												<input name="answer_id" value="<?php echo $answer_id; ?>" hidden>
 												<div class="input-group mb-3">
-				  									<input type="number" class="form-control" name="grade" placeholder="Input Grade"value="<?php echo $grade; ?>" min="0" max="<?php echo $score;?>">
+				  									<input type="number" class="form-control" name="grade" placeholder="Input Grade"value="<?php echo $grade; ?>" max="<?php echo $score;?>">
 				  									<div class="input-group-append">
 				  										<span>&nbsp;</span>
 				    									<button class="btn btn-success" name="pass_grade"><i class='fa fa-check'></i></button>
@@ -405,7 +451,7 @@
 				?>
 				</div>
 			</div>
-			<div id="wrapper" style="margin-top: -50px ">
+			<div id="wrapper">
 				<div style="border-right: 2pt dashed;">
 					<b>
 					<?php
@@ -414,7 +460,7 @@
 					?>
 					</b>
 					<br>
-					<i>Remaining</i>
+					<i>Assigned</i>
 				</div>
 				<div style="border-right: 2pt dashed;">
 					<b>
@@ -446,63 +492,6 @@
 					<b><?php echo $graded; ?></b>
 					<br>
 					<i>Graded</i>
-				</div>
-			</div>
-		</div>
-	</div>
-
-
-	<!-- Update assignment Modal -->
-	<div id="update-assignment-modal" class="modal fade" role="dialog">
-		<div class="modal-dialog" style="max-width: 80% !important;">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title pull-left">Update assignment</h4>
-				</div>
-				<div class="modal-body">
-					<form method="POST" action="assignment.php?assignment_id=<?php echo $id?>" enctype="multipart/form-data">
-						<div class="offset-md-2 col-8 input-group">
-							<div class="input-group-prepend">
-								<div class="input-group-text">Title:</div>
-								<textarea data-autoresize rows="1" cols="80" class="form-control expand_this" id="new_title" name="new_title"><?php echo $assignment_title ?></textarea>
-							</div>
-						</div>
-
-						<br>
-
-						<div class="offset-md-3 col-6 input-group">
-							<div class="input-group-prepend">
-								<div class="input-group-text">Deadline:</div>
-							</div>
-
-							<?php
-								$month = date('m');
-								$day = date('d');
-								$year = date('Y');
-								$today_date = $year . '-' . $month . '-' . $day;
-							?>
-
-							<input type="date" name="new_ddate" id="new_ddate" value="<?php echo $today_date; ?>" min="2019-01-01" class="form-control">
-							<input type="time" name="new_dtime" id="new_dtime" value="<?php echo date('H:i', time()+3600);?>" class="form-control">
-						</div>
-			
-						<div class="offset-md-3 col-6">
-							<p style="font-style: italic">Deadline time is set on <span style="font-weight: bold;"><?php echo $combinedtime ?></span>.</p>
-						</div>
-						<br><br>
-
-						<div class="form-group offset-md-1 col-10">
-							<label style="font-weight: bold">Instruction:</label>
-							<textarea data-autoresize rows="2" class="form-control expand_this" id="new_instruction" name="new_instruction"><?php echo $assignment_instruction ?></textarea>
-
-							<input type="file" name="sent_file" id="sent_file">
-						</div>
-						<br/>  
-						<div class="pull-right">
-							<button  class="btn btn-primary" name="update_assignment">Update</button>
-							<button  class="btn btn-danger" data-dismiss="modal">Cancel</button> 
-						</div>
-					</form>
 				</div>
 			</div>
 		</div>

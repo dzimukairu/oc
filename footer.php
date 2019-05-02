@@ -1,5 +1,5 @@
 <!-- ##### Footer Area Start ##### -->
-<footer class="footer-area" style="width: 100%; bottom: 0">
+<footer class="footer-area" style="width: 100%; bottom: 0; margin-top: 100px">
 	<!-- Top Footer Area -->
 	<div class="top-footer-area">
 		<div class="container">
@@ -17,7 +17,5 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
 			</div>
 		</div>
 	</div>
-
-	<!-- Bottom Footer Area -->
 </footer>
 <!-- ##### Footer Area End ##### -->

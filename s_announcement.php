@@ -67,8 +67,22 @@
 	<link rel="stylesheet" href="style.css">
 	<link rel="stylesheet" href="css/expand.css">
 	<link rel="stylesheet" href="css/bootstrap-toggle.min.css">
-
 	<script src="js/getdate.js"></script>
+
+	<script>
+		function getComment(announcement_id) {
+			setInterval(function() {
+				xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange = function() {
+					if (this.readyState == 4 && this.status == 200) {
+						document.getElementById("commentDiv").innerHTML = this.responseText;
+					}
+				};
+				xmlhttp.open("GET", "getComment.php?a_id=" + announcement_id, true);
+				xmlhttp.send();
+			}, 1000);
+		}
+	</script>
 
 
 	<!-- https://stephanwagner.me/auto-resizing-textarea -->
@@ -83,7 +97,7 @@
 	</style>
 </head>
 
-<body>
+<body onload="getComment('<?php echo $id;?>')">
 	<!-- Preloader -->
 	<div id="preloader">
 		<div class="spinner"></div>
@@ -192,72 +206,14 @@
 							$y = date_format($xdate, 'M d, Y - h:i A');
 							echo $y;
 						?></p>
-										
-						<!-- <button class="btn btn-info" data-toggle="modal" data-target="#update-announcement-modal">Update</button>
-
-						<button class="btn btn-danger" onclick="deleteFunction(<?php echo $id;?>)">Delete</button>
-
-						<script>
-							function deleteFunction(id) {
-								var del = confirm("Do you really want to delete this announcement?");
-
-								if (del == true) {
-									document.location.href = 'announcement_delete.php?id='+id;
-								}
-							}
-						</script> -->
 					</div>
 				</div>
 
 				<div class="col-12 col-lg-12 border rounded" style="padding-top: 20px; padding-bottom: 20px;" id="announcement_comment" name="announcement_comment">
-					<?php
-						$comment_query= "SELECT * FROM `announcement_comment` WHERE announcement_id = $id  order by date_posted asc";
-						$connect_to_db = mysqli_query($dbconn,$comment_query);
-						$affected = mysqli_num_rows($connect_to_db);
-																									
-						if ($affected != 0) {
-							while ($row = mysqli_fetch_row($connect_to_db)) {
-								$get_uname = $row[2];
-								$content = $row[3];
-								$d_post = $row[4];
-
-								$xdate = new DateTime($d_post);
-								$show_post = date_format($xdate, 'M d, Y - h:i A');
-
-								$student_query = $dbconn->query("SELECT * FROM student WHERE username = '$get_uname'");
-
-								if (mysqli_num_rows($student_query) == 1) {
-									$srow = mysqli_fetch_row($student_query);
-									$first_name = $srow[1];
-									$last_name = $srow[2];
-								} else {
-									$teacher_query = $dbconn->query("SELECT * FROM teacher WHERE username = '$get_uname'");
-
-									$trow = mysqli_fetch_row($teacher_query);
-									$first_name = $trow[1];
-									$last_name = $trow[2];
-								}
-							
-					?>
-						<div>
-							<table class="table table-borderless">
-								<tr>
-									<?php
-										echo "<th style='width: 15%;' rowspan='2'>".$first_name." ".$last_name."</th>";
-										echo "<td style='width: 85%;' colspan='3'>".$content."</td>";
-									?>
-								</tr>
-								<tr>
-									<?php
-										echo "<td style='width: 85%;' colspan='3'><h7>".$show_post."</h7></td>";
-									?>
-								</tr>
-							<?php 
-								}}
-							?>	
-
+					<div>
+							<table class="table table-borderless" id="commentDiv" name="commentDiv">
+								
 							</table>
-							<br>
 							<table class="table table-borderless">
 								<tr>
 									<th style='width: 15%;'><?php echo $s_firstname." ".$s_lastname?></th>

@@ -21,7 +21,8 @@
 					<input name="quiz_name" class="form-control" placeholder="Quiz Name">
 					<div id="quiz_multipleAnswer" class="form-group">
 						<label>
-							<!-- <input id="toggle3" class="on_off" data-toggle="toggle" data-style="ios" data-on="Enable" data-off="Disable" type="checkbox"> -->
+							<input id="toggle3" name="toggle3" class="on_off" data-toggle="toggle" data-style="ios" data-on="Enable" data-off="Disable" type="checkbox">
+							<input type="hidden" id="hidden_toggle" name="hidden_toggle">
 							Multiple Answers
 						</label>
 						<div id="multipleAnswer">
@@ -41,7 +42,7 @@
 
 								</tr>
 							</table>
-							<input type="hidden" id="multipleAnswerTable_length" name="multipleAnswerTable_length" value=0/>
+							<input id="multipleAnswerTable_length" name="multipleAnswerTable_length" value="0"/>
 						</div>
 					</div>
 
@@ -63,5 +64,17 @@
 		<script src="../js/bootstrap-toggle.min.js"></script>
 		<script src="../js/expand.js"></script>
 		<script src="quiz.js"></script>
+		<script>
+			$('#toggle3').change(function() {
+				if($(this).prop('checked')) {
+					$('#hidden_toggle').val('enable');
+					// console.log(1);
+				} else {
+					$('#hidden_toggle').val('disable');
+					// console.log(2);
+				}
+				console.log($('#hidden_toggle').val());
+			});
+		</script>
 	</body>
 </html>

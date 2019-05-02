@@ -13,6 +13,7 @@
 	$get_student = $dbconn->query("SELECT * from student where username = '$username';");
 	$srow = mysqli_fetch_array($get_student);
 
+	$student_id = $srow['student_id'];
 	$s_username = $srow['username'];
 	$s_firstname = $srow['first_name'];
 	$s_lastname = $srow['last_name'];
@@ -191,7 +192,7 @@
 										<td><?php echo $t_firstname." ".$t_lastname; ?></td>
 										<td>
 											<?php 
-												$get_status = $dbconn->query("SELECT * from enrolls where subject_id = $subject_id ");
+												$get_status = $dbconn->query("SELECT * from enrolls where subject_id = $subject_id and student_id = '$student_id' ");
 												$hasEnrolled = false;
 												if (mysqli_num_rows($get_status) != 0) {
 													$sta = mysqli_fetch_array($get_status);

@@ -1,8 +1,8 @@
 window.onload = function() {
-	// $(".on_off").bootstrapToggle('off');
+	$(".on_off").bootstrapToggle('off');
 	// var toggle1 = document.getElementById("toggle1");
 	// var toggle2 = document.getElementById("toggle2");
-	// var toggle3 = document.getElementById("toggle3");
+	var toggle3 = document.getElementById("toggle3");
 	// var toggle4 = document.getElementById("toggle4");
 	// toggle1.onchange = getIdentification;
 	// toggle2.onchange = getMultipleChoice;

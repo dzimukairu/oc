@@ -246,15 +246,25 @@
 										}
 										echo "<td style='width: 180px'><b>Total Grades (".$totalscore.")</b></td>";
 									} else {
-										echo "<td><i>No assignment/s found.</i></td>";
+										echo "<td colspan='2'><i>No assignment/s found.</i></td>";
 									}
 
+									$q_totalscore = 0;
+									$q_allscore = array();
+									foreach ($all_quiz_id as $quiz_id) {
+										$getQuiz = $dbconn->query("SELECT * from quiz where quiz_id = '$quiz_id' ");
+										$quiz = mysqli_fetch_array($getQuiz);
+										$xscore = $quiz['total_grade'];
+										$q_allscore[] = $xscore;
+										$q_totalscore = $q_totalscore + $xscore;
+									}
 									if ($quiz_count != 0) {
 										for($x = 0; $x < $quiz_count; $x++) {
-											echo "<td><b>".($x+1)."</b></td>";
+											echo "<td style='vertical-align: middle'><a href='quiz.php?quiz_id=$all_quiz_id[$x]'><b class='text-success'>".($x+1)."  (".$q_allscore[$x].")</b></a></td>";
 										}
+										echo "<td style='width: 180px'><b>Total Grades (".$q_totalscore.")</b></td>";
 									} else {
-										echo "<td><i>No quiz/es found.</i></td>";
+										echo "<td colspan='2'><i>No quiz/es found.</i></td>";
 									}
 									echo "</tr>";
 
@@ -275,16 +285,64 @@
 												$hasAns = true;
 												$ansrow = mysqli_fetch_array($get_ans);
 												$grade = $ansrow['grade'];
+
+												$graded = true;
+												if ($grade == -1) {
+													$grade = 0;
+													$graded = false;
+												}
 												$totalgrade = $totalgrade + $grade;
 											}
 
 											if ($hasAns) {
-												echo "<td style='text-align: center'><b>".$grade."<b></td>";
+												if($graded) {
+													echo "<td style='text-align: center'><b>".$grade."<b></td>";
+												} else {
+													echo "<td style='text-align: center'><b>-</b></td>";
+												}
 											} else {
 												echo "<td style='text-align: center'><b>-</b></td>";
 											}
 										}
-										echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
+										
+										if ($assignment_count != 0) {
+											echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
+										} else {
+											echo "<td style='text-align: center' colspan='2'><b>X</b></td>";
+										}
+
+										foreach ($all_quiz_id as $key) {
+											$get_ans = $dbconn->query("SELECT * from answer_assignment where assignment_id = '$key' and student_id = '$sid' ");
+											$hasAns = false;
+											$grade = 0;
+											if (mysqli_num_rows($get_ans) != 0) {
+												$hasAns = true;
+												$ansrow = mysqli_fetch_array($get_ans);
+												$grade = $ansrow['grade'];
+
+												$graded = true;
+												if ($grade == -1) {
+													$graded = false;
+													$grade = 0;
+												}
+												$totalgrade = $totalgrade + $grade;
+											}
+
+											if ($hasAns) {
+												if($graded) {
+													echo "<td style='text-align: center'><b>".$grade."<b></td>";
+												} else {
+													echo "<td style='text-align: center'><b>-</b></td>";
+												}
+											} else {
+												echo "<td style='text-align: center'><b>-</b></td>";
+											}
+										}
+										if ($quiz_count != 0) {
+											echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
+										} else {
+											echo "<td style='text-align: center' colspan='2'><b>X</b></td>";
+										}
 										echo "</tr>";
 									}
 								?>

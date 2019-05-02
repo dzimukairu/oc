@@ -46,7 +46,7 @@
 
 							while ($choice = mysqli_fetch_array($getChoices)) {
 								$n = $choice['choice'];
-								echo "<input type='checkbox' name=".$n." value=".$n.">  ".$n;
+								echo "<input type='checkbox' name=".$n." value=".$n.">".$i."  ".$n;
 								echo "<br>";
 							}
 							echo "</div>";
@@ -85,7 +85,7 @@
 
 							while ($choice = mysqli_fetch_array($getChoices)) {
 								$n = $choice['choice'];
-								echo "<input type='radio' name=".$i." value=".$n.">  ".$n;
+								echo "<input type='radio' name=".$i." value=".$n.">".$i."  ".$n;
 								echo "<br>";
 							}
 							echo "</div>";

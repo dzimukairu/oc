@@ -20,18 +20,25 @@
 		$choice = $_POST['multipleAnswer_choices'];
 		$answer = $_POST['multipleAnswer_answer'];
 		$MAlength = $_POST['multipleAnswerTable_length'];
+		$toggle = $_POST['hidden_toggle'];
+		echo $toggle;
 
 		echo "Quiz Name: ".$quizName;
 		echo "<br>";
 		echo "Quiz Id: ".$quiz_id;
 		echo "<br><br>";
 
-		$count = 1;
-		foreach($question as $key => $n ) {
-			$inserQuestion = $dbconn->query("INSERT into question(quiz_id, question_id, question) values('$quiz_id', '$count', '$n') ");
-			echo $n;
-			echo "<br>";
-			$count++;
+		if($MAlength > 0) {
+			echo 123;
+			$count = 1;
+			foreach($question as $key => $n ) {
+				$inserQuestion = $dbconn->query("INSERT into question(quiz_id, question_id, question) values('$quiz_id', '$count', '$n') ");
+				echo $n;
+				echo "<br>";
+				$count++;
+			}
+		} else {
+			echo "NO QUESTIONS";
 		}
 
 		echo "<br>";
@@ -64,7 +71,7 @@
 			echo "<br>";
 		}
 
-		header("Location: showQuiz.php?quiz_id=".$quiz_id);
+		// header("Location: showQuiz.php?quiz_id=".$quiz_id);
 
 	}
 

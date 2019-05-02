@@ -140,32 +140,6 @@
 	</header>
 	<!-- ##### Header Area End ##### -->
 
-	<!-- ##### Breadcumb Area Start ##### -->
-	<!-- <div class="breadcumb-area">
-		<nav aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="student_home.php">Home</a></li>
-				<li class="breadcrumb-item"><a href="student_course.php">Course</a></li>
-				<li class="breadcrumb-item"><a href="student_quiz.php">Quizzes</a></li>
-			</ol>
-		</nav>
-	</div> -->
-	<!-- ##### Breadcumb Area End ##### -->
-
-	<!-- ##### Single Course Intro Start ##### -->
-	<!-- <section class="hero-area bg-img bg-overlay-2by5" style="background-image: url(img/bg-img/bg1.jpg);">
-		<div class="container h-100">
-			<div class="row h-100 align-items-center">
-				<div class="col-12">
-					<div class="hero-content text-center">
-						<h2><?php echo $course_description;?></h2>
-						<h3><?php echo $course_title;?></h3>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section> -->
-
 	<div class="student-quiz-content">
 		<div class="container">
 			<div class="row">
@@ -189,8 +163,8 @@
 					if ($assignment_count > 1) {
 						$ass_colspan = $assignment_count+1;
 					}
-					echo "assignment_count: ".$assignment_count;
-					echo "<br>";
+					// echo "assignment_count: ".$assignment_count;
+					// echo "<br>";
 
 
 					// GET ALL QUIZ
@@ -205,7 +179,7 @@
 					if ($quiz_count > 1) {
 						$quiz_colspan = $quiz_count+1;
 					}
-					echo "quiz_count: ".$quiz_count;
+					// echo "quiz_count: ".$quiz_count;
 			?>
 
 			<div class="row">
@@ -234,15 +208,25 @@
 								}
 								echo "<td style='width: 140px'><b>Grades (".$totalscore.")</b></td>";
 							} else {
-								echo "<td><i>No assignment/s found.</i></td>";
+								echo "<td colspan='2'><i>No assignment/s found.</i></td>";
 							}
 
+							$q_totalscore = 0;
+							$q_allscore = array();
+							foreach ($all_quiz_id as $quiz_id) {
+								$getQuiz = $dbconn->query("SELECT * from quiz where quiz_id = '$quiz_id' ");
+								$quiz = mysqli_fetch_array($getQuiz);
+								$xscore = $quiz['total_grade'];
+								$q_allscore[] = $xscore;
+								$q_totalscore = $q_totalscore + $xscore;
+							}
 							if ($quiz_count != 0) {
 								for($x = 0; $x < $quiz_count; $x++) {
-									echo "<td><b>".($x+1)."</b></td>";
+									echo "<td style='vertical-align: middle'><a href='quiz.php?quiz_id=$all_quiz_id[$x]'><b class='text-success'>".($x+1)."  (".$q_allscore[$x].")</b></a></td>";
 								}
+								echo "<td style='width: 180px'><b>Total Grades (".$q_totalscore.")</b></td>";
 							} else {
-								echo "<td><i>No quiz/es found.</i></td>";
+								echo "<td colspan='2'><i>No quiz/es found.</i></td>";
 							}
 							echo "</tr>";
 
@@ -256,16 +240,66 @@
 									$hasAns = true;
 									$ansrow = mysqli_fetch_array($get_ans);
 									$grade = $ansrow['grade'];
+
+									$graded = true;
+									if ($grade == -1) {
+										$grade = 0;
+										$graded = false;
+									}
 									$totalgrade = $totalgrade + $grade;
 								}
 
 								if ($hasAns) {
-									echo "<td style='text-align: center'><b>".$grade."<b></td>";
+									if($graded) {
+										echo "<td style='text-align: center'><b>".$grade."<b></td>";
+									} else {
+										echo "<td style='text-align: center'><b>-</b></td>";
+									}
 								} else {
 									echo "<td style='text-align: center'><b>-</b></td>";
 								}
 							}
-							echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
+										
+							if ($assignment_count != 0) {
+								echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
+							} else {
+								echo "<td style='text-align: center' colspan='2'><b>X</b></td>";
+							}
+							
+							$totalgrade = 0;
+							foreach ($all_quiz_id as $key) {
+								$get_ans = $dbconn->query("SELECT * from answer_assignment where assignment_id = '$key' and student_id = '$s_id' ");
+								$hasAns = false;
+								$grade = 0;
+								if (mysqli_num_rows($get_ans) != 0) {
+									$hasAns = true;
+									$ansrow = mysqli_fetch_array($get_ans);
+									$grade = $ansrow['grade'];
+
+									$graded = true;
+									if ($grade == -1) {
+										$grade = 0;
+										$graded = false;
+									}
+									$totalgrade = $totalgrade + $grade;
+								}
+
+								if ($hasAns) {
+									if($graded) {
+										echo "<td style='text-align: center'><b>".$grade."<b></td>";
+									} else {
+										echo "<td style='text-align: center'><b>-</b></td>";
+									}
+								} else {
+									echo "<td style='text-align: center'><b>-</b></td>";
+								}
+							}
+
+							if ($quiz_count != 0) {
+								echo "<td style='text-align: center'><b>".$totalgrade."</b></td>";
+							} else {
+								echo "<td style='text-align: center' colspan='2'><b>X</b></td>";
+							}
 							echo "</tr>";
 						?>
 					</table>
